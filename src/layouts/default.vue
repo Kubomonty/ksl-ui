@@ -5,7 +5,7 @@
       density="compact"
     >
       <v-app-bar-nav-icon variant="text" @click.stop="onNavBarIconClick" />
-      <v-toolbar-title>{{ `Fénixove vajcia` }}</v-toolbar-title>
+      <v-toolbar-title>{{ `Fénix DC` }}</v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer
