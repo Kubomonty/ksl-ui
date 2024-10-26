@@ -1,8 +1,9 @@
 <!-- eslint-disable vue/no-v-text-v-html-on-component -->
 <template>
-  <v-card border flat>
-    <v-form class="mt-4" @submit.prevent="handleSubmit">
-      <v-container>
+  <v-card flat>
+    <v-card-title class="mt-3">{{ $t('new-match') }}</v-card-title>
+    <v-card-text>
+      <v-form class="mt-4" @submit.prevent="handleSubmit">
         <v-text-field
           v-model="newMatch.matchLocation"
           density="compact"
@@ -86,8 +87,8 @@
             type="submit"
           >{{ $t('create-match') }}</v-btn>
         </v-row>
-      </v-container>
-    </v-form>
+      </v-form>
+    </v-card-text>
     <v-dialog v-model="dialog" persistent>
       <v-card>
         <v-card-title>{{ $t('warning') }}</v-card-title>

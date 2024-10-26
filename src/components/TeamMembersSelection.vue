@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <div class="ma-3">
     <v-row class="mb-1 mt-n2">
       <v-select
         ref="teamCaptainSelectRef"
@@ -138,7 +138,7 @@
         variant="outlined"
       />
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script setup lang="ts">

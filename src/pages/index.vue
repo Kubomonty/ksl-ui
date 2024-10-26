@@ -5,7 +5,7 @@
         <v-card>
           <v-card-title>Matches</v-card-title>
           <v-card-text>
-            <v-simple-table>
+            <v-table>
               <thead>
                 <tr>
                   <th>Location and Date</th>
@@ -20,7 +20,7 @@
                   <td>{{ match.guestTeam }}</td>
                 </tr>
               </tbody>
-            </v-simple-table>
+            </v-table>
           </v-card-text>
         </v-card>
       </v-col>
