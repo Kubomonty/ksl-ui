@@ -1,7 +1,7 @@
 <template>
   <v-card border flat>
     <v-container>
-      <v-card-title>{{ `${ homeTeam!.name} vs. ${guestTeam!.name}`}}</v-card-title>
+      <v-card-title>{{ `${ homeTeam!.teamName} vs. ${guestTeam!.teamName}` }}</v-card-title>
       <v-card-subtitle>{{ `${newMatch.matchLocation} - ${formattedMatchDateTime}` }}</v-card-subtitle>
       <v-card-text>
         <v-table density="compact">
@@ -11,7 +11,7 @@
                 {{ $t('home-team') }}
               </th>
               <th class="text-left">
-                {{ homeTeam!.name }}
+                {{ homeTeam!.teamName }}
               </th>
             </tr>
           </thead>
@@ -31,7 +31,7 @@
                 {{ $t('guest-team') }}
               </th>
               <th class="text-left">
-                {{ guestTeam!.name }}
+                {{ guestTeam!.teamName }}
               </th>
             </tr>
           </thead>
