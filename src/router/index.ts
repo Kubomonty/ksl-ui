@@ -8,6 +8,13 @@
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
+import { useAuthStore } from '../stores/auth.store'
+
+const protectedRoutes = [
+  '/my-team',
+  '/new-match',
+  '/new-match-confirm',
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,6 +38,15 @@ router.onError((err, to) => {
 
 router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload')
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  if (protectedRoutes.includes(to.path) && !authStore.isAuthenticated) {
+    next({ path: '/' })
+  } else {
+    next()
+  }
 })
 
 export default router
