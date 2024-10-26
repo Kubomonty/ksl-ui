@@ -18,7 +18,7 @@ export const useTeamStore = defineStore('team-store', {
         })
         return response.data
       } catch (error) {
-        console.log('Error creating team:', error)
+        console.error('Error creating team:', error)
 
         return null
       }

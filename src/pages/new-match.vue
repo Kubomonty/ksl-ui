@@ -33,7 +33,7 @@
           v-model="newMatch.homeTeam"
           clearable
           density="compact"
-          item-title="name"
+          item-title="teamName"
           item-value="id"
           :items="homeTeams"
           :label="$t('home-team')"
@@ -60,7 +60,7 @@
           v-model="newMatch.guestTeam"
           clearable
           density="compact"
-          item-title="name"
+          item-title="teamName"
           item-value="id"
           :items="guestTeams"
           :label="$t('guest-team')"

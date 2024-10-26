@@ -132,7 +132,6 @@
     snackbarTimeout.value = -1
     snackbar.value = true
     const isUnique = await isTeamUsernameUnique(username.value)
-    console.log('isUnique', isUnique)
     if (!isUnique) {
       snackbarText.value = i18n.t('username-not-unique').toString()
       snackbarColor.value = 'warning'
@@ -142,7 +141,6 @@
       dialog.value = false
       return
     }
-    console.log('create team')
     const createResult = await createTeam({
       teamName: teamName.value,
       teamEmail: teamEmail.value,

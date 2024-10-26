@@ -78,7 +78,6 @@
 <script setup lang="ts">
   import axios from 'axios'
   import { ref } from 'vue'
-  import { useAuthStore } from '../stores'
   import { useI18n } from 'vue-i18n'
   import { useRoute } from 'vue-router'
 
@@ -86,8 +85,6 @@
   const token = route.query.token as string
 
   const i18n = useI18n()
-
-  const authStore = useAuthStore()
 
   const password = ref('')
   const passwordCheck = ref('')
