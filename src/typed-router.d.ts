@@ -19,12 +19,14 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
+    '/admin-section': RouteRecordInfo<'/admin-section', '/admin-section', Record<never, never>, Record<never, never>>,
     '/all-teams': RouteRecordInfo<'/all-teams', '/all-teams', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
-    '/my-team': RouteRecordInfo<'/my-team', '/my-team', Record<never, never>, Record<never, never>>,
+    '/new-admin': RouteRecordInfo<'/new-admin', '/new-admin', Record<never, never>, Record<never, never>>,
     '/new-match': RouteRecordInfo<'/new-match', '/new-match', Record<never, never>, Record<never, never>>,
     '/new-match-confirm': RouteRecordInfo<'/new-match-confirm', '/new-match-confirm', Record<never, never>, Record<never, never>>,
     '/new-team': RouteRecordInfo<'/new-team', '/new-team', Record<never, never>, Record<never, never>>,
     '/reset-password': RouteRecordInfo<'/reset-password', '/reset-password', Record<never, never>, Record<never, never>>,
+    '/team-section': RouteRecordInfo<'/team-section', '/team-section', Record<never, never>, Record<never, never>>,
   }
 }

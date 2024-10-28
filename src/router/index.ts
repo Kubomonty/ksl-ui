@@ -10,10 +10,17 @@ import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
 import { useAuthStore } from '../stores/auth.store'
 
-const protectedRoutes = [
-  '/my-team',
+const adminOnlyRoutes: string[] = [
+  '/admin-section',
+]
+
+const userOwnRoutes: string[] = [
+]
+
+const loggedInRoutes: string[] = [
   '/new-match',
   '/new-match-confirm',
+  '/team-section',
 ]
 
 const router = createRouter({
@@ -42,7 +49,14 @@ router.isReady().then(() => {
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  if (protectedRoutes.includes(to.path) && !authStore.isAuthenticated) {
+  if (adminOnlyRoutes.includes(to.path) && !authStore.isAdmin) {
+    next({ path: '/' })
+  } else if ((userOwnRoutes.includes(to.path) && authStore.isAdmin) ||
+    (userOwnRoutes.includes(to.path) && !authStore.isUser) ||
+    (userOwnRoutes.includes(to.path) && authStore.isUser && to.query.id !== authStore.loggedInUser?.id)
+  ) {
+    next({ path: '/' })
+  } else if (loggedInRoutes.includes(to.path) && !authStore.isLoggedIn) {
     next({ path: '/' })
   } else {
     next()
