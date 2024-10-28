@@ -2,7 +2,6 @@ import { useAuthStore, useMatchStore } from '../stores'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_KSL_API_URL
-console.log('API_URL:', API_URL)
 
 const authStore = useAuthStore()
 const { setToken, logInUser, clearToken, clearLoggedInUser } = authStore
