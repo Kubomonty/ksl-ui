@@ -7,8 +7,12 @@
     >
       <v-app-bar-nav-icon variant="text" @click.stop="onNavBarIconClick" />
       <v-toolbar-title
-        v-if="isAuthenticated"
-      >{{ `Fénix DC` }}
+        v-if="isLoggedIn"
+      >{{ loggedInUser?.teamName || `${loggedInUser?.username} - ${loggedInUser?.userEmail}` }}
+      </v-toolbar-title>
+      <v-toolbar-title
+        v-else
+      >{{ $t('k-s-l') }}
       </v-toolbar-title>
     </v-app-bar>
 
@@ -32,7 +36,7 @@
       <v-divider />
       <div class="pa-2">
         <v-btn
-          v-if="isAuthenticated"
+          v-if="isLoggedIn"
           block
           class="mt-3"
           color="primary"
@@ -61,6 +65,7 @@
 <script lang="ts" setup>
   import { computed, Ref, ref } from 'vue'
   import { useAuthStore, useMatchStore } from '../stores'
+  import { logout } from '../api/auth'
   import { storeToRefs } from 'pinia'
   import { useDisplay } from 'vuetify'
   import { useI18n } from 'vue-i18n'
@@ -70,8 +75,7 @@
   const router = useRouter()
 
   const authStore = useAuthStore()
-  const { clearToken } = authStore
-  const { isAuthenticated } = storeToRefs(authStore)
+  const { isAdmin, isLoggedIn, isUser, loggedInUser } = storeToRefs(authStore)
 
   const matchStore = useMatchStore()
   const { resetNewMatch } = matchStore
@@ -83,31 +87,43 @@
   const { mobile } = useDisplay()
   const isMobile: ComputedRef<boolean> = computed(() => mobile.value)
   const items: ComputedRef<{ title: string, to: string, action?: () => void}[]> = computed(() => {
-    return isAuthenticated.value ? [
-      { title: i18n.t('home'), to: '/' },
-      { title: i18n.t('all-teams'), to: '/all-teams' },
-      { title: i18n.t('new-match'), to: '/new-match' },
-      { title: i18n.t('my-team'), to: '/my-team' },
-    ] : [
-      { title: i18n.t('home'), to: '/' },
-      { title: i18n.t('all-teams'), to: '/all-teams' },
-    ]
+    if (isAdmin.value) {
+      return [
+        { title: i18n.t('home'), to: '/' },
+        { title: i18n.t('all-teams'), to: '/all-teams' },
+        { title: i18n.t('new-match'), to: '/new-match' },
+        { title: i18n.t('admin-section'), to: '/admin-section' },
+        { title: 'team section', to: '/team-section?id=e3636383-1822-410b-98d8-3ccd413e78dc' },
+      ]
+    } else if (isUser.value) {
+      return [
+        { title: i18n.t('home'), to: '/' },
+        { title: i18n.t('all-teams'), to: '/all-teams' },
+        { title: i18n.t('new-match'), to: '/new-match' },
+        { title: i18n.t('my-team'), to: `/team-section?id=${loggedInUser?.value?.id}` },
+      ]
+    } else {
+      return [
+        { title: i18n.t('home'), to: '/' },
+        { title: i18n.t('all-teams'), to: '/all-teams' },
+      ]
+    }
   })
 
   const handleLogin = (): void => {
-    resetNewMatch()
     router.push('/login')
   }
 
   const handleLogout = (): void => {
-    clearToken()
-    resetNewMatch()
+    logout()
     router.push('/')
   }
 
   const onListItemClick = (to: string) => {
     if (to !== '/new-match') {
       resetNewMatch()
+    } else {
+      router.push(to)
     }
   }
 </script>

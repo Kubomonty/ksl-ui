@@ -51,14 +51,11 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import { login } from '../api/auth'
-  import { useAuthStore } from '../stores'
   import { useI18n } from 'vue-i18n'
   import { useRouter } from 'vue-router'
 
   const i18n = useI18n()
   const router = useRouter()
-
-  const authStore = useAuthStore()
 
   const username = ref('')
   const password = ref('')
@@ -80,8 +77,7 @@
     snackbarTimeout.value = -1
     snackbar.value = true
     try {
-      const data = await login(username.value, password.value)
-      authStore.setToken(data.token)
+      await login(username.value, password.value)
       performingLogin.value = false
       snackbar.value = false
       snackbarColor.value = 'success'
