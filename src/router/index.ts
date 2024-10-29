@@ -20,6 +20,7 @@ const userOwnRoutes: string[] = [
 const loggedInRoutes: string[] = [
   '/new-match',
   '/new-match-confirm',
+  '/new-team',
   '/team-section',
 ]
 
