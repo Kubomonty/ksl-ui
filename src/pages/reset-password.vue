@@ -40,7 +40,7 @@
     <v-dialog v-model="dialog" persistent>
       <v-card>
         <v-card-title>{{ $t('warning') }}</v-card-title>
-        <v-card-text>{{ $t('new-team-creation-info') }}</v-card-text>
+        <v-card-text>{{ $t('reset-password-info') }}</v-card-text>
         <v-card-actions>
           <v-btn
             color="warning"
@@ -98,6 +98,9 @@
   const inProcess = ref(false)
 
   const handleSubmit = (): void => {
+    if (!password.value || (password.value !== passwordCheck.value)) {
+      return
+    }
     dialog.value = true
   }
 
@@ -106,19 +109,26 @@
   }
 
   const handleWarningDialogConfirm = async (): Promise<void> => {
+    if (inProcess.value) {
+      return
+    }
     inProcess.value = true
+    snackbarColor.value = 'primary'
+    snackbarText.value = i18n.t('resetting-password')
+    snackbarTimeout.value = -1
+    snackbar.value = true
     try {
       await axios.post(`${import.meta.env.VITE_KSL_API_URL}/auth/reset-password`, {
         token,
         newPassword: password.value,
       })
       snackbarColor.value = 'success'
-      snackbarText.value = i18n.t('password-reset-success')
+      snackbarText.value = i18n.t('reset-password-success')
       snackbarTimeout.value = 3000
       snackbar.value = true
     } catch (error) {
       snackbarColor.value = 'error'
-      snackbarText.value = i18n.t('password-reset-failure')
+      snackbarText.value = i18n.t('reset-password-failed')
       snackbarTimeout.value = 3000
       snackbar.value = true
       console.error('Error resetting password:', error)

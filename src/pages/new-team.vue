@@ -6,6 +6,7 @@
       <v-form class="mt-4" @submit.prevent="handleSubmit">
         <v-text-field
           v-model="teamName"
+          clearable
           density="compact"
           :label="$t('team-name')"
           required
@@ -15,6 +16,7 @@
         />
         <v-text-field
           v-model="teamEmail"
+          clearable
           density="compact"
           :label="$t('team-email')"
           required
@@ -32,6 +34,7 @@
         />
         <v-text-field
           v-model="username"
+          clearable
           density="compact"
           :disabled="emailIsUsername"
           :label="$t('username')"
@@ -40,6 +43,18 @@
           validate-on="input"
           variant="outlined"
         />
+        <v-divider class="my-3" />
+        <div v-for="(_player, index) in players" :key="index">
+          <v-text-field
+            v-model="players[index]"
+            clearable
+            density="compact"
+            :label="`${$t('team-member-no')} ${index + 1}`"
+            variant="outlined"
+            @blur="handlePlayersBlur"
+            @input="handlePlayersInput(index)"
+          />
+        </div>
         <v-row class="mr-1 my-3">
           <v-spacer />
           <v-btn
@@ -111,6 +126,22 @@
   const teamName: Ref<string> = ref('')
   const teamEmail: Ref<string> = ref('')
   const username: Ref<string> = ref('')
+  const players: Ref<string[]> = ref([''])
+
+  const handlePlayersInput: (index: number) => void = (index: number) => {
+    if (index + 1 !== players.value.length) {
+      return
+    }
+    if (players.value[index] && players.value[index].trim() === '') {
+      return
+    }
+    players.value.push('')
+  }
+  const handlePlayersBlur: () => void = () => {
+    players.value = players.value
+      .filter((player: string | null) => !!player)
+      .filter((player: string) => !!player.trim())
+  }
 
   const validationRulesCheck = (): boolean => !!username.value && !!teamEmail.value
 
@@ -141,11 +172,23 @@
       dialog.value = false
       return
     }
-    const createResult = await createTeam({
-      teamName: teamName.value,
+    const teamObj: {
+      teamEmail: string,
+      teamMembers?: string[],
+      teamName: string,
+      username: string,
+    } = {
       teamEmail: teamEmail.value,
+      teamName: teamName.value,
       username: username.value,
-    })
+    }
+    const playersArr = players.value
+      .filter((player: string | null) => !!player)
+      .filter((player: string) => !!player.trim())
+    if (playersArr.length > 0) {
+      teamObj.teamMembers = playersArr
+    }
+    const createResult = await createTeam(teamObj)
     inProcess.value = false
     if (!createResult) {
       snackbarText.value = i18n.t('creating-team-failed').toString()
