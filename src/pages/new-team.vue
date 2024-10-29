@@ -138,9 +138,14 @@
     players.value.push('')
   }
   const handlePlayersBlur: () => void = () => {
-    players.value = players.value
-      .filter((player: string | null) => !!player)
-      .filter((player: string) => !!player.trim())
+    players.value.forEach((player: string | null | undefined, index: number) => {
+      if (index + 1 === players.value.length) {
+        return
+      }
+      if (!player || player.trim() === '') {
+        players.value.splice(index, 1)
+      }
+    })
   }
 
   const validationRulesCheck = (): boolean => !!username.value && !!teamEmail.value
