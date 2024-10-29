@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_KSL_API_URL
 
 export const useTeamStore = defineStore('team-store', {
   actions: {
-    async createTeam (team: { teamName: string, teamEmail: string, username: string }): Promise<string | null> {
+    async createTeam (team: { teamEmail: string, teamMembers?: string[], teamName: string, username: string }): Promise<string | null> {
       const authStore = useAuthStore()
       const token = authStore.token
 
