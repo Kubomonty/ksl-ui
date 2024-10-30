@@ -110,6 +110,7 @@
 
   const handleWarningDialogConfirm = async (): Promise<void> => {
     if (inProcess.value) {
+      console.log('Already in process')
       return
     }
     inProcess.value = true
