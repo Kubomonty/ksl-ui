@@ -23,6 +23,22 @@ export const useTeamStore = defineStore('team-store', {
         return null
       }
     },
+    async fetchTeamById (teamId: string): Promise<TeamDto | null> {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.get(`${API_URL}/api/teams/${teamId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        const responseData = response.data
+        return responseData
+      } catch (error) {
+        console.error('Error fetching teams:', error)
+      }
+
+      return null
+    },
     async fetchTeams (): Promise<TeamDto[]> {
       const authStore = useAuthStore()
       const token = authStore.token
