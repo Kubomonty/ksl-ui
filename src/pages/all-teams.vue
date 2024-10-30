@@ -45,7 +45,7 @@
   const { teams } = storeToRefs(teamStore)
 
   const authStore = useAuthStore()
-  const { isAdmin, isLoggedIn, isUser, loggedInUser } = storeToRefs(authStore)
+  const { isAdmin, isUser, loggedInUser } = storeToRefs(authStore)
 
   const displayManageButton = (teamId: string): Boolean => {
     if (isAdmin.value) return true
