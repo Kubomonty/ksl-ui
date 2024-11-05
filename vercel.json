@@ -1,8 +1,4 @@
 {
-  "crons": [
-    { "path": "/api/cron", "schedule": "*/6 17-24 * * *" },
-    { "path": "/api/cron", "schedule": "*/6 0-1 * * *" }
-  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ]
