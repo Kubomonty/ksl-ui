@@ -37,26 +37,23 @@
         >{{ $t('set-new-password') }}</v-btn>
       </v-container>
     </v-form>
-    <v-dialog v-model="dialog" persistent>
+    <v-dialog v-model="dialog" @keydown.enter="handleWarningDialogConfirm">
       <v-card>
-        <v-form @submit.prevent="handleWarningDialogConfirm">
-          <v-card-title>{{ $t('warning') }}</v-card-title>
-          <v-card-text>{{ $t('reset-password-info') }}</v-card-text>
-          <v-card-actions>
-            <v-btn
-              color="warning"
-              variant="flat"
-              @click="handleWarningDialogCancel"
-            >{{ $t('back') }}</v-btn>
-            <v-btn
-              color="primary"
-              :disabled="inProcess"
-              type="submit"
-              variant="flat"
-              @click="handleWarningDialogConfirm"
-            >{{ $t('ok') }}</v-btn>
-          </v-card-actions>
-        </v-form>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('reset-password-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleWarningDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            :disabled="inProcess"
+            variant="flat"
+            @click="handleWarningDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-snackbar

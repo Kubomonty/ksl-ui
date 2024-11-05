@@ -263,40 +263,37 @@
         >{{ $t('create-match') }}</v-btn>
       </v-card-actions>
     </v-container>
-    <v-dialog v-model="dialog" persistent>
+    <v-dialog v-model="dialog" @keydown.enter="handleMatchCreation">
       <v-card>
-        <v-form @submit.prevent="handleMatchCreation">
-          <v-card-title>{{ $t('consent') }}</v-card-title>
-          <v-card-text>
-            <p>{{ $t('confirm-new-match') }}</p>
-            <v-checkbox
-              v-model="confirmHomeCaptain"
-              class="mt-5 mb-n3"
-              density="compact"
-              :label="$t('confirm-new-match-home-captain')"
-            />
-            <v-checkbox
-              v-model="confirmGuestCaptain"
-              class="my-n3"
-              density="compact"
-              :label="$t('confirm-new-match-guest-captain')"
-            />
-          </v-card-text>
-          <v-card-actions class="mb-3 mr-3">
-            <v-btn
-              color="warning"
-              variant="flat"
-              @click="dialog = false"
-            >{{ $t('cancel') }}</v-btn>
-            <v-btn
-              color="primary"
-              :disabled="!confirmHomeCaptain || !confirmGuestCaptain"
-              type="submit"
-              variant="flat"
-              @click="handleMatchCreation"
-            >{{ $t('ok') }}</v-btn>
-          </v-card-actions>
-        </v-form>
+        <v-card-title>{{ $t('consent') }}</v-card-title>
+        <v-card-text>
+          <p>{{ $t('confirm-new-match') }}</p>
+          <v-checkbox
+            v-model="confirmHomeCaptain"
+            class="mt-5 mb-n3"
+            density="compact"
+            :label="$t('confirm-new-match-home-captain')"
+          />
+          <v-checkbox
+            v-model="confirmGuestCaptain"
+            class="my-n3"
+            density="compact"
+            :label="$t('confirm-new-match-guest-captain')"
+          />
+        </v-card-text>
+        <v-card-actions class="mb-3 mr-3">
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="dialog = false"
+          >{{ $t('cancel') }}</v-btn>
+          <v-btn
+            color="primary"
+            :disabled="!confirmHomeCaptain || !confirmGuestCaptain"
+            variant="flat"
+            @click="handleMatchCreation"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-card>
@@ -378,7 +375,7 @@
     router.push('/new-match')
   }
   const handleMatchCreation = (): void => {
-    if (!confirmHomeCaptain.value || !confirmGuestCaptain.value) {
+    if (!confirmGuestCaptain.value || !confirmHomeCaptain.value) {
       return
     }
     createMatch()

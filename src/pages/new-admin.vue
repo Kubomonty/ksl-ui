@@ -41,26 +41,23 @@
         </v-row>
       </v-form>
     </v-card-text>
-    <v-dialog v-model="dialog" persistent>
+    <v-dialog v-model="dialog" @keydown.enter="handleWarningDialogConfirm">
       <v-card>
-        <v-form @submit.prevent="handleWarningDialogConfirm">
-          <v-card-title>{{ $t('warning') }}</v-card-title>
-          <v-card-text>{{ $t('new-admin-creation-info') }}</v-card-text>
-          <v-card-actions>
-            <v-btn
-              color="warning"
-              variant="flat"
-              @click="handleWarningDialogCancel"
-            >{{ $t('back') }}</v-btn>
-            <v-btn
-              color="primary"
-              :disabled="inProcess"
-              type="submit"
-              variant="flat"
-              @click.prevent="handleWarningDialogConfirm"
-            >{{ $t('ok') }}</v-btn>
-          </v-card-actions>
-        </v-form>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('new-admin-creation-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleWarningDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            :disabled="inProcess"
+            variant="flat"
+            @click.prevent="handleWarningDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-snackbar
@@ -84,9 +81,10 @@
 
 <script setup lang="ts">
   import { ref, Ref, watch } from 'vue'
+  import { useAuthStore, useTeamStore } from '../stores'
+  import { isValidEmail } from '../utils'
   import { useI18n } from 'vue-i18n'
   import { useRouter } from 'vue-router'
-  import { useAuthStore, useTeamStore } from '../stores'
 
   const i18n = useI18n()
   const router = useRouter()
@@ -108,7 +106,9 @@
   const email: Ref<string> = ref('')
   const username: Ref<string> = ref('')
 
-  const validationRulesCheck = (): boolean => !!username.value && !!email.value
+  const validationRulesCheck = (): boolean => {
+    return !!username.value.length && !!email.value.length && isValidEmail(email.value)
+  }
 
   const handleSubmit = () => {
     // Check mandatory rules.
@@ -119,7 +119,7 @@
   }
 
   const handleWarningDialogConfirm = async (): Promise<void> => {
-    if (inProcess.value) {
+    if (inProcess.value || !validationRulesCheck()) {
       return
     }
     inProcess.value = true
