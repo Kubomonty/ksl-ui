@@ -91,21 +91,24 @@
     </v-card-text>
     <v-dialog v-model="dialog" persistent>
       <v-card>
-        <v-card-title>{{ $t('warning') }}</v-card-title>
-        <v-card-subtitle>{{ $t('are-you-sure') }}</v-card-subtitle>
-        <v-card-text v-html="formattedValidationErrors" />
-        <v-card-actions>
-          <v-btn
-            color="warning"
-            variant="flat"
-            @click="handleWarningDialogCancel"
-          >{{ $t('back') }}</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            @click="handleWarningDialogConfirm"
-          >{{ $t('ok') }}</v-btn>
-        </v-card-actions>
+        <v-form @submit.prevent="handleWarningDialogConfirm">
+          <v-card-title>{{ $t('warning') }}</v-card-title>
+          <v-card-subtitle>{{ $t('are-you-sure') }}</v-card-subtitle>
+          <v-card-text v-html="formattedValidationErrors" />
+          <v-card-actions>
+            <v-btn
+              color="warning"
+              variant="flat"
+              @click="handleWarningDialogCancel"
+            >{{ $t('back') }}</v-btn>
+            <v-btn
+              color="primary"
+              type="submit"
+              variant="flat"
+              @click="handleWarningDialogConfirm"
+            >{{ $t('ok') }}</v-btn>
+          </v-card-actions>
+        </v-form>
       </v-card>
     </v-dialog>
   </v-card>
