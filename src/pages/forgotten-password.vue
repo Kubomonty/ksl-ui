@@ -3,44 +3,36 @@
     <br>
     <v-form class="mt-3" @submit.prevent="handleSubmit">
       <v-container>
+        <p>{{ $t('initiate-reset-password') }}</p>
+        <br>
         <v-text-field
-          v-model="password"
-          :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
+          v-model="username"
           density="compact"
-          :label="$t('password')"
-          prepend-inner-icon="mdi-lock-outline"
-          :rules="[(val: string) => !!val || $t('password-required')]"
-          :type="passwordVisible ? 'text' : 'password'"
+          :label="$t('username')"
+          :rules="[(val: string) => !!val || $t('username-required')]"
           variant="outlined"
-          @click:append-inner="passwordVisible = !passwordVisible"
         />
         <v-text-field
-          v-model="passwordCheck"
-          :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
+          v-model="email"
           density="compact"
-          :label="$t('password-check')"
-          prepend-inner-icon="mdi-lock-outline"
-          :rules="[
-            (val: string) => !!val || $t('password-required'),
-            (val: string) => val === password || $t('passwords-dont-match')
-          ]"
-          :type="passwordVisible ? 'text' : 'password'"
+          :label="$t('email')"
+          :rules="[(val: string) => !!val || $t('email-required')]"
+          type="email"
           variant="outlined"
-          @click:append-inner="passwordVisible = !passwordVisible"
         />
         <v-btn
-          class="login-button"
+          class="submit-button"
           color="primary"
           :disabled="inProcess"
           flat
           type="submit"
-        >{{ $t('set-new-password') }}</v-btn>
+        >{{ $t('submit') }}</v-btn>
       </v-container>
     </v-form>
     <v-dialog v-model="dialog" @keydown.enter="handleWarningDialogConfirm">
       <v-card>
         <v-card-title>{{ $t('warning') }}</v-card-title>
-        <v-card-text>{{ $t('reset-password-info') }}</v-card-text>
+        <v-card-text>{{ $t('initiate-reset-password-info') }}</v-card-text>
         <v-card-actions>
           <v-btn
             color="warning"
@@ -76,20 +68,18 @@
 </template>
 
 <script setup lang="ts">
+  import { isValidEmail } from '../utils'
   import axios from 'axios'
   import { ref } from 'vue'
   import { useI18n } from 'vue-i18n'
-  import { useRoute, useRouter } from 'vue-router'
+  import { useRouter } from 'vue-router'
 
-  const route = useRoute()
   const router = useRouter()
-  const token = route.query.token as string
 
   const i18n = useI18n()
 
-  const password = ref('')
-  const passwordCheck = ref('')
-  const passwordVisible = ref(false)
+  const email = ref('')
+  const username = ref('')
   const snackbar = ref(false)
   const snackbarColor = ref('')
   const snackbarText = ref('')
@@ -99,7 +89,7 @@
   const inProcess = ref(false)
 
   const handleSubmit = (): void => {
-    if (!password.value || (password.value !== passwordCheck.value)) {
+    if (!username.value || !email.value || inProcess.value || !isValidEmail(email.value)) {
       return
     }
     dialog.value = true
@@ -119,9 +109,9 @@
     snackbarTimeout.value = -1
     snackbar.value = true
     try {
-      await axios.post(`${import.meta.env.VITE_KSL_API_URL}/auth/reset-password`, {
-        token,
-        newPassword: password.value,
+      await axios.post(`${import.meta.env.VITE_KSL_API_URL}/auth/request-password-reset`, {
+        email: email.value,
+        username: username.value,
       })
       snackbarColor.value = 'success'
       snackbarText.value = i18n.t('reset-password-success')
@@ -136,13 +126,13 @@
     } finally {
       inProcess.value = false
       dialog.value = false
-      router.push('/login')
+      router.push('/')
     }
   }
 </script>
 
 <style scoped>
-.login-button {
+.submit-button {
   width: 100%;
   padding: 10px;
   border: none;

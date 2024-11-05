@@ -27,6 +27,17 @@
           flat
           type="submit"
         >{{ $t('login') }}</v-btn>
+        <v-row class="my-3">
+          <v-spacer />
+          <v-btn
+            class="mt-3 align-self-center"
+            color="primary"
+            size="small"
+            variant="text"
+            @click="router.push('/forgotten-password')"
+          >{{ $t('forgotten-password') }}</v-btn>
+          <v-spacer />
+        </v-row>
       </v-container>
     </v-form>
     <v-snackbar
