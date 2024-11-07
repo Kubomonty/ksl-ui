@@ -90,7 +90,7 @@
     try {
       await login(username.value, password.value)
       performingLogin.value = false
-      snackbar.value = false
+      snackbar.value = true
       snackbarColor.value = 'success'
       snackbarText.value = i18n.t('login-success').toString()
       snackbarTimeout.value = 3000
