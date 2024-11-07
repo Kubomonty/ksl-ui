@@ -127,16 +127,17 @@
       snackbarText.value = i18n.t('reset-password-success')
       snackbarTimeout.value = 3000
       snackbar.value = true
+      inProcess.value = false
+      dialog.value = false
+      router.push('/login')
     } catch (error) {
       snackbarColor.value = 'error'
       snackbarText.value = i18n.t('reset-password-failed')
       snackbarTimeout.value = 3000
       snackbar.value = true
       console.error('Error resetting password:', error)
-    } finally {
       inProcess.value = false
       dialog.value = false
-      router.push('/login')
     }
   }
 </script>

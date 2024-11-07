@@ -31,7 +31,6 @@ export const useAuthStore = defineStore('auth-store', {
         return response.data
       } catch (error) {
         console.error('Error creating team:', error)
-
         return null
       }
     },

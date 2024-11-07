@@ -19,7 +19,6 @@ export const useTeamStore = defineStore('team-store', {
         return response.data
       } catch (error) {
         console.error('Error creating team:', error)
-
         return null
       }
     },
@@ -36,7 +35,6 @@ export const useTeamStore = defineStore('team-store', {
       } catch (error) {
         console.error('Error fetching teams:', error)
       }
-
       return null
     },
     async fetchTeams (): Promise<TeamDto[]> {
@@ -51,7 +49,6 @@ export const useTeamStore = defineStore('team-store', {
       } catch (error) {
         console.error('Error fetching teams:', error)
       }
-
       return this.teams
     },
     getTeamById (teamId: string): TeamDto | undefined {
@@ -65,6 +62,20 @@ export const useTeamStore = defineStore('team-store', {
         console.error('Error checking if username is unique:', error)
       }
       return false
+    },
+    async updateTeam (team: { teamId: string, teamEmail: string, teamMembers?: {id: string, name: string}[], teamName: string }): Promise<string | null> {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.put(`${API_URL}/api/teams/${team.teamId}`, team, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        return response.data
+      } catch (error) {
+        console.error('Error updating team:', error)
+        return null
+      }
     },
   },
 
