@@ -93,7 +93,6 @@
         { title: i18n.t('all-teams'), to: '/all-teams' },
         { title: i18n.t('new-match'), to: '/new-match' },
         { title: i18n.t('admin-section'), to: '/admin-section' },
-        { title: 'team section', to: '/team-section?id=e3636383-1822-410b-98d8-3ccd413e78dc' },
       ]
     } else if (isUser.value) {
       return [
