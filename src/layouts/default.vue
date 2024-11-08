@@ -40,7 +40,7 @@
           block
           class="mt-3"
           color="primary"
-          variant="tonal"
+          variant="flat"
           @click="handleLogout"
         >{{ $t('logout') }}
         </v-btn>
@@ -49,7 +49,7 @@
           block
           class="mt-3"
           color="primary"
-          variant="tonal"
+          variant="flat"
           @click="handleLogin"
         >{{ $t('login') }}
         </v-btn>

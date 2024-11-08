@@ -62,7 +62,7 @@
         <v-btn
           class="align-self-center ml-3"
           color="success"
-          variant="outlined"
+          variant="flat"
           @click="handleAddPlayerClick"
         >{{ $t('add-player') }}</v-btn>
       </div>
@@ -71,14 +71,14 @@
         class="full-width-button mb-3"
         color="success"
         :disabled="!isTeamChanged"
-        variant="outlined"
+        variant="flat"
         @click="handleSaveChangesClick"
       >{{ $t('save-changes') }}</v-btn>
       <v-btn
         class="full-width-button"
         color="warning"
         :disabled="!isTeamChanged"
-        variant="outlined"
+        variant="flat"
         @click="handleResetClick"
       >{{ $t('reset-changes') }}</v-btn>
     </v-card-text>
@@ -269,12 +269,11 @@
   const populateTeam = (): void => {
     teamName.value = team.value!.teamName
     teamEmail.value = team.value!.teamEmail
+    players.value = []
     if (team.value!.players.length) {
       team.value!.players.forEach(player => {
         players.value.push({ ...player })
       })
-    } else {
-      players.value = []
     }
   }
 
