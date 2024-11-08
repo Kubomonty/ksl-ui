@@ -2,85 +2,94 @@
   <v-card flat>
     <v-card-title class="mt-3">{{ $t('team-administration') }}</v-card-title>
     <v-card-text>
-      <v-text-field
-        v-model="teamName"
-        :clearable="isAdmin"
-        density="compact"
-        :label="$t('team-name')"
-        :readonly="!isAdmin"
-        required
-        :rules="[(val : string) => !!val || $t('team-name-required')]"
-        validate-on="input"
-        variant="outlined"
-      />
-      <v-text-field
-        v-model="teamEmail"
-        :clearable="isAdmin"
-        density="compact"
-        :label="$t('team-email')"
-        :readonly="!isAdmin"
-        required
-        :rules="[
-          (val : string) => !!val || $t('team-email-required'),
-          (val: string) => /.+@.+\..+/.test(val) || $t('team-email-invalid')
-        ]"
-        type="email"
-        validate-on="input"
-        variant="outlined"
-      />
-      <span v-if="players.length">
-        <div
-          v-for="(player, i) in players"
-          :key="player.id"
-          class="d-flex mb-3"
-        >
+      <span v-if="loading">
+        <v-skeleton-loader type="paragraph" />
+        <v-skeleton-loader type="paragraph" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+      </span>
+      <span v-else>
+        <v-text-field
+          v-model="teamName"
+          :clearable="isAdmin"
+          density="compact"
+          :label="$t('team-name')"
+          :readonly="!isAdmin"
+          required
+          :rules="[(val : string) => !!val || $t('team-name-required')]"
+          validate-on="input"
+          variant="outlined"
+        />
+        <v-text-field
+          v-model="teamEmail"
+          :clearable="isAdmin"
+          density="compact"
+          :label="$t('team-email')"
+          :readonly="!isAdmin"
+          required
+          :rules="[
+            (val : string) => !!val || $t('team-email-required'),
+            (val: string) => /.+@.+\..+/.test(val) || $t('team-email-invalid')
+          ]"
+          type="email"
+          validate-on="input"
+          variant="outlined"
+        />
+        <span v-if="players.length">
+          <div
+            v-for="(player, i) in players"
+            :key="player.id"
+            class="d-flex mb-3"
+          >
+            <v-text-field
+              v-model="players[i].name"
+              density="compact"
+              :hide-details="true"
+              variant="outlined"
+              @change="handlePlayerChange(i)"
+            />
+            <v-btn
+              class="align-self-center ml-3"
+              color="error"
+              density="compact"
+              icon="mdi-close"
+              size="default"
+              variant="flat"
+              @click="handleRemoveClick(i)"
+            />
+          </div>
+        </span>
+        <div class="d-flex">
           <v-text-field
-            v-model="players[i].name"
+            v-model="newPlayerName"
             density="compact"
             :hide-details="true"
             variant="outlined"
+            @keydown.enter="handleAddPlayerClick"
           />
           <v-btn
             class="align-self-center ml-3"
-            color="error"
-            density="compact"
-            icon="mdi-close"
-            size="default"
+            color="success"
             variant="flat"
-            @click="handleRemoveClick(i)"
-          />
+            @click="handleAddPlayerClick"
+          >{{ $t('add-player') }}</v-btn>
         </div>
-      </span>
-      <div class="d-flex">
-        <v-text-field
-          v-model="newPlayerName"
-          density="compact"
-          :hide-details="true"
-          variant="outlined"
-          @keydown.enter="handleAddPlayerClick"
-        />
+        <v-divider class="my-3" />
         <v-btn
-          class="align-self-center ml-3"
+          class="full-width-button mb-3"
           color="success"
+          :disabled="!isTeamChanged"
           variant="flat"
-          @click="handleAddPlayerClick"
-        >{{ $t('add-player') }}</v-btn>
-      </div>
-      <v-divider class="my-3" />
-      <v-btn
-        class="full-width-button mb-3"
-        color="success"
-        :disabled="!isTeamChanged"
-        variant="flat"
-        @click="handleSaveChangesClick"
-      >{{ $t('save-changes') }}</v-btn>
-      <v-btn
-        class="full-width-button"
-        color="warning"
-        :disabled="!isTeamChanged"
-        variant="flat"
-        @click="handleResetClick"
-      >{{ $t('reset-changes') }}</v-btn>
+          @click="handleSaveChangesClick"
+        >{{ $t('save-changes') }}</v-btn>
+        <v-btn
+          class="full-width-button"
+          color="warning"
+          :disabled="!isTeamChanged"
+          variant="flat"
+          @click="handleResetClick"
+        >{{ $t('reset-changes') }}</v-btn>
+      </span>
     </v-card-text>
     <v-dialog v-model="removePlayerDialog" @keydown.enter="handleRemovePlayerDialogConfirm">
       <v-card>
@@ -167,6 +176,8 @@
 
   const i18n = useI18n()
 
+  const loading: Ref<boolean> = ref(false)
+
   const route = useRoute()
   const router = useRouter()
   const authStore = useAuthStore()
@@ -192,7 +203,16 @@
   const teamEmail: Ref<string> = ref('')
   const players: Ref<{id: string, name: string}[]> = ref([])
 
+  const handlePlayerChange = (index: number): void => {
+    players.value[index].name = players.value[index].name.trim()
+    players.value = players.value.filter(player => player.name.trim())
+  }
+
   const handleAddPlayerClick = (): void => {
+    if (!newPlayerName.value.trim()) {
+      newPlayerName.value = ''
+      return
+    }
     const newPlayerObj = { id: `NEW-${uuidv4()}`, name: newPlayerName.value }
     players.value.push(newPlayerObj)
     newPlayerName.value = ''
@@ -279,9 +299,11 @@
 
   watch(() => route.query.id, async () => {
     if (route.query.id) {
+      loading.value = true
       team.value = await fetchTeamById(route.query.id as string)
       if (team.value) {
         populateTeam()
+        loading.value = false
       }
     } else {
       router.push('/all-teams')
@@ -290,9 +312,11 @@
 
   onMounted(async () => {
     if (route.query.id) {
+      loading.value = true
       team.value = await fetchTeamById(route.query.id as string)
       if (team.value) {
         populateTeam()
+        loading.value = false
       }
     } else {
       router.push('/all-teams')

@@ -2,35 +2,45 @@
   <v-card flat>
     <v-card-title class="my-3">{{ $t('all-teams') }}</v-card-title>
     <v-card-text>
-      <v-expansion-panels
-        flat
-        multiple
-        rounded="0"
-        variant="accordion"
-      >
-        <v-expansion-panel
-          v-for="team in teams"
-          :key="team.id"
+      <span v-if="loading">
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+      </span>
+      <span v-else>
+        <v-expansion-panels
+          flat
+          multiple
+          rounded="0"
+          variant="accordion"
         >
-          <v-expansion-panel-title color="blue-grey-lighten-5">
-            <h4>{{ team.teamName }}</h4>
-            <p class="ml-5">{{ team.teamEmail }}</p>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <p v-for="player in team.players" :key="player.id">
-              {{ player.name }}
-            </p>
-            <v-btn
-              v-if="displayManageButton(team.id)"
-              class="mt-2"
-              color="primary"
-              size="small"
-              variant="tonal"
-              @click.prevent="() => $router.push(`/team-section?id=${team.id}`)"
-            >{{ $t('manage-team') }}</v-btn>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
+          <v-expansion-panel
+            v-for="team in teams"
+            :key="team.id"
+          >
+            <v-expansion-panel-title color="blue-grey-lighten-5">
+              <h4>{{ team.teamName }}</h4>
+              <p class="ml-5">{{ team.teamEmail }}</p>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <p v-for="player in team.players" :key="player.id">
+                {{ player.name }}
+              </p>
+              <v-btn
+                v-if="displayManageButton(team.id)"
+                class="mt-2"
+                color="primary"
+                size="small"
+                variant="tonal"
+                @click.prevent="() => $router.push(`/team-section?id=${team.id}`)"
+              >{{ $t('manage-team') }}</v-btn>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </span>
     </v-card-text>
   </v-card>
 </template>
@@ -39,6 +49,8 @@
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
   import { useAuthStore, useTeamStore } from '../stores'
+
+  const loading: Ref<boolean> = ref(false)
 
   const teamStore = useTeamStore()
   const { fetchTeams } = teamStore
@@ -53,7 +65,9 @@
     return false
   }
 
-  onMounted(() => {
-    fetchTeams()
+  onMounted(async () => {
+    loading.value = true
+    await fetchTeams()
+    loading.value = false
   })
 </script>
