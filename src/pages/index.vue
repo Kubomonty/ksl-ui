@@ -59,7 +59,7 @@
   const { matches } = storeToRefs(matchStore)
   const { fetchMatchesPage } = matchStore
   const teamStore = useTeamStore()
-  const { getTeamById } = teamStore
+  const { fetchTeams, getTeamById } = teamStore
 
   const itemsPerPage = 10
   const currentPage = ref(1)
@@ -80,15 +80,20 @@
 
   onMounted(async () => {
     loading.value = true
-    console.log('route', route)
-    await fetchMatchesPage(itemsPerPage, currentPage.value)
+    await Promise.all([
+      fetchTeams(),
+      fetchMatchesPage(itemsPerPage, currentPage.value)
+    ])
     loading.value = false
   })
 
   watch(async () => route, async () => {
     console.log('route changed', route)
     loading.value = true
-    await fetchMatchesPage(itemsPerPage, currentPage.value)
+    await Promise.all([
+      fetchTeams(),
+      fetchMatchesPage(itemsPerPage, currentPage.value)
+    ])
     loading.value = false
   }, { deep: true })
   watch(currentPage, () => {
