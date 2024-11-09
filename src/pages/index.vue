@@ -82,7 +82,7 @@
     loading.value = true
     await Promise.all([
       fetchTeams(),
-      fetchMatchesPage(itemsPerPage, currentPage.value)
+      fetchMatchesPage(itemsPerPage, currentPage.value),
     ])
     loading.value = false
   })
@@ -92,7 +92,7 @@
     loading.value = true
     await Promise.all([
       fetchTeams(),
-      fetchMatchesPage(itemsPerPage, currentPage.value)
+      fetchMatchesPage(itemsPerPage, currentPage.value),
     ])
     loading.value = false
   }, { deep: true })
