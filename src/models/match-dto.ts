@@ -1,11 +1,8 @@
-import { RosterDto } from './roster-dto'
+import { NewMatchDto } from './new-match-dto'
 
-export interface MatchDto {
-  guestTeam: string;
-  guestTeamRoster: RosterDto
-  homeTeam: string;
-  homeTeamRoster: RosterDto;
-  matchId: string;
-  matchLocation: string;
-  matchDateTime: Date;
+export interface MatchDto extends NewMatchDto {
+  id: string;
+  status: string;
+  statusChangedAt: Date;
+  statusChangedBy: string;
 }
