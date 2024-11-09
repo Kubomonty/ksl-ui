@@ -61,7 +61,6 @@ export const useMatchStore = defineStore('match-store', {
           }
         })
         this.$state.matches = matches
-        console.log('Matches:', this.$state.matches)
         return response.data
       } catch (error) {
         console.error('Error creating team:', error)
