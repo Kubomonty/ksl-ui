@@ -254,7 +254,7 @@
               @click="handleReturn"
             >{{ $t('back') }}</v-btn>
           </template>
-          <span>balbalaablab</span>
+          <span>{{ $t('back-to-previous-step') }}</span>
         </v-tooltip>
         <v-btn
           color="primary"
@@ -331,16 +331,55 @@
     return newMatch.value.homeTeam ? getTeamById(newMatch.value.homeTeam) : null
   })
   const homeTeamCaptain: ComputedRef<PlayerDto | null> = computed((): PlayerDto | null => {
-    return getPlayer(homeTeam.value, newMatch.value.homeTeamCaptain)
+    return getPlayer(homeTeam.value, newMatch.value.homeCaptain)
   })
   const homeTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(
     (): { player: PlayerDto | null | undefined, position: string }[] => {
-      return newMatch.value.homeTeamRoster.map((player: { playerId: string | undefined, position: string }) => {
-        return {
-          player: getPlayer(homeTeam.value, player.playerId),
-          position: player.position,
-        }
-      })
+      const homePlayers: { player: PlayerDto | null | undefined, position: string }[] = [
+        {
+          player: getPlayer(homeTeam.value, newMatch.value.homePos1),
+          position: 'H1',
+        },
+        {
+          player: getPlayer(homeTeam.value, newMatch.value.homePos2),
+          position: 'H2',
+        },
+        {
+          player: getPlayer(homeTeam.value, newMatch.value.homePos3),
+          position: 'H3',
+        },
+      ]
+      if (newMatch.value.homePos4?.trim()) {
+        homePlayers.push({
+          player: getPlayer(homeTeam.value, newMatch.value.homePos4),
+          position: 'H4',
+        })
+      }
+      if (newMatch.value.homePos5?.trim()) {
+        homePlayers.push({
+          player: getPlayer(homeTeam.value, newMatch.value.homePos5),
+          position: 'H5',
+        })
+      }
+      if (newMatch.value.homePos6?.trim()) {
+        homePlayers.push({
+          player: getPlayer(homeTeam.value, newMatch.value.homePos6),
+          position: 'H6',
+        })
+      }
+      if (newMatch.value.homePos7?.trim()) {
+        homePlayers.push({
+          player: getPlayer(homeTeam.value, newMatch.value.homePos7),
+          position: 'H7',
+        })
+      }
+      if (newMatch.value.homePos8?.trim()) {
+        homePlayers.push({
+          player: getPlayer(homeTeam.value, newMatch.value.homePos8),
+          position: 'H8',
+        })
+      }
+      return homePlayers
     }
   )
   const orderedHomeTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(() => {
@@ -351,16 +390,55 @@
     return newMatch.value.guestTeam ? getTeamById(newMatch.value.guestTeam) : null
   })
   const guestTeamCaptain: ComputedRef<PlayerDto | null> = computed((): PlayerDto | null => {
-    return getPlayer(guestTeam.value, newMatch.value.guestTeamCaptain)
+    return getPlayer(guestTeam.value, newMatch.value.guestCaptain)
   })
   const guestTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(
     (): { player: PlayerDto | null | undefined, position: string }[] => {
-      return newMatch.value.guestTeamRoster.map((player: { playerId: string | undefined, position: string }) => {
-        return {
-          player: getPlayer(guestTeam.value, player.playerId),
-          position: player.position,
-        }
-      })
+      const guestPlayers: { player: PlayerDto | null | undefined, position: string }[] = [
+        {
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos1),
+          position: 'G1',
+        },
+        {
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos2),
+          position: 'G2',
+        },
+        {
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos3),
+          position: 'G3',
+        },
+      ]
+      if (newMatch.value.guestPos4?.trim()) {
+        guestPlayers.push({
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos4),
+          position: 'G4',
+        })
+      }
+      if (newMatch.value.guestPos5?.trim()) {
+        guestPlayers.push({
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos5),
+          position: 'G5',
+        })
+      }
+      if (newMatch.value.guestPos6?.trim()) {
+        guestPlayers.push({
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos6),
+          position: 'G6',
+        })
+      }
+      if (newMatch.value.guestPos7?.trim()) {
+        guestPlayers.push({
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos7),
+          position: 'G7',
+        })
+      }
+      if (newMatch.value.guestPos8?.trim()) {
+        guestPlayers.push({
+          player: getPlayer(guestTeam.value, newMatch.value.guestPos8),
+          position: 'G8',
+        })
+      }
+      return guestPlayers
     }
   )
   const orderedGuestTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(() => {
@@ -368,7 +446,7 @@
   })
 
   const formattedMatchDateTime: ComputedRef<string> = computed((): string => {
-    return newMatch.value.matchDateTime ? format(new Date(newMatch.value.matchDateTime), 'dd.MM.yyyy, HH:mm') : '-'
+    return newMatch.value.matchDate ? format(new Date(newMatch.value.matchDate), 'dd.MM.yyyy, HH:mm') : '-'
   })
 
   const handleReturn = (): void => {

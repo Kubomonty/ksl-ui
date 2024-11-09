@@ -13,7 +13,7 @@ export const useTeamStore = defineStore('team-store', {
       const token = authStore.token
 
       try {
-        const response = await axios.post(`${API_URL}/api/create-team`, team, {
+        const response = await axios.post(`${API_URL}/api/team`, team, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         return response.data
@@ -27,7 +27,7 @@ export const useTeamStore = defineStore('team-store', {
       const token = authStore.token
 
       try {
-        const response = await axios.get(`${API_URL}/api/teams/${teamId}`, {
+        const response = await axios.get(`${API_URL}/api/team/${teamId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         const responseData = response.data
@@ -42,7 +42,7 @@ export const useTeamStore = defineStore('team-store', {
       const token = authStore.token
 
       try {
-        const response = await axios.get(`${API_URL}/api/teams`, {
+        const response = await axios.get(`${API_URL}/api/team`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         this.teams = response.data
@@ -56,7 +56,7 @@ export const useTeamStore = defineStore('team-store', {
     },
     async isTeamUsernameUnique (username: string): Promise<boolean> {
       try {
-        const response = await axios.get(`${API_URL}/api/teams/is-unique/${username}`)
+        const response = await axios.get(`${API_URL}/api/team/is-unique/${username}`)
         return response.data.unique
       } catch (error) {
         console.error('Error checking if username is unique:', error)
@@ -68,7 +68,7 @@ export const useTeamStore = defineStore('team-store', {
       const token = authStore.token
 
       try {
-        const response = await axios.put(`${API_URL}/api/teams/${team.teamId}`, team, {
+        const response = await axios.put(`${API_URL}/api/team/${team.teamId}`, team, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         return response.data

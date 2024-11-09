@@ -160,9 +160,37 @@
       required: false,
       type: String,
     },
-    teamMembersSelection: {
-      required: true,
-      type: Array as PropType<{ playerId: string | undefined, position: string }[]>,
+    pos1: {
+      required: false,
+      type: String,
+    },
+    pos2: {
+      required: false,
+      type: String,
+    },
+    pos3: {
+      required: false,
+      type: String,
+    },
+    pos4: {
+      required: false,
+      type: String,
+    },
+    pos5: {
+      required: false,
+      type: String,
+    },
+    pos6: {
+      required: false,
+      type: String,
+    },
+    pos7: {
+      required: false,
+      type: String,
+    },
+    pos8: {
+      required: false,
+      type: String,
     },
     teamMembers: {
       required: true,
@@ -178,22 +206,14 @@
   const position3SelectRef: Ref = ref()
 
   const teamCaptainSelection: Ref<string | undefined> = ref(props.teamCaptain)
-  const position1: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H1' || member.position === 'D1')!.playerId)
-  const position2: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H2' || member.position === 'D2')!.playerId)
-  const position3: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H3' || member.position === 'D3')!.playerId)
-  const position4: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H4' || member.position === 'D4')!.playerId)
-  const position5: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H5' || member.position === 'D5')!.playerId)
-  const position6: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H6' || member.position === 'D6')!.playerId)
-  const position7: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H7' || member.position === 'D7')!.playerId)
-  const position8: Ref<string | undefined> = ref(props.teamMembersSelection
-    .find((member: { playerId: string | undefined, position: string}) => member.position === 'H8' || member.position === 'D8')!.playerId)
+  const position1: Ref<string | undefined> = ref(props.pos1)
+  const position2: Ref<string | undefined> = ref(props.pos2)
+  const position3: Ref<string | undefined> = ref(props.pos3)
+  const position4: Ref<string | undefined> = ref(props.pos4)
+  const position5: Ref<string | undefined> = ref(props.pos5)
+  const position6: Ref<string | undefined> = ref(props.pos6)
+  const position7: Ref<string | undefined> = ref(props.pos7)
+  const position8: Ref<string | undefined> = ref(props.pos8)
 
   const reset = () => {
     teamCaptainSelection.value = undefined
@@ -221,16 +241,16 @@
     position1, position2, position3, position4,
     position5, position6, position7, position8,
   ], () => {
-    const newRoster: { playerId: string | undefined, position: string }[] = [
-      { playerId: position1.value, position: props.isHomeTeam ? 'H1' : 'D1' },
-      { playerId: position2.value, position: props.isHomeTeam ? 'H2' : 'D2' },
-      { playerId: position3.value, position: props.isHomeTeam ? 'H3' : 'D3' },
-      { playerId: position4.value, position: props.isHomeTeam ? 'H4' : 'D4' },
-      { playerId: position5.value, position: props.isHomeTeam ? 'H5' : 'D5' },
-      { playerId: position6.value, position: props.isHomeTeam ? 'H6' : 'D6' },
-      { playerId: position7.value, position: props.isHomeTeam ? 'H7' : 'D7' },
-      { playerId: position8.value, position: props.isHomeTeam ? 'H8' : 'D8' },
-    ]
+    const newRoster = {
+      position1: position1.value,
+      position2: position2.value,
+      position3: position3.value,
+      position4: position4.value,
+      position5: position5.value,
+      position6: position6.value,
+      position7: position7.value,
+      position8: position8.value,
+    }
     emits('update:team-select', newRoster)
   })
 </script>

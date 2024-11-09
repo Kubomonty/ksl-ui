@@ -15,7 +15,7 @@
         />
         <div class="mb-5">
           <VueDatePicker
-            v-model="newMatch.matchDateTime"
+            v-model="newMatch.matchDate"
             :cancel-text="$t('cancel')"
             :placeholder="$t('date-and-time-of-match')"
             required
@@ -46,9 +46,16 @@
           ref="homeTeamSelectionRef"
           :disabled="!newMatch.homeTeam"
           :is-home-team="true"
-          :team-captain="newMatch.homeTeamCaptain"
+          :position1="newMatch.homePos1"
+          :position2="newMatch.homePos2"
+          :position3="newMatch.homePos3"
+          :position4="newMatch.homePos4"
+          :position5="newMatch.homePos5"
+          :position6="newMatch.homePos6"
+          :position7="newMatch.homePos7"
+          :position8="newMatch.homePos8"
+          :team-captain="newMatch.homeCaptain"
           :team-members="homeTeamMembers"
-          :team-members-selection="newMatch.homeTeamRoster"
           @update:team-captain-select="onHomeTeamCaptainSelection"
           @update:team-select="onHomeTeamRosteSelection"
         />
@@ -73,9 +80,16 @@
           ref="guestTeamSelectionRef"
           :disabled="!newMatch.guestTeam"
           :is-home-team="false"
-          :team-captain="newMatch.guestTeamCaptain"
+          :pos1="newMatch.guestPos1"
+          :pos2="newMatch.guestPos2"
+          :pos3="newMatch.guestPos3"
+          :pos4="newMatch.guestPos4"
+          :pos5="newMatch.guestPos5"
+          :pos6="newMatch.guestPos6"
+          :pos7="newMatch.guestPos7"
+          :pos8="newMatch.guestPos8"
+          :team-captain="newMatch.guestCaptain"
           :team-members="guestTeamMembers"
-          :team-members-selection="newMatch.guestTeamRoster"
           @update:team-captain-select="onGuestTeamCaptainSelection"
           @update:team-select="onGuestTeamRosteSelection"
         />
@@ -113,7 +127,7 @@
 
 <script setup lang="ts">
   import { NewMatchDto, PlayerDto, TeamDto } from '@/models'
-  import { useMatchStore, useTeamStore } from '../stores'
+  import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
   import VueDatePicker from '@vuepic/vue-datepicker'
   import '@vuepic/vue-datepicker/dist/main.css'
   import { storeToRefs } from 'pinia'
@@ -123,11 +137,13 @@
 
   const matchStore = useMatchStore()
   const { newMatch } = storeToRefs(matchStore)
+  const authStore = useAuthStore()
+  const { loggedInUser } = storeToRefs(authStore)
 
   const teamStore = useTeamStore()
   const { teams } = storeToRefs(teamStore)
   const { fetchTeams } = teamStore
-  fetchTeams()
+
   const dialog: Ref<boolean> = ref(false)
 
   const guestTeamSelectionRef: Ref = ref()
@@ -162,29 +178,67 @@
 
   const validationErrors: Ref<string> = ref('')
   const checkCaptains = (): void => {
-    if (!newMatch.value.homeTeamCaptain || !newMatch.value.guestTeamCaptain) {
+    if (!newMatch.value.homeCaptain || !newMatch.value.guestCaptain) {
       return
     }
-    if (newMatch.value.homeTeamCaptain === newMatch.value.guestTeamCaptain) {
+    if (newMatch.value.homeCaptain === newMatch.value.guestCaptain) {
       validationErrors.value = validationErrors.value
         ? `${validationErrors.value}\n ${i18n.t('captains-should-be-different')}`
         : i18n.t('captains-should-be-different')
     }
   }
   const checkPlayers = (): void => {
-    if ([...newMatch.value.guestTeamRoster].filter((player: { playerId: string | undefined, position: string }): boolean => !!player.playerId).length < 4) {
+    const guestPlayers: string[] = [
+      newMatch.value.guestPos1.trim(),
+      newMatch.value.guestPos2.trim(),
+      newMatch.value.guestPos3.trim(),
+    ]
+    if (newMatch.value.guestPos4?.trim()) {
+      guestPlayers.push(newMatch.value.guestPos4.trim())
+    }
+    if (newMatch.value.guestPos5?.trim()) {
+      guestPlayers.push(newMatch.value.guestPos5.trim())
+    }
+    if (newMatch.value.guestPos6?.trim()) {
+      guestPlayers.push(newMatch.value.guestPos6.trim())
+    }
+    if (newMatch.value.guestPos7?.trim()) {
+      guestPlayers.push(newMatch.value.guestPos7.trim())
+    }
+    if (newMatch.value.guestPos8?.trim()) {
+      guestPlayers.push(newMatch.value.guestPos8.trim())
+    }
+    if (guestPlayers.length < 4) {
       validationErrors.value = validationErrors.value
         ? `${validationErrors.value}\n ${i18n.t('guest-team-less-players')}`
         : i18n.t('guest-team-less-players')
     }
-    if ([...newMatch.value.homeTeamRoster].filter((player: { playerId: string | undefined, position: string }): boolean => !!player.playerId).length < 4) {
+    const homePlayers: string[] = [
+      newMatch.value.homePos1.trim(),
+      newMatch.value.homePos2.trim(),
+      newMatch.value.homePos3.trim(),
+    ]
+    if (newMatch.value.homePos4?.trim()) {
+      homePlayers.push(newMatch.value.homePos4.trim())
+    }
+    if (newMatch.value.homePos5?.trim()) {
+      homePlayers.push(newMatch.value.homePos5.trim())
+    }
+    if (newMatch.value.homePos6?.trim()) {
+      homePlayers.push(newMatch.value.homePos6.trim())
+    }
+    if (newMatch.value.homePos7?.trim()) {
+      homePlayers.push(newMatch.value.homePos7.trim())
+    }
+    if (newMatch.value.homePos8?.trim()) {
+      homePlayers.push(newMatch.value.homePos8.trim())
+    }
+    if (homePlayers.length < 4) {
       validationErrors.value = validationErrors.value
         ? `${validationErrors.value}\n ${i18n.t('home-team-less-players')}`
         : i18n.t('home-team-less-players')
     }
-    const players = [...newMatch.value.guestTeamRoster, ...newMatch.value.homeTeamRoster]
-      .filter((player: { playerId: string | undefined, position: string }) => !!player.playerId)
-      .map((player: { playerId: string | undefined, position: string }) => player.playerId as string)
+    const players: string[] = [...guestPlayers, ...homePlayers]
     const duplicates = findDuplicates(players)
     if (duplicates.length > 0) {
       const duplicatedPlayersInfo = new Set([...guestTeamMembers.value, ...homeTeamMembers.value]
@@ -197,34 +251,66 @@
     }
   }
   const validationRulesCheck = (): boolean => {
-    return !!newMatch.value.matchDateTime &&
+    return !!newMatch.value.matchDate &&
       !!newMatch.value.matchLocation &&
       !!newMatch.value.guestTeam &&
       !!newMatch.value.homeTeam &&
-      !!newMatch.value.guestTeamCaptain &&
-      !!newMatch.value.homeTeamCaptain &&
-      !!newMatch.value.guestTeamRoster[0].playerId &&
-      !!newMatch.value.guestTeamRoster[1].playerId &&
-      !!newMatch.value.guestTeamRoster[2].playerId &&
-      !!newMatch.value.homeTeamRoster[0].playerId &&
-      !!newMatch.value.homeTeamRoster[1].playerId &&
-      !!newMatch.value.homeTeamRoster[2].playerId
+      !!newMatch.value.guestCaptain &&
+      !!newMatch.value.homeCaptain &&
+      !!newMatch.value.guestPos1 &&
+      !!newMatch.value.guestPos2 &&
+      !!newMatch.value.guestPos3 &&
+      !!newMatch.value.homePos1 &&
+      !!newMatch.value.homePos2 &&
+      !!newMatch.value.homePos3
   }
   const formattedValidationErrors: ComputedRef<string> = computed(() => {
     return validationErrors.value.replace(/\n/g, '<br>')
   })
 
   const onGuestTeamCaptainSelection = (captain: string): void => {
-    newMatch.value.guestTeamCaptain = captain
+    newMatch.value.guestCaptain = captain
   }
-  const onGuestTeamRosteSelection = (roster: { playerId: string | undefined, position: string }[]): void => {
-    newMatch.value.guestTeamRoster = roster
+  const onGuestTeamRosteSelection = (roster: {
+    position1: string,
+    position2: string,
+    position3: string,
+    position4: string,
+    position5: string,
+    position6: string,
+    position7: string,
+    position8: string,
+  }): void => {
+    newMatch.value.guestPos1 = roster.position1
+    newMatch.value.guestPos2 = roster.position2
+    newMatch.value.guestPos3 = roster.position3
+    newMatch.value.guestPos4 = roster.position4
+    newMatch.value.guestPos5 = roster.position5
+    newMatch.value.guestPos6 = roster.position6
+    newMatch.value.guestPos7 = roster.position7
+    newMatch.value.guestPos8 = roster.position8
   }
   const onHomeTeamCaptainSelection = (captain: string): void => {
-    newMatch.value.homeTeamCaptain = captain
+    newMatch.value.homeCaptain = captain
   }
-  const onHomeTeamRosteSelection = (roster: { playerId: string | undefined, position: string }[]): void => {
-    newMatch.value.homeTeamRoster = roster
+  const onHomeTeamRosteSelection = (roster: {
+    position1: string,
+    position2: string,
+    position3: string,
+    position4: string,
+    position5: string,
+    position6: string,
+    position7: string,
+    position8: string,
+  }): void => {
+    newMatch.value.homePos1 = roster.position1
+    newMatch.value.homePos2 = roster.position2
+    newMatch.value.homePos3 = roster.position3
+    newMatch.value.homePos4 = roster.position4
+    newMatch.value.homePos5 = roster.position5
+    newMatch.value.homePos6 = roster.position6
+    newMatch.value.homePos7 = roster.position7
+    newMatch.value.homePos8 = roster.position8
   }
 
   const handleSubmit = () => {
@@ -237,14 +323,30 @@
     }
 
     const newMatchData: NewMatchDto = {
+      createdAt: new Date(),
+      createdBy: loggedInUser!.value!.id,
       guestTeam: newMatch.value.guestTeam,
-      guestTeamCaptain: newMatch.value.guestTeamCaptain,
-      guestTeamRoster: newMatch.value.guestTeamRoster,
+      guestCaptain: newMatch.value.guestCaptain,
+      guestPos1: newMatch.value.guestPos1,
+      guestPos2: newMatch.value.guestPos2,
+      guestPos3: newMatch.value.guestPos3,
+      guestPos4: newMatch.value.guestPos4,
+      guestPos5: newMatch.value.guestPos5,
+      guestPos6: newMatch.value.guestPos6,
+      guestPos7: newMatch.value.guestPos7,
+      guestPos8: newMatch.value.guestPos8,
       homeTeam: newMatch.value.homeTeam,
-      homeTeamCaptain: newMatch.value.homeTeamCaptain,
-      homeTeamRoster: newMatch.value.homeTeamRoster,
+      homeCaptain: newMatch.value.homeCaptain,
+      homePos1: newMatch.value.homePos1,
+      homePos2: newMatch.value.homePos2,
+      homePos3: newMatch.value.homePos3,
+      homePos4: newMatch.value.homePos4,
+      homePos5: newMatch.value.homePos5,
+      homePos6: newMatch.value.homePos6,
+      homePos7: newMatch.value.homePos7,
+      homePos8: newMatch.value.homePos8,
       matchLocation: newMatch.value!.matchLocation,
-      matchDateTime: newMatch.value!.matchDateTime,
+      matchDate: newMatch.value!.matchDate,
     }
     newMatch.value = newMatchData
 
@@ -265,6 +367,10 @@
   const handleWarningDialogCancel = (): void => {
     dialog.value = false
   }
+
+  onMounted(async () => {
+    await fetchTeams()
+  })
 
   watch(() => newMatch.value.guestTeam, () => {
     guestTeamSelectionRef.value.reset()
