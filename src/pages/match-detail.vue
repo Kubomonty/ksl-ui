@@ -14,6 +14,8 @@
           :match-legs="matchLegs.qtr1"
           :match-state="matchState.qtr1"
           :qtr="1"
+          @update:match-legs-guest="handleGuestLegsUpdate"
+          @update:match-legs-home="handleHomeLegsUpdate"
         />
         <br>
         <match-table
@@ -80,10 +82,44 @@
     return matches.value.find(match => match.id === route.query.id)
   })
 
-  const matchLegs = {
+  const createGameState = (game: Game): Game => ({
+    guest: game.guest === 2 ? 1 : 0,
+    home: game.home === 2 ? 1 : 0,
+  })
+  const createQuarterState = (quarter: Quarter): Quarter => ({
+    game1: createGameState(quarter.game1),
+    game2: createGameState(quarter.game2),
+    game3: createGameState(quarter.game3),
+    game4: createGameState(quarter.game4),
+  })
+  const sumGameScores = (nonSummedQuarter: Quarter, previousQuarterLastGame: Game): Quarter => {
+    let cumulativeGuest = previousQuarterLastGame.guest
+    let cumulativeHome = previousQuarterLastGame.home
+
+    return {
+      game1: {
+        guest: cumulativeGuest += nonSummedQuarter.game1.guest,
+        home: cumulativeHome += nonSummedQuarter.game1.home,
+      },
+      game2: {
+        guest: cumulativeGuest += nonSummedQuarter.game2.guest,
+        home: cumulativeHome += nonSummedQuarter.game2.home,
+      },
+      game3: {
+        guest: cumulativeGuest += nonSummedQuarter.game3.guest,
+        home: cumulativeHome += nonSummedQuarter.game3.home,
+      },
+      game4: {
+        guest: cumulativeGuest += nonSummedQuarter.game4.guest,
+        home: cumulativeHome += nonSummedQuarter.game4.home,
+      },
+    }
+  }
+
+  const matchLegs = ref({
     qtr1: {
       game1: {
-        home: 1,
+        home: 0,
         guest: 2,
       },
       game2: {
@@ -153,49 +189,13 @@
         guest: 2,
       },
     },
-  }
+  })
   const matchState = computed(() => {
-    const createGameState = (game: Game): Game => ({
-      guest: game.guest === 2 ? 1 : 0,
-      home: game.home === 2 ? 1 : 0,
-    })
-
-    const createQuarterState = (quarter: Quarter): Quarter => ({
-      game1: createGameState(quarter.game1),
-      game2: createGameState(quarter.game2),
-      game3: createGameState(quarter.game3),
-      game4: createGameState(quarter.game4),
-    })
-
-    const sumGameScores = (nonSummedQuarter: Quarter, previousQuarterLastGame: Game): Quarter => {
-      let cumulativeGuest = previousQuarterLastGame.guest
-      let cumulativeHome = previousQuarterLastGame.home
-
-      return {
-        game1: {
-          guest: cumulativeGuest += nonSummedQuarter.game1.guest,
-          home: cumulativeHome += nonSummedQuarter.game1.home,
-        },
-        game2: {
-          guest: cumulativeGuest += nonSummedQuarter.game2.guest,
-          home: cumulativeHome += nonSummedQuarter.game2.home,
-        },
-        game3: {
-          guest: cumulativeGuest += nonSummedQuarter.game3.guest,
-          home: cumulativeHome += nonSummedQuarter.game3.home,
-        },
-        game4: {
-          guest: cumulativeGuest += nonSummedQuarter.game4.guest,
-          home: cumulativeHome += nonSummedQuarter.game4.home,
-        },
-      }
-    }
-
     // Create initial quarter states without cumulative sums
-    const nonSummedQtr1 = createQuarterState(matchLegs.qtr1)
-    const nonSummedQtr2 = createQuarterState(matchLegs.qtr2)
-    const nonSummedQtr3 = createQuarterState(matchLegs.qtr3)
-    const nonSummedQtr4 = createQuarterState(matchLegs.qtr4)
+    const nonSummedQtr1 = createQuarterState(matchLegs.value.qtr1)
+    const nonSummedQtr2 = createQuarterState(matchLegs.value.qtr2)
+    const nonSummedQtr3 = createQuarterState(matchLegs.value.qtr3)
+    const nonSummedQtr4 = createQuarterState(matchLegs.value.qtr4)
 
     // Generate cumulative scores for each quarter
     const qtr1 = sumGameScores(nonSummedQtr1, { guest: 0, home: 0 })
@@ -205,6 +205,63 @@
 
     return { qtr1, qtr2, qtr3, qtr4 }
   })
+
+  const handleHomeLegsUpdate = (values: {values: number[], qtr: number}) => {
+    switch (values.qtr) {
+      case 1:
+        matchLegs.value.qtr1.game1.home = values.values[0]
+        matchLegs.value.qtr1.game2.home = values.values[1]
+        matchLegs.value.qtr1.game3.home = values.values[2]
+        matchLegs.value.qtr1.game4.home = values.values[3]
+        break
+      case 2:
+        matchLegs.value.qtr2.game1.home = values.values[0]
+        matchLegs.value.qtr2.game2.home = values.values[1]
+        matchLegs.value.qtr2.game3.home = values.values[2]
+        matchLegs.value.qtr2.game4.home = values.values[3]
+        break
+      case 3:
+        matchLegs.value.qtr3.game1.home = values.values[0]
+        matchLegs.value.qtr3.game2.home = values.values[1]
+        matchLegs.value.qtr3.game3.home = values.values[2]
+        matchLegs.value.qtr3.game4.home = values.values[3]
+        break
+      case 4:
+        matchLegs.value.qtr4.game1.home = values.values[0]
+        matchLegs.value.qtr4.game2.home = values.values[1]
+        matchLegs.value.qtr4.game3.home = values.values[2]
+        matchLegs.value.qtr4.game4.home = values.values[3]
+        break
+    }
+  }
+  const handleGuestLegsUpdate = (values: {values: number[], qtr: number}) => {
+    switch (values.qtr) {
+      case 1:
+        matchLegs.value.qtr1.game1.guest = values.values[0]
+        matchLegs.value.qtr1.game2.guest = values.values[1]
+        matchLegs.value.qtr1.game3.guest = values.values[2]
+        matchLegs.value.qtr1.game4.guest = values.values[3]
+        break
+      case 2:
+        matchLegs.value.qtr2.game1.guest = values.values[0]
+        matchLegs.value.qtr2.game2.guest = values.values[1]
+        matchLegs.value.qtr2.game3.guest = values.values[2]
+        matchLegs.value.qtr2.game4.guest = values.values[3]
+        break
+      case 3:
+        matchLegs.value.qtr3.game1.guest = values.values[0]
+        matchLegs.value.qtr3.game2.guest = values.values[1]
+        matchLegs.value.qtr3.game3.guest = values.values[2]
+        matchLegs.value.qtr3.game4.guest = values.values[3]
+        break
+      case 4:
+        matchLegs.value.qtr4.game1.guest = values.values[0]
+        matchLegs.value.qtr4.game2.guest = values.values[1]
+        matchLegs.value.qtr4.game3.guest = values.values[2]
+        matchLegs.value.qtr4.game4.guest = values.values[3]
+        break
+    }
+  }
 
   const getPlayer = (team: TeamDto | undefined | null, playerId: string | undefined): PlayerDto | null => {
     if (!team || !playerId) {

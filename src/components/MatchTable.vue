@@ -27,6 +27,7 @@
                 density="compact"
                 hide-details
                 :items="legItems"
+                :readonly="!isLoggedIn"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -41,6 +42,7 @@
                 density="compact"
                 hide-details
                 :items="legItems"
+                :readonly="!isLoggedIn"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -54,10 +56,12 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineProps, type PropType } from 'vue'
+  import { defineEmits, defineProps, type PropType } from 'vue'
   import { EditMatchType } from '../enums'
   import { matchOpponentsStructure } from '../constants'
   import { PlayerDto } from '../models'
+  import { storeToRefs } from 'pinia'
+  import { useAuthStore } from '../stores'
 
   const props = defineProps({
     editType: {
@@ -96,6 +100,10 @@
       type: Number,
     },
   })
+  const emits = defineEmits(['update:match-legs-home', 'update:match-legs-guest'])
+
+  const authStore = useAuthStore()
+  const { isLoggedIn } = storeToRefs(authStore)
 
   const legItems: Ref<number[]> = ref([0, 1, 2])
 
@@ -105,4 +113,11 @@
 
   const hLegs = ref([props.matchLegs.game1.home, props.matchLegs.game2.home, props.matchLegs.game3.home, props.matchLegs.game4.home])
   const gLegs = ref([props.matchLegs.game1.guest, props.matchLegs.game2.guest, props.matchLegs.game3.guest, props.matchLegs.game4.guest])
+
+  watch(hLegs, () => {
+    emits('update:match-legs-home', { values: hLegs.value, qtr: props.qtr })
+  }, { deep: true })
+  watch(gLegs, () => {
+    emits('update:match-legs-guest', { values: gLegs.value, qtr: props.qtr })
+  }, { deep: true })
 </script>

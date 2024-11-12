@@ -7,12 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppFooter: typeof import('./components/AppFooter.vue')['default']
-    AppHeader: typeof import('./components/AppHeader.vue')['default']
-    HelloWorld: typeof import('./components/HelloWorld.vue')['default']
-    LegsSubmitForm: typeof import('./components/LegsSubmitForm.vue')['default']
     MatchTable: typeof import('./components/MatchTable.vue')['default']
-    NewMatchCreation: typeof import('./components/NewMatchCreation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TeamMembersSelection: typeof import('./components/TeamMembersSelection.vue')['default']
