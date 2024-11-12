@@ -24,6 +24,8 @@
           :match-legs="matchLegs.qtr2"
           :match-state="matchState.qtr2"
           :qtr="2"
+          @update:match-legs-guest="handleGuestLegsUpdate"
+          @update:match-legs-home="handleHomeLegsUpdate"
         />
         <br>
         <match-table
@@ -32,6 +34,8 @@
           :match-legs="matchLegs.qtr3"
           :match-state="matchState.qtr3"
           :qtr="3"
+          @update:match-legs-guest="handleGuestLegsUpdate"
+          @update:match-legs-home="handleHomeLegsUpdate"
         />
         <br>
         <match-table
@@ -40,6 +44,8 @@
           :match-legs="matchLegs.qtr4"
           :match-state="matchState.qtr4"
           :qtr="4"
+          @update:match-legs-guest="handleGuestLegsUpdate"
+          @update:match-legs-home="handleHomeLegsUpdate"
         />
       </v-card-text>
       <v-card-actions>
