@@ -20,6 +20,7 @@
                     <th>Location and Date</th>
                     <th>Home Team</th>
                     <th>Guest Team</th>
+                    <th width="5%" />
                   </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,16 @@
                     <td>{{ match.matchLocation }} - {{ formatDateTime(match.matchDate.toISOString()) }}</td>
                     <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
                     <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
+                    <td>
+                      <v-btn
+                        color="primary"
+                        size="x-small"
+                        variant="flat"
+                        @click="handleMatchClick(match)"
+                      >
+                        detail
+                      </v-btn>
+                    </td>
                   </tr>
                 </tbody>
               </v-table>
@@ -46,13 +57,15 @@
 </template>
 
 <script lang="ts" setup>
+  import { useRoute, useRouter } from 'vue-router'
+  import { useMatchStore, useTeamStore } from '../stores'
+  import { MatchDto } from '@/models'
   import { format } from 'date-fns'
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
-  import { useMatchStore, useTeamStore } from '../stores'
-  import { useRoute } from 'vue-router'
 
   const route = useRoute()
+  const router = useRouter()
   const loading = ref(false)
 
   const matchStore = useMatchStore()
@@ -73,6 +86,13 @@
   const pageCount = computed(() => {
     return Math.ceil(matches.value.length / itemsPerPage)
   })
+
+  const handleMatchClick = (match: MatchDto) => {
+    const path = `/match-detail?id=${match.id}`
+    const query = { id: match.id }
+    console.log(path)
+    router.push({ path, query })
+  }
 
   const formatDateTime = (dateTime: string) => {
     return format(new Date(dateTime), 'dd.MM.yyyy-HH:mm')
