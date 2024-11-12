@@ -90,7 +90,6 @@
   const handleMatchClick = (match: MatchDto) => {
     const path = `/match-detail?id=${match.id}`
     const query = { id: match.id }
-    console.log(path)
     router.push({ path, query })
   }
 
