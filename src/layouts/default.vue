@@ -6,14 +6,16 @@
       flat
     >
       <v-app-bar-nav-icon variant="text" @click.stop="onNavBarIconClick" />
-      <v-toolbar-title
+      <v-app-bar-title
         v-if="isLoggedIn"
       >{{ loggedInUser?.teamName || `${loggedInUser?.username} - ${loggedInUser?.userEmail}` }}
-      </v-toolbar-title>
-      <v-toolbar-title
+      </v-app-bar-title>
+      <v-app-bar-title
         v-else
-      >{{ $t('k-s-l') }}
-      </v-toolbar-title>
+        class="text-overflow"
+        :class="xs ? 'text-subtitle-2' : ''"
+      >{{ $t('k-s-l') }}&nbsp;{{ $t('el-darts') }}
+      </v-app-bar-title>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -70,6 +72,8 @@
   import { useDisplay } from 'vuetify'
   import { useI18n } from 'vue-i18n'
   import { useRouter } from 'vue-router'
+
+  const { xs } = useDisplay()
 
   const i18n = useI18n()
   const router = useRouter()
