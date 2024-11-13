@@ -1,61 +1,80 @@
 <template>
   <v-card border flat>
     <v-container>
-      <v-card-title>{{ `${ homeTeam!.teamName} vs. ${guestTeam!.teamName}` }}</v-card-title>
-      <v-card-subtitle>{{ `${matchDetail!.matchLocation} - ${formattedMatchDateTime}` }}</v-card-subtitle>
-      <v-card-text>
-        <br>
-        <span class="d-flex mb-2">
-          <h4>{{ `${$t('game-no')} 1` }}</h4>
-        </span>
-        <match-table
-          :guest-players="orderedGuestTeamPlayers"
-          :home-players="orderedHomeTeamPlayers"
-          :match-legs="matchLegs.qtr1"
-          :match-state="matchState.qtr1"
-          :qtr="1"
-          @update:match-legs-guest="handleGuestLegsUpdate"
-          @update:match-legs-home="handleHomeLegsUpdate"
-        />
-        <br>
-        <match-table
-          :guest-players="orderedGuestTeamPlayers"
-          :home-players="orderedHomeTeamPlayers"
-          :match-legs="matchLegs.qtr2"
-          :match-state="matchState.qtr2"
-          :qtr="2"
-          @update:match-legs-guest="handleGuestLegsUpdate"
-          @update:match-legs-home="handleHomeLegsUpdate"
-        />
-        <br>
-        <match-table
-          :guest-players="orderedGuestTeamPlayers"
-          :home-players="orderedHomeTeamPlayers"
-          :match-legs="matchLegs.qtr3"
-          :match-state="matchState.qtr3"
-          :qtr="3"
-          @update:match-legs-guest="handleGuestLegsUpdate"
-          @update:match-legs-home="handleHomeLegsUpdate"
-        />
-        <br>
-        <match-table
-          :guest-players="orderedGuestTeamPlayers"
-          :home-players="orderedHomeTeamPlayers"
-          :match-legs="matchLegs.qtr4"
-          :match-state="matchState.qtr4"
-          :qtr="4"
-          @update:match-legs-guest="handleGuestLegsUpdate"
-          @update:match-legs-home="handleHomeLegsUpdate"
-        />
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn
-          color="warning"
-          variant="flat"
-          @click="handleReturn"
-        >{{ $t('back') }}</v-btn>
-      </v-card-actions>
+      <span v-if="loading">
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+      </span>
+      <span v-else>
+        <v-card-title>{{ `${ homeTeam?.teamName} vs. ${guestTeam?.teamName}` }}</v-card-title>
+        <v-card-subtitle>{{ `${selectedMatchDetails?.matchLocation} - ${formattedMatchDateTime}` }}</v-card-subtitle>
+        <v-card-text>
+          <br>
+          <span class="d-flex mb-2">
+            <h4>{{ `${$t('game-no')} 1` }}</h4>
+          </span>
+          <match-table
+            :guest-players="guestTeamPlayers.q1"
+            :home-players="homeTeamPlayers.q1"
+            :match-legs="matchLegs.qtr1"
+            :match-state="matchState.qtr1"
+            :qtr="1"
+            @update:match-legs-guest="handleGuestLegsUpdate"
+            @update:match-legs-home="handleHomeLegsUpdate"
+          />
+          <br>
+          <span class="d-flex mb-2">
+            <h4>{{ `${$t('game-no')} 2` }}</h4>
+          </span>
+          <match-table
+            :guest-players="guestTeamPlayers.q2"
+            :home-players="homeTeamPlayers.q2"
+            :match-legs="matchLegs.qtr2"
+            :match-state="matchState.qtr2"
+            :qtr="2"
+            @update:match-legs-guest="handleGuestLegsUpdate"
+            @update:match-legs-home="handleHomeLegsUpdate"
+          />
+          <br>
+          <span class="d-flex mb-2">
+            <h4>{{ `${$t('game-no')} 3` }}</h4>
+          </span>
+          <match-table
+            :guest-players="guestTeamPlayers.q3"
+            :home-players="homeTeamPlayers.q3"
+            :match-legs="matchLegs.qtr3"
+            :match-state="matchState.qtr3"
+            :qtr="3"
+            @update:match-legs-guest="handleGuestLegsUpdate"
+            @update:match-legs-home="handleHomeLegsUpdate"
+          />
+          <br>
+          <span class="d-flex mb-2">
+            <h4>{{ `${$t('game-no')} 4` }}</h4>
+          </span>
+          <match-table
+            :guest-players="guestTeamPlayers.q4"
+            :home-players="homeTeamPlayers.q4"
+            :match-legs="matchLegs.qtr4"
+            :match-state="matchState.qtr4"
+            :qtr="4"
+            @update:match-legs-guest="handleGuestLegsUpdate"
+            @update:match-legs-home="handleHomeLegsUpdate"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleReturn"
+          >{{ $t('back') }}</v-btn>
+        </v-card-actions>
+      </span>
     </v-container>
   </v-card>
 </template>
@@ -68,6 +87,8 @@
   import { format } from 'date-fns'
   import { storeToRefs } from 'pinia'
 
+  const loading = ref(false)
+
   type Game = { guest: number; home: number };
   type Quarter = {
     game1: Game;
@@ -79,14 +100,11 @@
   const route = useRoute()
 
   const matchStore = useMatchStore()
-  const { matches } = storeToRefs(matchStore)
+  const { selectedMatchDetails } = storeToRefs(matchStore)
+  const { fetchMatchDetails, resetSelectedMatchDetails } = matchStore
 
   const teamStore = useTeamStore()
-  const { getTeamById } = teamStore
-
-  const matchDetail = computed(() => {
-    return matches.value.find(match => match.id === route.query.id)
-  })
+  const { fetchTeams, getTeamById } = teamStore
 
   const createGameState = (game: Game): Game => ({
     guest: game.guest === 2 ? 1 : 0,
@@ -125,74 +143,74 @@
   const matchLegs = ref({
     qtr1: {
       game1: {
-        home: 0,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m1 || 0,
       },
       game2: {
-        home: 1,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m2 || 0,
       },
       game3: {
-        home: 0,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m3 || 0,
       },
       game4: {
-        home: 0,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m4 || 0,
       },
     },
     qtr2: {
       game1: {
-        home: 2,
-        guest: 1,
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m1 || 0,
       },
       game2: {
-        home: 2,
-        guest: 0,
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m2 || 0,
       },
       game3: {
-        home: 2,
-        guest: 1,
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m3 || 0,
       },
       game4: {
-        home: 2,
-        guest: 0,
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m4 || 0,
       },
     },
     qtr3: {
       game1: {
-        home: 2,
-        guest: 0,
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m1 || 0,
       },
       game2: {
-        home: 2,
-        guest: 0,
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m2 || 0,
       },
       game3: {
-        home: 2,
-        guest: 0,
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m3 || 0,
       },
       game4: {
-        home: 2,
-        guest: 0,
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m4 || 0,
       },
     },
     qtr4: {
       game1: {
-        home: 0,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m1 || 0,
       },
       game2: {
-        home: 0,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m2 || 0,
       },
       game3: {
-        home: 0,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m3 || 0,
       },
       game4: {
-        home: 0,
-        guest: 2,
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m4 || 0,
       },
     },
   })
@@ -278,128 +296,240 @@
   }
 
   const homeTeam: ComputedRef<TeamDto | null | undefined> = computed((): TeamDto | null | undefined => {
-    return matchDetail.value!.homeTeam ? getTeamById(matchDetail.value!.homeTeam) : null
+    return selectedMatchDetails?.value?.homeTeam ? getTeamById(selectedMatchDetails?.value?.homeTeam) : null
   })
-  const homeTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(
-    (): { player: PlayerDto | null | undefined, position: string }[] => {
-      const homePlayers: { player: PlayerDto | null | undefined, position: string }[] = [
-        {
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos1),
-          position: 'H1',
-        },
-        {
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos2),
-          position: 'H2',
-        },
-        {
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos3),
-          position: 'H3',
-        },
-      ]
-      if (matchDetail.value!.homePos4?.trim()) {
-        homePlayers.push({
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos4),
-          position: 'H4',
-        })
+
+  const homeTeamPlayers: ComputedRef<{
+    q1: { player: PlayerDto | null | undefined; position: string }[];
+    q2: { player: PlayerDto | null | undefined; position: string }[];
+    q3: { player: PlayerDto | null | undefined; position: string }[];
+    q4: { player: PlayerDto | null | undefined; position: string }[];
+  }> = computed(() => {
+    if (!selectedMatchDetails?.value?.homeTeam) {
+      return {
+        q1: [],
+        q2: [],
+        q3: [],
+        q4: [],
       }
-      if (matchDetail.value!.homePos5?.trim()) {
-        homePlayers.push({
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos5),
-          position: 'H5',
-        })
-      }
-      if (matchDetail.value!.homePos6?.trim()) {
-        homePlayers.push({
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos6),
-          position: 'H6',
-        })
-      }
-      if (matchDetail.value!.homePos7?.trim()) {
-        homePlayers.push({
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos7),
-          position: 'H7',
-        })
-      }
-      if (matchDetail.value!.homePos8?.trim()) {
-        homePlayers.push({
-          player: getPlayer(homeTeam.value, matchDetail.value!.homePos8),
-          position: 'H8',
-        })
-      }
-      return homePlayers
     }
-  )
-  const orderedHomeTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(() => {
-    return homeTeamPlayers.value.slice().sort((a, b) => a.position.localeCompare(b.position))
+    const q1: { player: PlayerDto | null | undefined; position: string }[] = []
+    q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos1), position: 'H1' })
+    q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos2), position: 'H2' })
+    q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos3), position: 'H3' })
+    if (selectedMatchDetails.value.quarters.q1.home.pos4) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos4), position: 'H4' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos5) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos5), position: 'H5' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos6) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos6), position: 'H6' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos7) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos7), position: 'H7' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos8) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q1.home.pos8), position: 'H8' })
+    }
+
+    const q2: { player: PlayerDto | null | undefined; position: string }[] = []
+    q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos1), position: 'H1' })
+    q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos2), position: 'H2' })
+    q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos3), position: 'H3' })
+    if (selectedMatchDetails.value.quarters.q2.home.pos4) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos4), position: 'H4' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos5) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos5), position: 'H5' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos6) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos6), position: 'H6' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos7) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos7), position: 'H7' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos8) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q2.home.pos8), position: 'H8' })
+    }
+
+    const q3: { player: PlayerDto | null | undefined; position: string }[] = []
+    q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos1), position: 'H1' })
+    q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos2), position: 'H2' })
+    q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos3), position: 'H3' })
+    if (selectedMatchDetails.value.quarters.q3.home.pos4) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos4), position: 'H4' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos5) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos5), position: 'H5' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos6) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos6), position: 'H6' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos7) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos7), position: 'H7' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos8) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q3.home.pos8), position: 'H8' })
+    }
+
+    const q4: { player: PlayerDto | null | undefined; position: string }[] = []
+    q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos1), position: 'H1' })
+    q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos2), position: 'H2' })
+    q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos3), position: 'H3' })
+    if (selectedMatchDetails.value.quarters.q4.home.pos4) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos4), position: 'H4' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos5) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos5), position: 'H5' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos6) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos6), position: 'H6' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos7) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos7), position: 'H7' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos8) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.homeTeam), selectedMatchDetails.value.quarters.q4.home.pos8), position: 'H8' })
+    }
+    return { q1, q2, q3, q4 }
   })
 
   const guestTeam: ComputedRef<TeamDto | null | undefined> = computed((): TeamDto | null | undefined => {
-    return matchDetail.value!.guestTeam ? getTeamById(matchDetail.value!.guestTeam) : null
+    return selectedMatchDetails?.value?.guestTeam ? getTeamById(selectedMatchDetails.value.guestTeam) : null
   })
-  const guestTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(
-    (): { player: PlayerDto | null | undefined, position: string }[] => {
-      const guestPlayers: { player: PlayerDto | null | undefined, position: string }[] = [
-        {
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos1),
-          position: 'G1',
-        },
-        {
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos2),
-          position: 'G2',
-        },
-        {
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos3),
-          position: 'G3',
-        },
-      ]
-      if (matchDetail.value!.guestPos4?.trim()) {
-        guestPlayers.push({
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos4),
-          position: 'G4',
-        })
+  const guestTeamPlayers: ComputedRef<{
+    q1: { player: PlayerDto | null | undefined; position: string }[];
+    q2: { player: PlayerDto | null | undefined; position: string }[];
+    q3: { player: PlayerDto | null | undefined; position: string }[];
+    q4: { player: PlayerDto | null | undefined; position: string }[];
+  }> = computed(() => {
+    if (!selectedMatchDetails?.value?.guestTeam) {
+      return {
+        q1: [],
+        q2: [],
+        q3: [],
+        q4: [],
       }
-      if (matchDetail.value!.guestPos5?.trim()) {
-        guestPlayers.push({
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos5),
-          position: 'G5',
-        })
-      }
-      if (matchDetail.value!.guestPos6?.trim()) {
-        guestPlayers.push({
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos6),
-          position: 'G6',
-        })
-      }
-      if (matchDetail.value!.guestPos7?.trim()) {
-        guestPlayers.push({
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos7),
-          position: 'G7',
-        })
-      }
-      if (matchDetail.value!.guestPos8?.trim()) {
-        guestPlayers.push({
-          player: getPlayer(guestTeam.value, matchDetail.value!.guestPos8),
-          position: 'G8',
-        })
-      }
-      return guestPlayers
     }
-  )
-  const orderedGuestTeamPlayers: ComputedRef<{ player: PlayerDto | null | undefined, position: string }[]> = computed(() => {
-    return guestTeamPlayers.value.slice().sort((a, b) => a.position.localeCompare(b.position))
+    const q1: { player: PlayerDto | null | undefined; position: string }[] = []
+    q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos1), position: 'G1' })
+    q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos2), position: 'G2' })
+    q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos3), position: 'G3' })
+    if (selectedMatchDetails.value.quarters.q1.home.pos4) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos4), position: 'G4' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos5) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos5), position: 'G5' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos6) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos6), position: 'G6' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos7) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos7), position: 'G7' })
+    }
+    if (selectedMatchDetails.value.quarters.q1.home.pos8) {
+      q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos8), position: 'G8' })
+    }
+
+    const q2: { player: PlayerDto | null | undefined; position: string }[] = []
+    q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos1), position: 'G1' })
+    q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos2), position: 'G2' })
+    q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos3), position: 'G3' })
+    if (selectedMatchDetails.value.quarters.q2.home.pos4) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos4), position: 'G4' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos5) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos5), position: 'G5' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos6) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos6), position: 'G6' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos7) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos7), position: 'G7' })
+    }
+    if (selectedMatchDetails.value.quarters.q2.home.pos8) {
+      q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos8), position: 'G8' })
+    }
+
+    const q3: { player: PlayerDto | null | undefined; position: string }[] = []
+    q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos1), position: 'G1' })
+    q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos2), position: 'G2' })
+    q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos3), position: 'G3' })
+    if (selectedMatchDetails.value.quarters.q3.home.pos4) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos4), position: 'G4' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos5) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos5), position: 'G5' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos6) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos6), position: 'G6' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos7) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos7), position: 'G7' })
+    }
+    if (selectedMatchDetails.value.quarters.q3.home.pos8) {
+      q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos8), position: 'G8' })
+    }
+
+    const q4: { player: PlayerDto | null | undefined; position: string }[] = []
+    q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos1), position: 'G1' })
+    q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos2), position: 'G2' })
+    q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos3), position: 'G3' })
+    if (selectedMatchDetails.value.quarters.q4.home.pos4) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos4), position: 'G4' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos5) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos5), position: 'G5' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos6) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos6), position: 'G6' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos7) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos7), position: 'G7' })
+    }
+    if (selectedMatchDetails.value.quarters.q4.home.pos8) {
+      q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos8), position: 'G8' })
+    }
+    return { q1, q2, q3, q4 }
   })
 
   const formattedMatchDateTime: ComputedRef<string> = computed((): string => {
-    return matchDetail.value!.matchDate ? format(new Date(matchDetail.value!.matchDate), 'dd.MM.yyyy, HH:mm') : '-'
+    return selectedMatchDetails?.value?.matchDate ? format(new Date(selectedMatchDetails.value.matchDate), 'dd.MM.yyyy, HH:mm') : '-'
   })
 
   const handleReturn = (): void => {
     router.push('/')
   }
 
-  onMounted(() => {
-    if (!matchDetail.value! || !matchDetail.value!.homeTeam || !matchDetail.value!.guestTeam) {
+  watch(async () => route, async () => {
+    loading.value = true
+    resetSelectedMatchDetails()
+    if (!route.query.id) {
+      loading.value = false
       handleReturn()
     }
+    await Promise.all([
+      fetchTeams(),
+      fetchMatchDetails(route.query.id as string),
+    ])
+    loading.value = false
+  }, { deep: true })
+
+  onMounted(async () => {
+    loading.value = true
+    resetSelectedMatchDetails()
+    if (!route.query.id) {
+      handleReturn()
+    }
+    await Promise.all([
+      fetchTeams(),
+      fetchMatchDetails(route.query.id as string),
+    ])
+    if (!selectedMatchDetails?.value || !selectedMatchDetails?.value?.homeTeam || !selectedMatchDetails?.value?.guestTeam) {
+      loading.value = false
+      handleReturn()
+    }
+    loading.value = false
   })
 </script>

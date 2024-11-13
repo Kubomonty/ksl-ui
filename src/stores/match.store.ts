@@ -15,7 +15,19 @@ export const useMatchStore = defineStore('match-store', {
         const response = await axios.post(`${API_URL}/api/match`, this.$state.newMatch, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
+        await this.fetchMatchesPage(10, 1)
         this.resetNewMatch()
+        return response.data
+      } catch (error) {
+        console.error('Error creating team:', error)
+        return null
+      }
+    },
+    async fetchMatchDetails (matchId: string) {
+      try {
+        this.resetSelectedMatchDetails()
+        const response = await axios.get(`${API_URL}/api/match/${matchId}`)
+        this.$state.selectedMatchDetails = response.data
         return response.data
       } catch (error) {
         console.error('Error creating team:', error)
@@ -95,9 +107,10 @@ export const useMatchStore = defineStore('match-store', {
         matchDate: new Date(),
       }
     },
+    resetSelectedMatchDetails () {
+      this.$state.selectedMatchDetails = undefined
+    },
   },
-
-  getters: {},
 
   state: (): MatchState => ({
     matches: [],
@@ -127,5 +140,6 @@ export const useMatchStore = defineStore('match-store', {
       matchLocation: '',
       matchDate: new Date(),
     },
+    selectedMatchDetails: undefined,
   }),
 })

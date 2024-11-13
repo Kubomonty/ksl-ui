@@ -452,12 +452,12 @@
   const handleReturn = (): void => {
     router.push('/new-match')
   }
-  const handleMatchCreation = (): void => {
+  const handleMatchCreation = async (): Promise<void> => {
     if (!confirmGuestCaptain.value || !confirmHomeCaptain.value) {
       return
     }
-    createMatch()
-    router.push('/')
+    const newMatch = await createMatch()
+    router.push(`/match-detail?id=${newMatch.matchId}`)
   }
 
   onMounted(() => {

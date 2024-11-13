@@ -1,4 +1,5 @@
 export * from './auth-state'
+export * from './match-details-dto'
 export * from './match-dto'
 export * from './match-state'
 export * from './new-match-dto'
