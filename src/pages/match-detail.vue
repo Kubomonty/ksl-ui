@@ -25,6 +25,8 @@
             :qtr="1"
             @update:match-legs-guest="handleGuestLegsUpdate"
             @update:match-legs-home="handleHomeLegsUpdate"
+            @update:roster-guest="handleGuestRosterUpdateQ1"
+            @update:roster-home="handleHomeRosterUpdateQ1"
           />
           <br>
           <span class="d-flex mb-2">
@@ -38,6 +40,8 @@
             :qtr="2"
             @update:match-legs-guest="handleGuestLegsUpdate"
             @update:match-legs-home="handleHomeLegsUpdate"
+            @update:roster-guest="handleGuestRosterUpdateQ2"
+            @update:roster-home="handleHomeRosterUpdateQ2"
           />
           <br>
           <span class="d-flex mb-2">
@@ -51,6 +55,8 @@
             :qtr="3"
             @update:match-legs-guest="handleGuestLegsUpdate"
             @update:match-legs-home="handleHomeLegsUpdate"
+            @update:roster-guest="handleGuestRosterUpdateQ3"
+            @update:roster-home="handleHomeRosterUpdateQ3"
           />
           <br>
           <span class="d-flex mb-2">
@@ -64,6 +70,8 @@
             :qtr="4"
             @update:match-legs-guest="handleGuestLegsUpdate"
             @update:match-legs-home="handleHomeLegsUpdate"
+            @update:roster-guest="handleGuestRosterUpdateQ4"
+            @update:roster-home="handleHomeRosterUpdateQ4"
           />
         </v-card-text>
         <v-card-actions>
@@ -80,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { PlayerDto, TeamDto } from '../models'
+  import { PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
   import { useMatchStore, useTeamStore } from '../stores'
   import { useRoute, useRouter } from 'vue-router'
   import { computed } from 'vue'
@@ -142,76 +150,28 @@
 
   const matchLegs = ref({
     qtr1: {
-      game1: {
-        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m1 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m1 || 0,
-      },
-      game2: {
-        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m2 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m2 || 0,
-      },
-      game3: {
-        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m3 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m3 || 0,
-      },
-      game4: {
-        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m4 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m4 || 0,
-      },
+      game1: { home: 0, guest: 0 },
+      game2: { home: 0, guest: 0 },
+      game3: { home: 0, guest: 0 },
+      game4: { home: 0, guest: 0 },
     },
     qtr2: {
-      game1: {
-        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m1 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m1 || 0,
-      },
-      game2: {
-        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m2 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m2 || 0,
-      },
-      game3: {
-        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m3 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m3 || 0,
-      },
-      game4: {
-        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m4 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m4 || 0,
-      },
+      game1: { home: 0, guest: 0 },
+      game2: { home: 0, guest: 0 },
+      game3: { home: 0, guest: 0 },
+      game4: { home: 0, guest: 0 },
     },
     qtr3: {
-      game1: {
-        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m1 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m1 || 0,
-      },
-      game2: {
-        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m2 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m2 || 0,
-      },
-      game3: {
-        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m3 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m3 || 0,
-      },
-      game4: {
-        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m4 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m4 || 0,
-      },
+      game1: { home: 0, guest: 0 },
+      game2: { home: 0, guest: 0 },
+      game3: { home: 0, guest: 0 },
+      game4: { home: 0, guest: 0 },
     },
     qtr4: {
-      game1: {
-        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m1 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m1 || 0,
-      },
-      game2: {
-        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m2 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m2 || 0,
-      },
-      game3: {
-        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m3 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m3 || 0,
-      },
-      game4: {
-        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m4 || 0,
-        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m4 || 0,
-      },
+      game1: { home: 0, guest: 0 },
+      game2: { home: 0, guest: 0 },
+      game3: { home: 0, guest: 0 },
+      game4: { home: 0, guest: 0 },
     },
   })
   const matchState = computed(() => {
@@ -285,6 +245,118 @@
         matchLegs.value.qtr4.game4.guest = values.values[3]
         break
     }
+  }
+
+  const handleGuestRosterUpdateQ4 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q4.guest.pos1 = newRoster.find(player => player.position === 'G1')?.player!.id!
+    selectedMatchDetails.value.quarters.q4.guest.pos2 = newRoster.find(player => player.position === 'G2')?.player!.id!
+    selectedMatchDetails.value.quarters.q4.guest.pos3 = newRoster.find(player => player.position === 'G3')?.player!.id!
+    selectedMatchDetails.value.quarters.q4.guest.pos4 = newRoster.find(player => player.position === 'G4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.guest.pos5 = newRoster.find(player => player.position === 'G5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.guest.pos6 = newRoster.find(player => player.position === 'G6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.guest.pos7 = newRoster.find(player => player.position === 'G7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.guest.pos8 = newRoster.find(player => player.position === 'G8')?.player?.id || ''
+  }
+  const handleGuestRosterUpdateQ3 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q3.guest.pos1 = newRoster.find(player => player.position === 'G1')?.player!.id!
+    selectedMatchDetails.value.quarters.q3.guest.pos2 = newRoster.find(player => player.position === 'G2')?.player!.id!
+    selectedMatchDetails.value.quarters.q3.guest.pos3 = newRoster.find(player => player.position === 'G3')?.player!.id!
+    selectedMatchDetails.value.quarters.q3.guest.pos4 = newRoster.find(player => player.position === 'G4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.guest.pos5 = newRoster.find(player => player.position === 'G5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.guest.pos6 = newRoster.find(player => player.position === 'G6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.guest.pos7 = newRoster.find(player => player.position === 'G7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.guest.pos8 = newRoster.find(player => player.position === 'G8')?.player?.id || ''
+    handleGuestRosterUpdateQ4(newRoster)
+  }
+  const handleGuestRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q2.guest.pos1 = newRoster.find(player => player.position === 'G1')?.player!.id!
+    selectedMatchDetails.value.quarters.q2.guest.pos2 = newRoster.find(player => player.position === 'G2')?.player!.id!
+    selectedMatchDetails.value.quarters.q2.guest.pos3 = newRoster.find(player => player.position === 'G3')?.player!.id!
+    selectedMatchDetails.value.quarters.q2.guest.pos4 = newRoster.find(player => player.position === 'G4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.guest.pos5 = newRoster.find(player => player.position === 'G5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.guest.pos6 = newRoster.find(player => player.position === 'G6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.guest.pos7 = newRoster.find(player => player.position === 'G7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.guest.pos8 = newRoster.find(player => player.position === 'G8')?.player?.id || ''
+    handleGuestRosterUpdateQ3(newRoster)
+  }
+  const handleGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q1.guest.pos1 = newRoster.find(player => player.position === 'G1')?.player!.id!
+    selectedMatchDetails.value.quarters.q1.guest.pos2 = newRoster.find(player => player.position === 'G2')?.player!.id!
+    selectedMatchDetails.value.quarters.q1.guest.pos3 = newRoster.find(player => player.position === 'G3')?.player!.id!
+    selectedMatchDetails.value.quarters.q1.guest.pos4 = newRoster.find(player => player.position === 'G4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.guest.pos5 = newRoster.find(player => player.position === 'G5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.guest.pos6 = newRoster.find(player => player.position === 'G6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.guest.pos7 = newRoster.find(player => player.position === 'G7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.guest.pos8 = newRoster.find(player => player.position === 'G8')?.player?.id || ''
+    handleGuestRosterUpdateQ2(newRoster)
+  }
+
+  const handleHomeRosterUpdateQ4 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q4.home.pos1 = newRoster.find(player => player.position === 'H1')?.player!.id!
+    selectedMatchDetails.value.quarters.q4.home.pos2 = newRoster.find(player => player.position === 'H2')?.player!.id!
+    selectedMatchDetails.value.quarters.q4.home.pos3 = newRoster.find(player => player.position === 'H3')?.player!.id!
+    selectedMatchDetails.value.quarters.q4.home.pos4 = newRoster.find(player => player.position === 'H4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.home.pos5 = newRoster.find(player => player.position === 'H5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.home.pos6 = newRoster.find(player => player.position === 'H6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.home.pos7 = newRoster.find(player => player.position === 'H7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q4.home.pos8 = newRoster.find(player => player.position === 'H8')?.player?.id || ''
+  }
+  const handleHomeRosterUpdateQ3 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q3.home.pos1 = newRoster.find(player => player.position === 'H1')?.player!.id!
+    selectedMatchDetails.value.quarters.q3.home.pos2 = newRoster.find(player => player.position === 'H2')?.player!.id!
+    selectedMatchDetails.value.quarters.q3.home.pos3 = newRoster.find(player => player.position === 'H3')?.player!.id!
+    selectedMatchDetails.value.quarters.q3.home.pos4 = newRoster.find(player => player.position === 'H4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.home.pos5 = newRoster.find(player => player.position === 'H5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.home.pos6 = newRoster.find(player => player.position === 'H6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.home.pos7 = newRoster.find(player => player.position === 'H7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q3.home.pos8 = newRoster.find(player => player.position === 'H8')?.player?.id || ''
+    handleHomeRosterUpdateQ4(newRoster)
+  }
+  const handleHomeRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q2.home.pos1 = newRoster.find(player => player.position === 'H1')?.player!.id!
+    selectedMatchDetails.value.quarters.q2.home.pos2 = newRoster.find(player => player.position === 'H2')?.player!.id!
+    selectedMatchDetails.value.quarters.q2.home.pos3 = newRoster.find(player => player.position === 'H3')?.player!.id!
+    selectedMatchDetails.value.quarters.q2.home.pos4 = newRoster.find(player => player.position === 'H4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.home.pos5 = newRoster.find(player => player.position === 'H5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.home.pos6 = newRoster.find(player => player.position === 'H6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.home.pos7 = newRoster.find(player => player.position === 'H7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q2.home.pos8 = newRoster.find(player => player.position === 'H8')?.player?.id || ''
+    handleHomeRosterUpdateQ3(newRoster)
+  }
+  const handleHomeRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+    if (!selectedMatchDetails?.value) {
+      return
+    }
+    selectedMatchDetails.value.quarters.q1.home.pos1 = newRoster.find(player => player.position === 'H1')?.player!.id!
+    selectedMatchDetails.value.quarters.q1.home.pos2 = newRoster.find(player => player.position === 'H2')?.player!.id!
+    selectedMatchDetails.value.quarters.q1.home.pos3 = newRoster.find(player => player.position === 'H3')?.player!.id!
+    selectedMatchDetails.value.quarters.q1.home.pos4 = newRoster.find(player => player.position === 'H4')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.home.pos5 = newRoster.find(player => player.position === 'H5')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.home.pos6 = newRoster.find(player => player.position === 'H6')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.home.pos7 = newRoster.find(player => player.position === 'H7')?.player?.id || ''
+    selectedMatchDetails.value.quarters.q1.home.pos8 = newRoster.find(player => player.position === 'H8')?.player?.id || ''
+    handleHomeRosterUpdateQ2(newRoster)
   }
 
   const getPlayer = (team: TeamDto | undefined | null, playerId: string | undefined): PlayerDto | null => {
@@ -416,19 +488,19 @@
     q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos1), position: 'G1' })
     q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos2), position: 'G2' })
     q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos3), position: 'G3' })
-    if (selectedMatchDetails.value.quarters.q1.home.pos4) {
+    if (selectedMatchDetails.value.quarters.q1.guest.pos4) {
       q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos4), position: 'G4' })
     }
-    if (selectedMatchDetails.value.quarters.q1.home.pos5) {
+    if (selectedMatchDetails.value.quarters.q1.guest.pos5) {
       q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos5), position: 'G5' })
     }
-    if (selectedMatchDetails.value.quarters.q1.home.pos6) {
+    if (selectedMatchDetails.value.quarters.q1.guest.pos6) {
       q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos6), position: 'G6' })
     }
-    if (selectedMatchDetails.value.quarters.q1.home.pos7) {
+    if (selectedMatchDetails.value.quarters.q1.guest.pos7) {
       q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos7), position: 'G7' })
     }
-    if (selectedMatchDetails.value.quarters.q1.home.pos8) {
+    if (selectedMatchDetails.value.quarters.q1.guest.pos8) {
       q1.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q1.guest.pos8), position: 'G8' })
     }
 
@@ -436,19 +508,19 @@
     q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos1), position: 'G1' })
     q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos2), position: 'G2' })
     q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos3), position: 'G3' })
-    if (selectedMatchDetails.value.quarters.q2.home.pos4) {
+    if (selectedMatchDetails.value.quarters.q2.guest.pos4) {
       q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos4), position: 'G4' })
     }
-    if (selectedMatchDetails.value.quarters.q2.home.pos5) {
+    if (selectedMatchDetails.value.quarters.q2.guest.pos5) {
       q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos5), position: 'G5' })
     }
-    if (selectedMatchDetails.value.quarters.q2.home.pos6) {
+    if (selectedMatchDetails.value.quarters.q2.guest.pos6) {
       q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos6), position: 'G6' })
     }
-    if (selectedMatchDetails.value.quarters.q2.home.pos7) {
+    if (selectedMatchDetails.value.quarters.q2.guest.pos7) {
       q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos7), position: 'G7' })
     }
-    if (selectedMatchDetails.value.quarters.q2.home.pos8) {
+    if (selectedMatchDetails.value.quarters.q2.guest.pos8) {
       q2.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q2.guest.pos8), position: 'G8' })
     }
 
@@ -456,19 +528,19 @@
     q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos1), position: 'G1' })
     q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos2), position: 'G2' })
     q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos3), position: 'G3' })
-    if (selectedMatchDetails.value.quarters.q3.home.pos4) {
+    if (selectedMatchDetails.value.quarters.q3.guest.pos4) {
       q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos4), position: 'G4' })
     }
-    if (selectedMatchDetails.value.quarters.q3.home.pos5) {
+    if (selectedMatchDetails.value.quarters.q3.guest.pos5) {
       q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos5), position: 'G5' })
     }
-    if (selectedMatchDetails.value.quarters.q3.home.pos6) {
+    if (selectedMatchDetails.value.quarters.q3.guest.pos6) {
       q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos6), position: 'G6' })
     }
-    if (selectedMatchDetails.value.quarters.q3.home.pos7) {
+    if (selectedMatchDetails.value.quarters.q3.guest.pos7) {
       q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos7), position: 'G7' })
     }
-    if (selectedMatchDetails.value.quarters.q3.home.pos8) {
+    if (selectedMatchDetails.value.quarters.q3.guest.pos8) {
       q3.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q3.guest.pos8), position: 'G8' })
     }
 
@@ -476,19 +548,19 @@
     q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos1), position: 'G1' })
     q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos2), position: 'G2' })
     q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos3), position: 'G3' })
-    if (selectedMatchDetails.value.quarters.q4.home.pos4) {
+    if (selectedMatchDetails.value.quarters.q4.guest.pos4) {
       q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos4), position: 'G4' })
     }
-    if (selectedMatchDetails.value.quarters.q4.home.pos5) {
+    if (selectedMatchDetails.value.quarters.q4.guest.pos5) {
       q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos5), position: 'G5' })
     }
-    if (selectedMatchDetails.value.quarters.q4.home.pos6) {
+    if (selectedMatchDetails.value.quarters.q4.guest.pos6) {
       q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos6), position: 'G6' })
     }
-    if (selectedMatchDetails.value.quarters.q4.home.pos7) {
+    if (selectedMatchDetails.value.quarters.q4.guest.pos7) {
       q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos7), position: 'G7' })
     }
-    if (selectedMatchDetails.value.quarters.q4.home.pos8) {
+    if (selectedMatchDetails.value.quarters.q4.guest.pos8) {
       q4.push({ player: getPlayer(getTeamById(selectedMatchDetails.value.guestTeam), selectedMatchDetails.value.quarters.q4.guest.pos8), position: 'G8' })
     }
     return { q1, q2, q3, q4 }
@@ -502,6 +574,87 @@
     router.push('/')
   }
 
+  const recalculateMachLegsQ1 = (): void => {
+    matchLegs.value.qtr1 = {
+      game1: {
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m1 || 0,
+      },
+      game2: {
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m2 || 0,
+      },
+      game3: {
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m3 || 0,
+      },
+      game4: {
+        home: selectedMatchDetails?.value?.quarters.q1.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m4 || 0,
+      },
+    }
+  }
+  const recalculateMachLegsQ2 = (): void => {
+    matchLegs.value.qtr2 = {
+      game1: {
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m1 || 0,
+      },
+      game2: {
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m2 || 0,
+      },
+      game3: {
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m3 || 0,
+      },
+      game4: {
+        home: selectedMatchDetails?.value?.quarters.q2.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m4 || 0,
+      },
+    }
+  }
+  const recalculateMachLegsQ3 = (): void => {
+    matchLegs.value.qtr3 = {
+      game1: {
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m1 || 0,
+      },
+      game2: {
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m2 || 0,
+      },
+      game3: {
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m3 || 0,
+      },
+      game4: {
+        home: selectedMatchDetails?.value?.quarters.q3.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m4 || 0,
+      },
+    }
+  }
+  const recalculateMachLegsQ4 = (): void => {
+    matchLegs.value.qtr4 = {
+      game1: {
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m1 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m1 || 0,
+      },
+      game2: {
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m2 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m2 || 0,
+      },
+      game3: {
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m3 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m3 || 0,
+      },
+      game4: {
+        home: selectedMatchDetails?.value?.quarters.q4.home.legs.m4 || 0,
+        guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m4 || 0,
+      },
+    }
+  }
+
   watch(async () => route, async () => {
     loading.value = true
     resetSelectedMatchDetails()
@@ -513,6 +666,10 @@
       fetchTeams(),
       fetchMatchDetails(route.query.id as string),
     ])
+    recalculateMachLegsQ1()
+    recalculateMachLegsQ2()
+    recalculateMachLegsQ3()
+    recalculateMachLegsQ4()
     loading.value = false
   }, { deep: true })
 
@@ -530,6 +687,10 @@
       loading.value = false
       handleReturn()
     }
+    recalculateMachLegsQ1()
+    recalculateMachLegsQ2()
+    recalculateMachLegsQ3()
+    recalculateMachLegsQ4()
     loading.value = false
   })
 </script>
