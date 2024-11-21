@@ -23,7 +23,6 @@
           >
             <v-expansion-panel-title color="blue-grey-lighten-5">
               <h4>{{ team.teamName }}</h4>
-              <p class="ml-5">{{ team.teamEmail }}</p>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <p v-for="player in team.players" :key="player.id">
