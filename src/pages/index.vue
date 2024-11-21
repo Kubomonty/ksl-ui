@@ -94,7 +94,7 @@
   }
 
   const formatDateTime = (dateTime: string) => {
-    return format(new Date(dateTime), 'dd.MM.yyyy-HH:mm')
+    return format(new Date(dateTime), 'dd.MM.yyyy, HH:mm')
   }
 
   onMounted(async () => {
