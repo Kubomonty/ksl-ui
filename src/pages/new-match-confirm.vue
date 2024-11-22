@@ -62,7 +62,7 @@
                 <strong>H1</strong> - {{ orderedHomeTeamPlayers[0].player?.name || '-' }}
               </td>
               <td>
-                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3].player?.name || '-' }}
+                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>{{ $t('501-do') }}</td>
             </tr>
@@ -86,7 +86,7 @@
             </tr>
             <tr>
               <td>
-                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3].player?.name || '-' }}
+                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>
                 <strong>G1</strong> - {{ orderedGuestTeamPlayers[0].player?.name || '-' }}
@@ -120,7 +120,7 @@
                 <strong>H2</strong> - {{ orderedHomeTeamPlayers[1].player?.name || '-' }}
               </td>
               <td>
-                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3].player?.name || '-' }}
+                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>{{ $t('cricket') }}</td>
             </tr>
@@ -135,7 +135,7 @@
             </tr>
             <tr>
               <td>
-                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3].player?.name || '-' }}
+                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>
                 <strong>G2</strong> - {{ orderedGuestTeamPlayers[1].player?.name || '-' }}
@@ -157,7 +157,7 @@
           <tbody>
             <tr>
               <td>
-                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3].player?.name || '-' }}
+                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>
                 <strong>G3</strong> - {{ orderedGuestTeamPlayers[2].player?.name || '-' }}
@@ -169,7 +169,7 @@
                 <strong>H3</strong> - {{ orderedHomeTeamPlayers[2].player?.name || '-' }}
               </td>
               <td>
-                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3].player?.name || '-' }}
+                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>{{ $t('501-do') }}</td>
             </tr>
@@ -206,10 +206,10 @@
           <tbody>
             <tr>
               <td>
-                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3].player?.name || '-' }}
+                <strong>H4</strong> - {{ orderedHomeTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>
-                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3].player?.name || '-' }}
+                <strong>G4</strong> - {{ orderedGuestTeamPlayers[3]?.player?.name || '-' }}
               </td>
               <td>{{ $t('501-do') }}</td>
             </tr>
