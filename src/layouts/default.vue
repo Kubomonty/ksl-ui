@@ -103,7 +103,7 @@
         { title: i18n.t('home'), to: '/' },
         { title: i18n.t('all-teams'), to: '/all-teams' },
         { title: i18n.t('new-match'), to: '/new-match' },
-        { title: i18n.t('my-team'), to: `/team-section?id=${loggedInUser?.value?.id}` },
+        { title: i18n.t('team-administration'), to: `/team-administration?id=${loggedInUser?.value?.id}` },
       ]
     } else {
       return [

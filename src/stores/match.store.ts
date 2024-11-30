@@ -1,6 +1,6 @@
 // Utilities
 import { defineStore } from 'pinia'
-import { MatchDto, MatchState } from '../models'
+import { MatchDto, MatchState, MatchUpdateDto } from '../models'
 import axios from 'axios'
 import { useAuthStore } from './auth.store'
 
@@ -109,6 +109,20 @@ export const useMatchStore = defineStore('match-store', {
     },
     resetSelectedMatchDetails () {
       this.$state.selectedMatchDetails = undefined
+    },
+    async updateMatch (matchData: MatchUpdateDto): Promise<string | null> {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.put(`${API_URL}/api/match/${matchData.id}`, matchData, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        return response.data
+      } catch (error) {
+        console.error('Error updating match:', error)
+        return null
+      }
     },
   },
 

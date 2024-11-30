@@ -20,6 +20,7 @@
           <match-table
             :guest-players="guestTeamPlayers.q1"
             :home-players="homeTeamPlayers.q1"
+            :is-alive="isMatchAlive"
             :match-legs="matchLegs.qtr1"
             :match-state="matchState.qtr1"
             :qtr="1"
@@ -35,6 +36,7 @@
           <match-table
             :guest-players="guestTeamPlayers.q2"
             :home-players="homeTeamPlayers.q2"
+            :is-alive="isMatchAlive"
             :match-legs="matchLegs.qtr2"
             :match-state="matchState.qtr2"
             :qtr="2"
@@ -50,6 +52,7 @@
           <match-table
             :guest-players="guestTeamPlayers.q3"
             :home-players="homeTeamPlayers.q3"
+            :is-alive="isMatchAlive"
             :match-legs="matchLegs.qtr3"
             :match-state="matchState.qtr3"
             :qtr="3"
@@ -65,6 +68,7 @@
           <match-table
             :guest-players="guestTeamPlayers.q4"
             :home-players="homeTeamPlayers.q4"
+            :is-alive="isMatchAlive"
             :match-legs="matchLegs.qtr4"
             :match-state="matchState.qtr4"
             :qtr="4"
@@ -74,28 +78,120 @@
             @update:roster-home="handleHomeRosterUpdateQ4"
           />
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions v-if="isMatchAlive">
           <v-spacer />
-          <v-btn
-            color="warning"
-            variant="flat"
-            @click="handleReturn"
-          >{{ $t('back') }}</v-btn>
+          <span v-if="isLoggedIn">
+            <v-btn
+              class="mr-3"
+              color="warning"
+              :disabled="!isMatchChanged"
+              variant="flat"
+              @click="handleResetClick"
+            >{{ $t('reset-changes') }}</v-btn>
+            <v-btn
+              class="mr-3"
+              color="primary"
+              :disabled="!isMatchChanged"
+              variant="flat"
+              @click="handleSaveChangesClick"
+            >{{ $t('save-changes') }}</v-btn>
+            <v-btn
+              color="success"
+              variant="flat"
+              @click="handleEndMatchClick"
+            >{{ $t('end-match') }}</v-btn>
+          </span>
         </v-card-actions>
       </span>
     </v-container>
+    <v-dialog v-model="saveChangesDialog" @keydown.enter="handleSaveChangesDialogConfirm">
+      <v-card>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('save-changes-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleSaveChangesDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="handleSaveChangesDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="endMatchDialog" @keydown.enter="handleEndMatchDialogConfirm">
+      <v-card>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('end-match-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleEndMatchDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="handleEndMatchDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="resetChangesDialog" @keydown.enter="handleResetChangesDialogConfirm">
+      <v-card>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('reset-changes-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleResetChangesDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="handleResetChangesDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      :timeout="snackbarTimeout"
+    >
+      {{ snackbarText }}
+      <template #actions>
+        <v-btn
+          color="white"
+          density="compact"
+          icon="mdi-close"
+          variant="text"
+          @click="snackbar = false"
+        />
+      </template>
+    </v-snackbar>
   </v-card>
 </template>
 
 <script lang="ts" setup>
-  import { PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
-  import { useMatchStore, useTeamStore } from '../stores'
+  import { MatchUpdateDto, PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
+  import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
   import { useRoute, useRouter } from 'vue-router'
   import { computed } from 'vue'
   import { format } from 'date-fns'
+  import { MatchStatus } from '../enums'
   import { storeToRefs } from 'pinia'
+  import { useI18n } from 'vue-i18n'
 
-  const loading = ref(false)
+  const i18n = useI18n()
+  const route = useRoute()
+  const router = useRouter()
+  const authStore = useAuthStore()
+  const { isLoggedIn, loggedInUser } = storeToRefs(authStore)
 
   type Game = { guest: number; home: number };
   type Quarter = {
@@ -104,15 +200,295 @@
     game3: Game;
     game4: Game;
   }
-  const router = useRouter()
-  const route = useRoute()
+
+  const loading = ref(false)
+
+  const isMatchChanged = ref(false)
+
+  const isMatchAlive = computed(() => {
+    if (!selectedMatchDetails?.value?.status) {
+      return false
+    }
+    return [MatchStatus.IN_PROGRESS, MatchStatus.NEW].includes(selectedMatchDetails.value.status as MatchStatus)
+  })
+
+  const handleReturn = (): void => {
+    router.push('/')
+  }
 
   const matchStore = useMatchStore()
   const { selectedMatchDetails } = storeToRefs(matchStore)
-  const { fetchMatchDetails, resetSelectedMatchDetails } = matchStore
+  const { fetchMatchDetails, resetSelectedMatchDetails, updateMatch } = matchStore
 
   const teamStore = useTeamStore()
   const { fetchTeams, getTeamById } = teamStore
+
+  const endMatchDialog: Ref<boolean> = ref(false)
+  const saveChangesDialog: Ref<boolean> = ref(false)
+  const resetChangesDialog: Ref<boolean> = ref(false)
+
+  const inProcess = ref(false)
+  const snackbar = ref(false)
+  const snackbarColor = ref('')
+  const snackbarText = ref('')
+  const snackbarTimeout = ref(-1)
+
+  const getMatchUpdateDto = (): MatchUpdateDto | null => {
+    if (!selectedMatchDetails?.value || !loggedInUser?.value) {
+      return null
+    }
+    return {
+      id: selectedMatchDetails.value.id!,
+      status: MatchStatus.IN_PROGRESS,
+      statusChangetAt: new Date(),
+      statusChangedBy: loggedInUser.value.id,
+      quarters: {
+        q1: {
+          guest: {
+            pos1: selectedMatchDetails.value.quarters.q1.guest.pos1,
+            pos2: selectedMatchDetails.value.quarters.q1.guest.pos2,
+            pos3: selectedMatchDetails.value.quarters.q1.guest.pos3,
+            pos4: selectedMatchDetails.value.quarters.q1.guest.pos4,
+            pos5: selectedMatchDetails.value.quarters.q1.guest.pos5,
+            pos6: selectedMatchDetails.value.quarters.q1.guest.pos6,
+            pos7: selectedMatchDetails.value.quarters.q1.guest.pos7,
+            pos8: selectedMatchDetails.value.quarters.q1.guest.pos8,
+            legs: {
+              m1: matchLegs.value.qtr1.game1.guest,
+              m2: matchLegs.value.qtr1.game2.guest,
+              m3: matchLegs.value.qtr1.game3.guest,
+              m4: matchLegs.value.qtr1.game4.guest,
+            },
+            score: matchState.value.qtr1.game4.guest,
+          },
+          home: {
+            pos1: selectedMatchDetails.value.quarters.q1.home.pos1,
+            pos2: selectedMatchDetails.value.quarters.q1.home.pos2,
+            pos3: selectedMatchDetails.value.quarters.q1.home.pos3,
+            pos4: selectedMatchDetails.value.quarters.q1.home.pos4,
+            pos5: selectedMatchDetails.value.quarters.q1.home.pos5,
+            pos6: selectedMatchDetails.value.quarters.q1.home.pos6,
+            pos7: selectedMatchDetails.value.quarters.q1.home.pos7,
+            pos8: selectedMatchDetails.value.quarters.q1.home.pos8,
+            legs: {
+              m1: matchLegs.value.qtr1.game1.home,
+              m2: matchLegs.value.qtr1.game2.home,
+              m3: matchLegs.value.qtr1.game3.home,
+              m4: matchLegs.value.qtr1.game4.home,
+            },
+            score: matchState.value.qtr1.game4.home,
+          },
+        },
+        q2: {
+          guest: {
+            pos1: selectedMatchDetails.value.quarters.q2.guest.pos1,
+            pos2: selectedMatchDetails.value.quarters.q2.guest.pos2,
+            pos3: selectedMatchDetails.value.quarters.q2.guest.pos3,
+            pos4: selectedMatchDetails.value.quarters.q2.guest.pos4,
+            pos5: selectedMatchDetails.value.quarters.q2.guest.pos5,
+            pos6: selectedMatchDetails.value.quarters.q2.guest.pos6,
+            pos7: selectedMatchDetails.value.quarters.q2.guest.pos7,
+            pos8: selectedMatchDetails.value.quarters.q2.guest.pos8,
+            legs: {
+              m1: matchLegs.value.qtr2.game1.guest,
+              m2: matchLegs.value.qtr2.game2.guest,
+              m3: matchLegs.value.qtr2.game3.guest,
+              m4: matchLegs.value.qtr2.game4.guest,
+            },
+            score: matchState.value.qtr2.game4.guest,
+          },
+          home: {
+            pos1: selectedMatchDetails.value.quarters.q2.home.pos1,
+            pos2: selectedMatchDetails.value.quarters.q2.home.pos2,
+            pos3: selectedMatchDetails.value.quarters.q2.home.pos3,
+            pos4: selectedMatchDetails.value.quarters.q2.home.pos4,
+            pos5: selectedMatchDetails.value.quarters.q2.home.pos5,
+            pos6: selectedMatchDetails.value.quarters.q2.home.pos6,
+            pos7: selectedMatchDetails.value.quarters.q2.home.pos7,
+            pos8: selectedMatchDetails.value.quarters.q2.home.pos8,
+            legs: {
+              m1: matchLegs.value.qtr2.game1.home,
+              m2: matchLegs.value.qtr2.game2.home,
+              m3: matchLegs.value.qtr2.game3.home,
+              m4: matchLegs.value.qtr2.game4.home,
+            },
+            score: matchState.value.qtr2.game4.home,
+          },
+        },
+        q3: {
+          guest: {
+            pos1: selectedMatchDetails.value.quarters.q3.guest.pos1,
+            pos2: selectedMatchDetails.value.quarters.q3.guest.pos2,
+            pos3: selectedMatchDetails.value.quarters.q3.guest.pos3,
+            pos4: selectedMatchDetails.value.quarters.q3.guest.pos4,
+            pos5: selectedMatchDetails.value.quarters.q3.guest.pos5,
+            pos6: selectedMatchDetails.value.quarters.q3.guest.pos6,
+            pos7: selectedMatchDetails.value.quarters.q3.guest.pos7,
+            pos8: selectedMatchDetails.value.quarters.q3.guest.pos8,
+            legs: {
+              m1: matchLegs.value.qtr3.game1.guest,
+              m2: matchLegs.value.qtr3.game2.guest,
+              m3: matchLegs.value.qtr3.game3.guest,
+              m4: matchLegs.value.qtr3.game4.guest,
+            },
+            score: matchState.value.qtr3.game4.guest,
+          },
+          home: {
+            pos1: selectedMatchDetails.value.quarters.q3.home.pos1,
+            pos2: selectedMatchDetails.value.quarters.q3.home.pos2,
+            pos3: selectedMatchDetails.value.quarters.q3.home.pos3,
+            pos4: selectedMatchDetails.value.quarters.q3.home.pos4,
+            pos5: selectedMatchDetails.value.quarters.q3.home.pos5,
+            pos6: selectedMatchDetails.value.quarters.q3.home.pos6,
+            pos7: selectedMatchDetails.value.quarters.q3.home.pos7,
+            pos8: selectedMatchDetails.value.quarters.q3.home.pos8,
+            legs: {
+              m1: matchLegs.value.qtr3.game1.home,
+              m2: matchLegs.value.qtr3.game2.home,
+              m3: matchLegs.value.qtr3.game3.home,
+              m4: matchLegs.value.qtr3.game4.home,
+            },
+            score: matchState.value.qtr3.game4.home,
+          },
+        },
+        q4: {
+          guest: {
+            pos1: selectedMatchDetails.value.quarters.q4.guest.pos1,
+            pos2: selectedMatchDetails.value.quarters.q4.guest.pos2,
+            pos3: selectedMatchDetails.value.quarters.q4.guest.pos3,
+            pos4: selectedMatchDetails.value.quarters.q4.guest.pos4,
+            pos5: selectedMatchDetails.value.quarters.q4.guest.pos5,
+            pos6: selectedMatchDetails.value.quarters.q4.guest.pos6,
+            pos7: selectedMatchDetails.value.quarters.q4.guest.pos7,
+            pos8: selectedMatchDetails.value.quarters.q4.guest.pos8,
+            legs: {
+              m1: matchLegs.value.qtr4.game1.guest,
+              m2: matchLegs.value.qtr4.game2.guest,
+              m3: matchLegs.value.qtr4.game3.guest,
+              m4: matchLegs.value.qtr4.game4.guest,
+            },
+            score: matchState.value.qtr4.game4.guest,
+          },
+          home: {
+            pos1: selectedMatchDetails.value.quarters.q4.home.pos1,
+            pos2: selectedMatchDetails.value.quarters.q4.home.pos2,
+            pos3: selectedMatchDetails.value.quarters.q4.home.pos3,
+            pos4: selectedMatchDetails.value.quarters.q4.home.pos4,
+            pos5: selectedMatchDetails.value.quarters.q4.home.pos5,
+            pos6: selectedMatchDetails.value.quarters.q4.home.pos6,
+            pos7: selectedMatchDetails.value.quarters.q4.home.pos7,
+            pos8: selectedMatchDetails.value.quarters.q4.home.pos8,
+            legs: {
+              m1: matchLegs.value.qtr4.game1.home,
+              m2: matchLegs.value.qtr4.game2.home,
+              m3: matchLegs.value.qtr4.game3.home,
+              m4: matchLegs.value.qtr4.game4.home,
+            },
+            score: matchState.value.qtr4.game4.home,
+          },
+        },
+      },
+    }
+  }
+
+  const handleEndMatchClick = (): void => {
+    endMatchDialog.value = true
+  }
+  const handleEndMatchDialogCancel = (): void => {
+    endMatchDialog.value = false
+  }
+  const handleEndMatchDialogConfirm = async (): Promise<void> => {
+    if (inProcess.value || !selectedMatchDetails?.value || !loggedInUser?.value) {
+      return
+    }
+    inProcess.value = true
+    snackbarColor.value = 'info'
+    snackbarTimeout.value = -1
+    snackbar.value = true
+    snackbarText.value = i18n.t('ending-match').toString()
+    const updatedMatchDto = getMatchUpdateDto()
+    if (!updatedMatchDto) {
+      inProcess.value = false
+      snackbar.value = true
+      snackbarColor.value = 'error'
+      snackbarText.value = i18n.t('end-match-failed').toString()
+      snackbarTimeout.value = 3000
+      return
+    }
+    updatedMatchDto.status = MatchStatus.FINISHED
+    const updateRes = await updateMatch(updatedMatchDto)
+    if (updateRes) {
+      await handleResetChangesDialogConfirm()
+      endMatchDialog.value = false
+      inProcess.value = false
+      snackbar.value = true
+      snackbarColor.value = 'success'
+      snackbarText.value = i18n.t('end-match-success').toString()
+      snackbarTimeout.value = 3000
+      return
+    }
+
+    inProcess.value = false
+    snackbar.value = true
+    snackbarColor.value = 'error'
+    snackbarText.value = i18n.t('save-changes-failed').toString()
+    snackbarTimeout.value = 3000
+  }
+
+  const handleSaveChangesClick = (): void => {
+    saveChangesDialog.value = true
+  }
+  const handleSaveChangesDialogCancel = (): void => {
+    saveChangesDialog.value = false
+  }
+  const handleSaveChangesDialogConfirm = async (): Promise<void> => {
+    if (inProcess.value || !selectedMatchDetails?.value || !loggedInUser?.value) {
+      return
+    }
+    inProcess.value = true
+    snackbarColor.value = 'info'
+    snackbarTimeout.value = -1
+    snackbar.value = true
+    snackbarText.value = i18n.t('saving-changes').toString()
+    const updatedMatchDto = getMatchUpdateDto()
+    if (!updatedMatchDto) {
+      inProcess.value = false
+      snackbar.value = true
+      snackbarColor.value = 'error'
+      snackbarText.value = i18n.t('save-changes-failed').toString()
+      snackbarTimeout.value = 3000
+      return
+    }
+    const updateRes = await updateMatch(updatedMatchDto)
+    if (updateRes) {
+      await handleResetChangesDialogConfirm()
+      saveChangesDialog.value = false
+      inProcess.value = false
+      snackbar.value = true
+      snackbarColor.value = 'success'
+      snackbarText.value = i18n.t('save-changes-success').toString()
+      snackbarTimeout.value = 3000
+      return
+    }
+
+    inProcess.value = false
+    snackbar.value = true
+    snackbarColor.value = 'error'
+    snackbarText.value = i18n.t('save-changes-failed').toString()
+    snackbarTimeout.value = 3000
+  }
+
+  const handleResetClick = () => {
+    resetChangesDialog.value = true
+  }
+  const handleResetChangesDialogCancel = () => {
+    resetChangesDialog.value = false
+  }
+  const handleResetChangesDialogConfirm = async () => {
+    resetChangesDialog.value = false
+    isMatchChanged.value = false
+    await initiateData()
+  }
 
   const createGameState = (game: Game): Game => ({
     guest: game.guest === 2 ? 1 : 0,
@@ -191,6 +567,7 @@
   })
 
   const handleHomeLegsUpdate = (values: {values: number[], qtr: number}) => {
+    isMatchChanged.value = true
     switch (values.qtr) {
       case 1:
         matchLegs.value.qtr1.game1.home = values.values[0]
@@ -219,6 +596,7 @@
     }
   }
   const handleGuestLegsUpdate = (values: {values: number[], qtr: number}) => {
+    isMatchChanged.value = true
     switch (values.qtr) {
       case 1:
         matchLegs.value.qtr1.game1.guest = values.values[0]
@@ -248,6 +626,7 @@
   }
 
   const handleGuestRosterUpdateQ4 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -261,6 +640,7 @@
     selectedMatchDetails.value.quarters.q4.guest.pos8 = newRoster.find(player => player.position === 'G8')?.player?.id || ''
   }
   const handleGuestRosterUpdateQ3 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -275,6 +655,7 @@
     handleGuestRosterUpdateQ4(newRoster)
   }
   const handleGuestRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -289,6 +670,7 @@
     handleGuestRosterUpdateQ3(newRoster)
   }
   const handleGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -304,6 +686,7 @@
   }
 
   const handleHomeRosterUpdateQ4 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -317,6 +700,7 @@
     selectedMatchDetails.value.quarters.q4.home.pos8 = newRoster.find(player => player.position === 'H8')?.player?.id || ''
   }
   const handleHomeRosterUpdateQ3 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -331,6 +715,7 @@
     handleHomeRosterUpdateQ4(newRoster)
   }
   const handleHomeRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -345,6 +730,7 @@
     handleHomeRosterUpdateQ3(newRoster)
   }
   const handleHomeRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+    isMatchChanged.value = true
     if (!selectedMatchDetails?.value) {
       return
     }
@@ -570,10 +956,6 @@
     return selectedMatchDetails?.value?.matchDate ? format(new Date(selectedMatchDetails.value.matchDate), 'dd.MM.yyyy, HH:mm') : '-'
   })
 
-  const handleReturn = (): void => {
-    router.push('/')
-  }
-
   const recalculateMachLegsQ1 = (): void => {
     matchLegs.value.qtr1 = {
       game1: {
@@ -655,28 +1037,11 @@
     }
   }
 
-  watch(async () => route, async () => {
+  const initiateData = async (): Promise<void> => {
     loading.value = true
     resetSelectedMatchDetails()
     if (!route.query.id) {
       loading.value = false
-      handleReturn()
-    }
-    await Promise.all([
-      fetchTeams(),
-      fetchMatchDetails(route.query.id as string),
-    ])
-    recalculateMachLegsQ1()
-    recalculateMachLegsQ2()
-    recalculateMachLegsQ3()
-    recalculateMachLegsQ4()
-    loading.value = false
-  }, { deep: true })
-
-  onMounted(async () => {
-    loading.value = true
-    resetSelectedMatchDetails()
-    if (!route.query.id) {
       handleReturn()
     }
     await Promise.all([
@@ -692,5 +1057,13 @@
     recalculateMachLegsQ3()
     recalculateMachLegsQ4()
     loading.value = false
+  }
+
+  watch(async () => route, async () => {
+    await initiateData()
+  }, { deep: true })
+
+  onMounted(async () => {
+    await initiateData()
   })
 </script>

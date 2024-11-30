@@ -75,20 +75,22 @@
           >{{ $t('add-player') }}</v-btn>
         </div>
         <v-divider class="my-3" />
-        <v-btn
-          class="full-width-button mb-3"
-          color="success"
-          :disabled="!isTeamChanged"
-          variant="flat"
-          @click="handleSaveChangesClick"
-        >{{ $t('save-changes') }}</v-btn>
-        <v-btn
-          class="full-width-button"
-          color="warning"
-          :disabled="!isTeamChanged"
-          variant="flat"
-          @click="handleResetClick"
-        >{{ $t('reset-changes') }}</v-btn>
+        <div class="d-flex">
+          <v-spacer />
+          <v-btn
+            class="mr-3"
+            color="warning"
+            :disabled="!isTeamChanged"
+            variant="flat"
+            @click="handleResetClick"
+          >{{ $t('reset-changes') }}</v-btn>
+          <v-btn
+            color="success"
+            :disabled="!isTeamChanged"
+            variant="flat"
+            @click="handleSaveChangesClick"
+          >{{ $t('save-changes') }}</v-btn>
+        </div>
       </span>
     </v-card-text>
     <v-dialog v-model="removePlayerDialog" @keydown.enter="handleRemovePlayerDialogConfirm">
@@ -323,16 +325,3 @@
     }
   })
 </script>
-
-<style scoped>
-.full-width-button {
-  width: 100%;
-}
-.fill-icon {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>
