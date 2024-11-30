@@ -17,9 +17,9 @@
               <v-table v-if="paginatedMatches.length">
                 <thead>
                   <tr>
-                    <th>Location and Date</th>
-                    <th>Home Team</th>
-                    <th>Guest Team</th>
+                    <th>{{ $t('location-and-date') }}</th>
+                    <th>{{ $t('home-team') }}</th>
+                    <th>{{ $t('guest-team') }}</th>
                     <th width="5%" />
                   </tr>
                 </thead>
