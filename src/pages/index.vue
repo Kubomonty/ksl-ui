@@ -20,6 +20,7 @@
                     <th>{{ $t('location-and-date') }}</th>
                     <th>{{ $t('home-team') }}</th>
                     <th>{{ $t('guest-team') }}</th>
+                    <th>{{ $t('score') }}</th>
                     <th width="5%" />
                   </tr>
                 </thead>
@@ -28,6 +29,7 @@
                     <td>{{ match.matchLocation }} - {{ formatDateTime(match.matchDate.toISOString()) }}</td>
                     <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
                     <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
+                    <td v-if="showScore(match)">{{ match.homeScore }} &ndash; {{ match.guestScore }}</td>
                     <td>
                       <v-btn
                         color="primary"
@@ -60,6 +62,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useMatchStore, useTeamStore } from '../stores'
   import { MatchDto } from '@/models'
+  import { MatchStatus } from '@/enums'
   import { format } from 'date-fns'
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
@@ -86,6 +89,10 @@
   const pageCount = computed(() => {
     return Math.ceil(matches.value.length / itemsPerPage)
   })
+
+  const showScore = (match: MatchDto): boolean => {
+    return [MatchStatus.NEW, MatchStatus.IN_PROGRESS, MatchStatus.FINISHED].includes(match.status as MatchStatus)
+  }
 
   const handleMatchClick = (match: MatchDto) => {
     const path = `/match-detail?id=${match.id}`

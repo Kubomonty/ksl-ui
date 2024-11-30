@@ -44,6 +44,8 @@ export const useMatchStore = defineStore('match-store', {
           return {
             createdAt: new Date(match.created_at),
             createdBy: match.created_by,
+            guestScore: match.guest_score,
+            homeScore: match.home_score,
             guestCaptain: match.guest_captain,
             guestPos1: match.guest_pos1,
             guestPos2: match.guest_pos2,
