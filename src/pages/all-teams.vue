@@ -34,7 +34,7 @@
                 color="primary"
                 size="small"
                 variant="tonal"
-                @click.prevent="() => $router.push(`/team-section?id=${team.id}`)"
+                @click.prevent="() => $router.push(`/team-administration?id=${team.id}`)"
               >{{ $t('manage-team') }}</v-btn>
             </v-expansion-panel-text>
           </v-expansion-panel>

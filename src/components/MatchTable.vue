@@ -14,7 +14,7 @@
         <td>
           <div
             class="d-flex"
-            :class="{ 'not-allowed': !isLoggedIn }"
+            :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
               <strong>{{ `H${match.home}` }}</strong>
@@ -51,7 +51,7 @@
         <td>
           <div
             class="d-flex"
-            :class="{ 'not-allowed': !isLoggedIn }"
+            :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
               <strong>{{ `G${match.guest}` }}</strong>
@@ -89,7 +89,7 @@
           <div class="d-flex">
             <div
               class="my-2"
-              :class="{ 'not-allowed': !isLoggedIn }"
+              :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
                 backgroundColor: isLoggedIn ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
@@ -112,7 +112,7 @@
             &nbsp;
             <div
               class="my-2"
-              :class="{ 'not-allowed': !isLoggedIn }"
+              :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
                 backgroundColor: isLoggedIn ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
@@ -153,6 +153,10 @@
     homePlayers: {
       required: true,
       type: Array as PropType<{ player: PlayerDto | null | undefined; position: string }[]>,
+    },
+    isAlive: {
+      required: true,
+      type: Boolean,
     },
     matchState: {
       required: true,

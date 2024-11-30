@@ -21,7 +21,7 @@ const loggedInRoutes: string[] = [
   '/new-match',
   '/new-match-confirm',
   '/new-team',
-  '/team-section',
+  '/team-administration',
 ]
 
 const router = createRouter({
