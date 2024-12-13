@@ -1,7 +1,7 @@
 <template>
   <v-card border flat>
     <v-container>
-      <span v-if="loading">
+      <span v-if="loading && initialLoadInProgress">
         <v-skeleton-loader type="heading" />
         <v-skeleton-loader type="heading" />
         <v-skeleton-loader type="heading" />

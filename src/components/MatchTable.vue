@@ -92,9 +92,9 @@
               class="my-2"
               :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
-                backgroundColor: isLoggedIn ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
               }"
             >
               <v-select
@@ -115,9 +115,9 @@
               class="my-2"
               :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
-                backgroundColor: isLoggedIn ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
               }"
             >
               <v-select
