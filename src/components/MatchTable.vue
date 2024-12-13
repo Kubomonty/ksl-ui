@@ -102,7 +102,7 @@
                 class="pl-2 pb-2"
                 density="compact"
                 hide-details
-                :items="legItems"
+                :items="hLegItems[index]"
                 :readonly="!isLoggedIn || !isAlive"
                 style="width: 52px;"
                 variant="plain"
@@ -125,7 +125,7 @@
                 class="pl-2 pb-2"
                 density="compact"
                 hide-details
-                :items="legItems"
+                :items="gLegItems[index]"
                 :readonly="!isLoggedIn || !isAlive"
                 style="width: 52px;"
                 variant="plain"
@@ -195,8 +195,6 @@
 
   const authStore = useAuthStore()
   const { isLoggedIn } = storeToRefs(authStore)
-
-  const legItems: Ref<number[]> = ref([0, 1, 2])
 
   const canSubstitute = computed(() => props.canSub && isLoggedIn.value && props.isAlive)
 
@@ -306,6 +304,14 @@
 
   const hLegs = ref([props.matchLegs.game1.home, props.matchLegs.game2.home, props.matchLegs.game3.home, props.matchLegs.game4.home])
   const gLegs = ref([props.matchLegs.game1.guest, props.matchLegs.game2.guest, props.matchLegs.game3.guest, props.matchLegs.game4.guest])
+
+  const hLegItems = computed(() =>
+    hLegs.value.map((_, i) => +gLegs.value[i] === 0 ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +gLegs.value[i]))
+  )
+
+  const gLegItems = computed(() =>
+    gLegs.value.map((_, i) => +hLegs.value[i] === 0 ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +hLegs.value[i]))
+  )
 
   watch(hLegs, () => {
     emits('update:match-legs-home', { values: hLegs.value, qtr: props.qtr })
