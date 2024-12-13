@@ -35,27 +35,29 @@
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
-      <v-divider />
-      <div class="pa-2">
-        <v-btn
-          v-if="isLoggedIn"
-          block
-          class="mt-3"
-          color="primary"
-          variant="flat"
-          @click="handleLogout"
-        >{{ $t('logout') }}
-        </v-btn>
-        <v-btn
-          v-else
-          block
-          class="mt-3"
-          color="primary"
-          variant="flat"
-          @click="handleLogin"
-        >{{ $t('login') }}
-        </v-btn>
-      </div>
+      <span v-if="showLoginButton">
+        <v-divider />
+        <div class="pa-2">
+          <v-btn
+            v-if="isLoggedIn"
+            block
+            class="mt-3"
+            color="primary"
+            variant="flat"
+            @click="handleLogout"
+          >{{ $t('logout') }}
+          </v-btn>
+          <v-btn
+            v-else
+            block
+            class="mt-3"
+            color="primary"
+            variant="flat"
+            @click="handleLogin"
+          >{{ $t('login') }}
+          </v-btn>
+        </div>
+      </span>
     </v-navigation-drawer>
 
     <v-main>
@@ -71,12 +73,15 @@
   import { storeToRefs } from 'pinia'
   import { useDisplay } from 'vuetify'
   import { useI18n } from 'vue-i18n'
-  import { useRouter } from 'vue-router'
+  import { useRoute, useRouter } from 'vue-router'
 
   const { xs } = useDisplay()
 
   const i18n = useI18n()
   const router = useRouter()
+  const route = useRoute()
+
+  const showLoginButton = computed(() => !route.path.includes('login'))
 
   const authStore = useAuthStore()
   const { isAdmin, isLoggedIn, isUser, loggedInUser } = storeToRefs(authStore)
