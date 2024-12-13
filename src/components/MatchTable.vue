@@ -14,7 +14,7 @@
         <td>
           <div
             class="d-flex"
-            :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
+            :class="{ 'not-allowed': !canSubstitute }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
               <strong>{{ `H${match.home}` }}</strong>
@@ -25,22 +25,22 @@
             <div
               class="my-2"
               :style="{
-                backgroundColor: isLoggedIn ? '#f5f5f5' : 'white',
+                backgroundColor: canSubstitute ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn ? 'black' : 'darkslategray',
+                color: canSubstitute ? 'black' : 'darkslategray',
               }"
             >
               <v-select
                 v-if="currentHomeTeamPlayers[match.home - 1].player"
                 v-model="currentHomeTeamPlayers[match.home - 1].player"
                 class="pl-2 pb-2"
-                :class="{ 'readonly-select': !isLoggedIn }"
+                :class="{ 'readonly-select': !canSubstitute }"
                 density="compact"
                 hide-details
                 item-title="name"
                 :item-value="item => item"
                 :items="homeTeamPlayersSubstitutes"
-                :readonly="!isLoggedIn"
+                :readonly="!canSubstitute"
                 style="min-width: 156px;"
                 variant="plain"
                 @update:model-value="handleHomeTeamUpdate(`H${match.home}`)"
@@ -51,7 +51,7 @@
         <td>
           <div
             class="d-flex"
-            :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
+            :class="{ 'not-allowed': !canSubstitute }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
               <strong>{{ `G${match.guest}` }}</strong>
@@ -62,21 +62,22 @@
             <div
               class="my-2"
               :style="{
-                backgroundColor: isLoggedIn ? '#f5f5f5' : 'white',
+                backgroundColor: canSubstitute ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn ? 'black' : 'darkslategray',
+                color: canSubstitute ? 'black' : 'darkslategray',
               }"
             >
               <v-select
                 v-if="currentGuestTeamPlayers[match.guest - 1].player"
                 v-model="currentGuestTeamPlayers[match.guest - 1].player"
                 class="pl-2 pb-2"
+                :class="{ 'readonly-select': !canSubstitute }"
                 density="compact"
                 hide-details
                 item-title="name"
                 :item-value="item => item"
                 :items="guestTeamPlayersSubstitutes"
-                :readonly="!isLoggedIn"
+                :readonly="!canSubstitute"
                 style="min-width: 156px;"
                 variant="plain"
                 @update:model-value="handleGuestTeamUpdate(`G${match.guest}`)"
@@ -102,7 +103,7 @@
                 density="compact"
                 hide-details
                 :items="legItems"
-                :readonly="!isLoggedIn"
+                :readonly="!isLoggedIn || !isAlive"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -125,7 +126,7 @@
                 density="compact"
                 hide-details
                 :items="legItems"
-                :readonly="!isLoggedIn"
+                :readonly="!isLoggedIn || !isAlive"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -180,6 +181,10 @@
       required: true,
       type: Number,
     },
+    canSub: {
+      required: true,
+      type: Boolean,
+    },
   })
   const emits = defineEmits([
     'update:match-legs-guest',
@@ -192,6 +197,8 @@
   const { isLoggedIn } = storeToRefs(authStore)
 
   const legItems: Ref<number[]> = ref([0, 1, 2])
+
+  const canSubstitute = computed(() => props.canSub && isLoggedIn.value && props.isAlive)
 
   const currentMatch = matchOpponentsStructure[props.qtr - 1]
   const previousHomeTeamPlayers = ref([
