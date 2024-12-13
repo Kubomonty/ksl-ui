@@ -1,7 +1,5 @@
-// src/i18n.ts
 import { createI18n } from 'vue-i18n'
 
-// Define your translations
 const messages = {
   en: {
     '501-do': '501 D.O.',
@@ -61,6 +59,7 @@ const messages = {
     'home-team': 'Home team name',
     'home-team-less-players': 'Home team has less than 4 players',
     'home-team-required': 'Home team is required',
+    'in-progress': 'In progress',
     'initiate-reset-password': 'Forgotten password? You can reset it here.',
     'initiate-reset-password-info': 'By clicking OK, you will initiate the password reset process. Email will be sent to the email address with the link where you can set the new password. It may take a few minutes for the email to arrive and it might fall into the spam folder.',
     'k-s-l': 'Košická samostatná liga',
@@ -77,6 +76,7 @@ const messages = {
     'match-state': 'Match state',
     matches: 'Matches',
     'my-team': 'My team',
+    new: 'New',
     'new-admin-creation': 'New admin creation',
     'new-admin-creation-info': 'By clicking OK, you will create a new admin. Email will be sent to the admin email with the link where the admin can set the password. It may take a few minutes for the email to arrive and it might fall into the spam folder.',
     'new-match': 'New match',
@@ -111,6 +111,7 @@ const messages = {
     'setting-new-password': 'Setting new password ...',
     'setting-new-password-failed': 'Setting new password failed',
     'setting-new-password-success': 'Setting new password succeeded',
+    status: 'Status',
     submit: 'Submit',
     substitution: 'Substitution',
     'team-administration': 'Team administration',
@@ -140,7 +141,7 @@ const messages = {
     back: 'Späť',
     'back-to-previous-step': 'Kliknutím na tento tlačidlo sa vrátite na predchádzajúci krok a môžete upraviť zadané údaje.',
     cancel: 'Zrušiť',
-    cancelled: 'Zrušené',
+    cancelled: 'Zrušený',
     'cancel-this-account': 'Zrušiť tento účet',
     captain: 'Kapitán',
     'captain-required': 'Vyberte kapitána',
@@ -183,6 +184,7 @@ const messages = {
     'home-team': 'Domáci tím',
     'home-team-less-players': 'Domáci tím má menej ako 4 hráčov',
     'home-team-required': 'Vyberte domáci tím',
+    'in-progress': 'Prebieha',
     'initiate-reset-password': 'Zabudli ste heslo? Tu ho môžete resetovať.',
     'initiate-reset-password-info': 'Kliknutím na OK spustíte proces resetovania hesla. Na uvedenú emailovú adresu bude odoslaný email s odkazom, kde si môžete nastaviť nové heslo. Môže trvať niekoľko minút, kým email dorazí a môže sa dostať do zložky spam.',
     'k-s-l': 'Košická samostatná liga',
@@ -199,6 +201,7 @@ const messages = {
     'match-state': 'Stav zápasu',
     matches: 'Zápasy',
     'my-team': 'Môj tím',
+    new: 'Nový',
     'new-admin-creation': 'Vytvorenie nového admina',
     'new-admin-creation-info': 'Kliknutím na OK vytvoríte nového admina. Na email admina bude odoslaný email s odkazom, kde si admin môže nastaviť heslo. Môže trvať niekoľko minút, kým email dorazí a môže sa dostať do zložky spam.',
     'new-match': 'Nový zápas',
@@ -233,6 +236,7 @@ const messages = {
     'setting-new-password': 'Nové heslo sa nastavuje ...',
     'setting-new-password-failed': 'Nastavenie nového hesla zlyhalo',
     'setting-new-password-success': 'Nastavenie nového hesla bolo úspešné',
+    status: 'Stav',
     submit: 'Odoslať',
     substitution: 'Striedanie',
     'team-administration': 'Správa tímu',
@@ -247,12 +251,11 @@ const messages = {
     'username-required': 'Zadajte používateľské meno',
     warning: 'Upozornenie',
   },
-  // Add more languages here
 }
 
 const i18n = createI18n({
-  locale: 'sk', // Set default locale
-  fallbackLocale: 'sk', // Set fallback locale
+  locale: 'sk',
+  fallbackLocale: 'sk',
   messages,
 })
 

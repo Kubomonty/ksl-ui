@@ -21,6 +21,7 @@
                     <th>{{ $t('home-team') }}</th>
                     <th>{{ $t('guest-team') }}</th>
                     <th>{{ $t('score') }}</th>
+                    <th>{{ $t('status') }}</th>
                     <th width="5%" />
                   </tr>
                 </thead>
@@ -30,6 +31,21 @@
                     <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
                     <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
                     <td v-if="showScore(match)">{{ match.homeScore }} &ndash; {{ match.guestScore }}</td>
+                    <td>
+                      <v-chip
+                        border
+                        class="justify-center"
+                        :color="getStatusLabel(match.status as MatchStatus).color"
+                        density="compact"
+                        label
+                        rounded
+                        size="small"
+                        :title="getStatusLabel(match.status as MatchStatus).label"
+                        variant="tonal"
+                      >
+                        {{ getStatusLabel(match.status as MatchStatus).label }}
+                      </v-chip>
+                    </td>
                     <td>
                       <v-btn
                         color="primary"
@@ -66,9 +82,12 @@
   import { format } from 'date-fns'
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
+  import { useI18n } from 'vue-i18n'
 
   const route = useRoute()
   const router = useRouter()
+  const i18n = useI18n()
+
   const loading = ref(false)
 
   const matchStore = useMatchStore()
@@ -102,6 +121,36 @@
 
   const formatDateTime = (dateTime: string) => {
     return format(new Date(dateTime), 'dd.MM.yyyy, HH:mm')
+  }
+
+  const getStatusLabel = (status: MatchStatus) => {
+    switch (status) {
+      case MatchStatus.NEW:
+        return {
+          color: 'primary',
+          label: i18n.t('new'),
+        }
+      case MatchStatus.IN_PROGRESS:
+        return {
+          color: 'warning',
+          label: i18n.t('in-progress'),
+        }
+      case MatchStatus.FINISHED:
+        return {
+          color: 'success',
+          label: i18n.t('finished'),
+        }
+      case MatchStatus.CANCELLED:
+        return {
+          color: 'grey',
+          label: i18n.t('cancelled'),
+        }
+      default:
+        return {
+          color: 'primary',
+          label: i18n.t('new'),
+        }
+    }
   }
 
   onMounted(async () => {
