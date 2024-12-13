@@ -423,16 +423,21 @@
     loading.value = false
   }
 
+  const initialLoadInProgress = ref(true)
+
   watch(async () => route, async () => {
     await initiateData()
   }, { deep: true })
 
   watch(matchLegs, () => {
     matchState.value = getMatchState(matchLegs.value)
-    saveChanges()
+    if (!initialLoadInProgress.value) {
+      saveChanges()
+    }
   }, { deep: true })
 
   onMounted(async () => {
     await initiateData()
+    initialLoadInProgress.value = false
   })
 </script>
