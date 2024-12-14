@@ -27,11 +27,11 @@
                 </thead>
                 <tbody>
                   <tr v-for="match in paginatedMatches" :key="match.id">
-                    <td>{{ match.matchLocation }} - {{ formatDateTime(match.matchDate.toISOString()) }}</td>
+                    <td>{{ match.matchLocation }}&nbsp;&ndash;&nbsp;{{ formatDateTime(match.matchDate.toISOString()) }}</td>
                     <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
                     <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
-                    <td v-if="showScore(match)">{{ match.homeScore }} &ndash; {{ match.guestScore }}</td>
-                    <td v-else>&ndash;&nbsp;&nbsp;&ndash;</td>
+                    <td v-if="showScore(match)">{{ match.homeScore }}&nbsp;&colon;&nbsp;{{ match.guestScore }}</td>
+                    <td v-else>&ndash;&nbsp;&colon;&nbsp;&ndash;</td>
                     <td>
                       <v-chip
                         border
@@ -79,8 +79,8 @@
 <script lang="ts" setup>
   import { useRoute, useRouter } from 'vue-router'
   import { useMatchStore, useTeamStore } from '../stores'
-  import { MatchDto } from '@/models'
-  import { MatchStatus } from '@/enums'
+  import { MatchDto } from '../models'
+  import { MatchStatus } from '../enums'
   import { format } from 'date-fns'
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'

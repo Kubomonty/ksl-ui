@@ -157,13 +157,6 @@
 
 <script lang="ts" setup>
   import { MatchLegs, PlayersSubstitutionDto } from '../models'
-  import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
-  import { useRoute, useRouter } from 'vue-router'
-  import { computed } from 'vue'
-  import { format } from 'date-fns'
-  import { MatchStatus } from '../enums'
-  import { storeToRefs } from 'pinia'
-  import { useI18n } from 'vue-i18n'
   import {
     getMachLegsQ1,
     getMachLegsQ2,
@@ -185,6 +178,14 @@
     homeTeam,
     homeTeamPlayers,
   } from '../utils'
+  import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
+  import { useRoute, useRouter } from 'vue-router'
+  import { MatchStatus } from '../enums'
+  import { computed } from 'vue'
+  import { emptyMatchLegs } from '../constants'
+  import { format } from 'date-fns'
+  import { storeToRefs } from 'pinia'
+  import { useI18n } from 'vue-i18n'
 
   const i18n = useI18n()
   const route = useRoute()
@@ -381,32 +382,7 @@
     snackbarTimeout.value = 3000
   }
 
-  const matchLegs: Ref<MatchLegs> = ref({
-    qtr1: {
-      game1: { home: 0, guest: 0 },
-      game2: { home: 0, guest: 0 },
-      game3: { home: 0, guest: 0 },
-      game4: { home: 0, guest: 0 },
-    },
-    qtr2: {
-      game1: { home: 0, guest: 0 },
-      game2: { home: 0, guest: 0 },
-      game3: { home: 0, guest: 0 },
-      game4: { home: 0, guest: 0 },
-    },
-    qtr3: {
-      game1: { home: 0, guest: 0 },
-      game2: { home: 0, guest: 0 },
-      game3: { home: 0, guest: 0 },
-      game4: { home: 0, guest: 0 },
-    },
-    qtr4: {
-      game1: { home: 0, guest: 0 },
-      game2: { home: 0, guest: 0 },
-      game3: { home: 0, guest: 0 },
-      game4: { home: 0, guest: 0 },
-    },
-  })
+  const matchLegs: Ref<MatchLegs> = ref({ ...emptyMatchLegs })
 
   const canSub: ComputedRef<{ q1: boolean, q2: boolean, q3: boolean, q4: boolean }> = computed(() => {
     // never allow substitution in the first quarter
@@ -424,12 +400,7 @@
     return { q1, q2, q3, q4 }
   })
 
-  const matchState: Ref<MatchLegs> = ref({
-    qtr1: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
-    qtr2: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
-    qtr3: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
-    qtr4: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
-  })
+  const matchState: Ref<MatchLegs> = ref({ ...emptyMatchLegs })
 
   const handleHomeLegsUpdate = (values: {values: number[], qtr: number}) => {
     isMatchChanged.value = true

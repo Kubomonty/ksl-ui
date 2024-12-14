@@ -1,7 +1,12 @@
 import { MatchType } from '../enums'
 
+export const emptyMatchLegs = {
+  qtr1: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
+  qtr2: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
+  qtr3: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
+  qtr4: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
+}
 export const maxSubstitutionNumber = 4
-
 export const matchOpponentsStructure = [
   [
     {

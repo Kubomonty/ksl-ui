@@ -1,7 +1,8 @@
-import { storeToRefs } from 'pinia'
-import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
 import { MatchGame, MatchLegs, MatchQuarter, MatchUpdateDto, PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
+import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
 import { MatchStatus } from '../enums'
+import { emptyMatchLegs } from '../constants'
+import { storeToRefs } from 'pinia'
 
 const matchStore = useMatchStore()
 const { selectedMatchDetails } = storeToRefs(matchStore)
@@ -92,6 +93,35 @@ export const getMatchLegsQuarterSum = (quarter: MatchQuarter): MatchGame => {
     guest: +quarter.game1.guest + +quarter.game2.guest + +quarter.game3.guest + +quarter.game4.guest,
   }
 }
+
+export const getMatchLegsTotals: ComputedRef<MatchLegs> = computed((): MatchLegs => {
+  const quarters = selectedMatchDetails?.value?.quarters
+  const matchLegs: MatchLegs = { ...emptyMatchLegs }
+  if (!quarters) {
+    return matchLegs
+  }
+  matchLegs.qtr1.game1 = { home: +quarters.q1.home.legs.m1, guest: +quarters.q1.guest.legs.m1 }
+  matchLegs.qtr1.game2 = { home: +quarters.q1.home.legs.m2 + matchLegs.qtr1.game1.home, guest: +quarters.q1.guest.legs.m2 + matchLegs.qtr1.game1.guest }
+  matchLegs.qtr1.game3 = { home: +quarters.q1.home.legs.m3 + matchLegs.qtr1.game2.home, guest: +quarters.q1.guest.legs.m3 + matchLegs.qtr1.game2.guest }
+  matchLegs.qtr1.game4 = { home: +quarters.q1.home.legs.m4 + matchLegs.qtr1.game3.home, guest: +quarters.q1.guest.legs.m4 + matchLegs.qtr1.game3.guest }
+
+  matchLegs.qtr2.game1 = { home: +quarters.q2.home.legs.m1 + matchLegs.qtr1.game4.home, guest: +quarters.q2.guest.legs.m1 + matchLegs.qtr1.game4.guest }
+  matchLegs.qtr2.game2 = { home: +quarters.q2.home.legs.m2 + matchLegs.qtr2.game1.home, guest: +quarters.q2.guest.legs.m2 + matchLegs.qtr2.game1.guest }
+  matchLegs.qtr2.game3 = { home: +quarters.q2.home.legs.m3 + matchLegs.qtr2.game2.home, guest: +quarters.q2.guest.legs.m3 + matchLegs.qtr2.game2.guest }
+  matchLegs.qtr2.game4 = { home: +quarters.q2.home.legs.m4 + matchLegs.qtr2.game3.home, guest: +quarters.q2.guest.legs.m4 + matchLegs.qtr2.game3.guest }
+
+  matchLegs.qtr3.game1 = { home: +quarters.q3.home.legs.m1 + matchLegs.qtr2.game4.home, guest: +quarters.q3.guest.legs.m1 + matchLegs.qtr2.game4.guest }
+  matchLegs.qtr3.game2 = { home: +quarters.q3.home.legs.m2 + matchLegs.qtr3.game1.home, guest: +quarters.q3.guest.legs.m2 + matchLegs.qtr3.game1.guest }
+  matchLegs.qtr3.game3 = { home: +quarters.q3.home.legs.m3 + matchLegs.qtr3.game2.home, guest: +quarters.q3.guest.legs.m3 + matchLegs.qtr3.game2.guest }
+  matchLegs.qtr3.game4 = { home: +quarters.q3.home.legs.m4 + matchLegs.qtr3.game3.home, guest: +quarters.q3.guest.legs.m4 + matchLegs.qtr3.game3.guest }
+
+  matchLegs.qtr4.game1 = { home: +quarters.q4.home.legs.m1 + matchLegs.qtr3.game4.home, guest: +quarters.q4.guest.legs.m1 + matchLegs.qtr3.game4.guest }
+  matchLegs.qtr4.game2 = { home: +quarters.q4.home.legs.m2 + matchLegs.qtr4.game1.home, guest: +quarters.q4.guest.legs.m2 + matchLegs.qtr4.game1.guest }
+  matchLegs.qtr4.game3 = { home: +quarters.q4.home.legs.m3 + matchLegs.qtr4.game2.home, guest: +quarters.q4.guest.legs.m3 + matchLegs.qtr4.game2.guest }
+  matchLegs.qtr4.game4 = { home: +quarters.q4.home.legs.m4 + matchLegs.qtr4.game3.home, guest: +quarters.q4.guest.legs.m4 + matchLegs.qtr4.game3.guest }
+
+  return matchLegs
+})
 
 export const getMachLegsQ1: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
   return {

@@ -85,7 +85,10 @@
             </div>
           </div>
         </td>
-        <td>{{ matchState[`game${index + 1}` as keyof typeof matchState].home }} : {{ matchState[`game${index + 1}` as keyof typeof matchState].guest }}</td>
+        <td>
+          {{ matchState[`game${index + 1}` as keyof MatchQuarter].home }} &colon; {{ matchState[`game${index + 1}` as keyof MatchQuarter].guest }}
+          ({{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].home }} &colon; {{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].guest }})
+        </td>
         <td>
           <div class="d-flex">
             <div
@@ -141,8 +144,8 @@
 
 <script lang="ts" setup>
   import { defineEmits, defineProps, type PropType } from 'vue'
-  import { PlayerDto } from '../models'
-  import { getSubstititionSum } from '../utils'
+  import { MatchLegs, MatchQuarter, PlayerDto } from '../models'
+  import { getMatchLegsTotals, getSubstititionSum } from '../utils'
   import { matchOpponentsStructure, maxSubstitutionNumber } from '../constants'
   import { storeToRefs } from 'pinia'
   import { useAuthStore } from '../stores'
@@ -162,21 +165,11 @@
     },
     matchState: {
       required: true,
-      type: Object as PropType< {
-        game1: { guest: number, home: number },
-        game2: { guest: number, home: number },
-        game3: { guest: number, home: number },
-        game4: { guest: number, home: number },
-      }>,
+      type: Object as PropType<MatchQuarter>,
     },
     matchLegs: {
       required: true,
-      type: Object as PropType<{
-        game1: { guest: number, home: number }
-        game2: { guest: number, home: number }
-        game3: { guest: number, home: number }
-        game4: { guest: number, home: number }
-      }>,
+      type: Object as PropType<MatchQuarter>,
     },
     qtr: {
       required: true,

@@ -1,4 +1,4 @@
 export interface MatchGame {
-  home: number;
   guest: number;
+  home: number;
 }
