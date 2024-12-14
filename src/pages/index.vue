@@ -31,6 +31,7 @@
                     <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
                     <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
                     <td v-if="showScore(match)">{{ match.homeScore }} &ndash; {{ match.guestScore }}</td>
+                    <td v-else>&ndash;&nbsp;&nbsp;&ndash;</td>
                     <td>
                       <v-chip
                         border
@@ -48,6 +49,7 @@
                     </td>
                     <td>
                       <v-btn
+                        v-if="match.status !== MatchStatus.CANCELED"
                         color="primary"
                         size="x-small"
                         variant="flat"
@@ -140,10 +142,10 @@
           color: 'success',
           label: i18n.t('finished'),
         }
-      case MatchStatus.CANCELLED:
+      case MatchStatus.CANCELED:
         return {
           color: 'grey',
-          label: i18n.t('cancelled'),
+          label: i18n.t('canceled'),
         }
       default:
         return {

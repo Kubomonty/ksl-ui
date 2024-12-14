@@ -14,7 +14,7 @@
         <td>
           <div
             class="d-flex"
-            :class="{ 'not-allowed': !canSubstitute }"
+            :class="{ 'not-allowed': !canSubstitute.home }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
               <strong>{{ `H${match.home}` }}</strong>
@@ -25,22 +25,22 @@
             <div
               class="my-2"
               :style="{
-                backgroundColor: canSubstitute ? '#f5f5f5' : 'white',
+                backgroundColor: canSubstitute.home ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: canSubstitute ? 'black' : 'darkslategray',
+                color: canSubstitute.home ? 'black' : 'darkslategray',
               }"
             >
               <v-select
                 v-if="currentHomeTeamPlayers[match.home - 1].player"
                 v-model="currentHomeTeamPlayers[match.home - 1].player"
                 class="pl-2 pb-2"
-                :class="{ 'readonly-select': !canSubstitute }"
+                :class="{ 'readonly-select': !canSubstitute.home }"
                 density="compact"
                 hide-details
                 item-title="name"
                 :item-value="item => item"
                 :items="homeTeamPlayersSubstitutes"
-                :readonly="!canSubstitute"
+                :readonly="!canSubstitute.home"
                 style="min-width: 156px;"
                 variant="plain"
                 @update:model-value="handleHomeTeamUpdate(`H${match.home}`)"
@@ -51,7 +51,7 @@
         <td>
           <div
             class="d-flex"
-            :class="{ 'not-allowed': !canSubstitute }"
+            :class="{ 'not-allowed': !canSubstitute.guest }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
               <strong>{{ `G${match.guest}` }}</strong>
@@ -62,22 +62,22 @@
             <div
               class="my-2"
               :style="{
-                backgroundColor: canSubstitute ? '#f5f5f5' : 'white',
+                backgroundColor: canSubstitute.guest ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: canSubstitute ? 'black' : 'darkslategray',
+                color: canSubstitute.guest ? 'black' : 'darkslategray',
               }"
             >
               <v-select
                 v-if="currentGuestTeamPlayers[match.guest - 1].player"
                 v-model="currentGuestTeamPlayers[match.guest - 1].player"
                 class="pl-2 pb-2"
-                :class="{ 'readonly-select': !canSubstitute }"
+                :class="{ 'readonly-select': !canSubstitute.guest }"
                 density="compact"
                 hide-details
                 item-title="name"
                 :item-value="item => item"
                 :items="guestTeamPlayersSubstitutes"
-                :readonly="!canSubstitute"
+                :readonly="!canSubstitute.guest"
                 style="min-width: 156px;"
                 variant="plain"
                 @update:model-value="handleGuestTeamUpdate(`G${match.guest}`)"
@@ -141,8 +141,9 @@
 
 <script lang="ts" setup>
   import { defineEmits, defineProps, type PropType } from 'vue'
-  import { matchOpponentsStructure } from '../constants'
   import { PlayerDto } from '../models'
+  import { getSubstititionSum } from '../utils'
+  import { matchOpponentsStructure, maxSubstitutionNumber } from '../constants'
   import { storeToRefs } from 'pinia'
   import { useAuthStore } from '../stores'
 
@@ -194,9 +195,14 @@
   ])
 
   const authStore = useAuthStore()
-  const { isLoggedIn } = storeToRefs(authStore)
+  const { isAdmin, isLoggedIn } = storeToRefs(authStore)
 
-  const canSubstitute = computed(() => props.canSub && isLoggedIn.value && props.isAlive)
+  const canSubstitute = computed(() => {
+    return {
+      guest: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.guest < maxSubstitutionNumber) || isAdmin,
+      home: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.home < maxSubstitutionNumber) || isAdmin,
+    }
+  })
 
   const currentMatch = matchOpponentsStructure[props.qtr - 1]
   const previousHomeTeamPlayers = ref([
@@ -308,7 +314,6 @@
   const hLegItems = computed(() =>
     hLegs.value.map((_, i) => +gLegs.value[i] === 0 ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +gLegs.value[i]))
   )
-
   const gLegItems = computed(() =>
     gLegs.value.map((_, i) => +hLegs.value[i] === 0 ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +hLegs.value[i]))
   )

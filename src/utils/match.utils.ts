@@ -1,6 +1,6 @@
 import { storeToRefs } from 'pinia'
 import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
-import { MatchLegs, MatchUpdateDto, PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
+import { MatchGame, MatchLegs, MatchQuarter, MatchUpdateDto, PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
 import { MatchStatus } from '../enums'
 
 const matchStore = useMatchStore()
@@ -20,27 +20,19 @@ const getPlayer = (team: TeamDto | undefined | null, playerId: string | undefine
   return team.players.find(player => player.id === playerId) || null
 }
 
-export type Game = { guest: number; home: number }
-export type Quarter = {
-  game1: Game
-  game2: Game
-  game3: Game
-  game4: Game
-}
-
-const createGameState = (game: Game): Game => ({
+const createGameState = (game: MatchGame): MatchGame => ({
   guest: +game.guest === 2 ? 1 : 0,
   home: +game.home === 2 ? 1 : 0,
 })
 
-const createQuarterState = (quarter: Quarter): Quarter => ({
+const createQuarterState = (quarter: MatchQuarter): MatchQuarter => ({
   game1: createGameState(quarter.game1),
   game2: createGameState(quarter.game2),
   game3: createGameState(quarter.game3),
   game4: createGameState(quarter.game4),
 })
 
-const sumGameScores = (nonSummedQuarter: Quarter, previousQuarterLastGame: Game): Quarter => {
+const sumGameScores = (nonSummedQuarter: MatchQuarter, previousQuarterLastGame: MatchGame): MatchQuarter => {
   let cumulativeGuest = previousQuarterLastGame.guest
   let cumulativeHome = previousQuarterLastGame.home
 
@@ -64,7 +56,44 @@ const sumGameScores = (nonSummedQuarter: Quarter, previousQuarterLastGame: Game)
   }
 }
 
-export const getMachLegsQ1: ComputedRef<Quarter> = computed((): Quarter => {
+export const getSubstititionSum: ComputedRef<{guest: number, home: number}> = computed(() => {
+  const quarters = selectedMatchDetails?.value?.quarters
+
+  if (!quarters) {
+    return { guest: 0, home: 0 }
+  }
+
+  const positions = ['pos1', 'pos2', 'pos3', 'pos4'] as const
+  const teams = ['guest', 'home'] as const
+  const calculateSubstitutions = (team: typeof teams[number]) => {
+    return ['q1', 'q2', 'q3', 'q4']
+      .slice(1) // Start from q2
+      .reduce((sum, quarter, index) => {
+        const prevQuarter = `q${index + 1}` as keyof typeof quarters
+        const currentQuarter = quarter as keyof typeof quarters
+
+        const substitutions = positions.filter(
+          pos => quarters[currentQuarter][team][pos] !== quarters[prevQuarter][team][pos]
+        ).length
+
+        return sum + substitutions
+      }, 0)
+  }
+
+  const guest = calculateSubstitutions('guest')
+  const home = calculateSubstitutions('home')
+
+  return { guest, home }
+})
+
+export const getMatchLegsQuarterSum = (quarter: MatchQuarter): MatchGame => {
+  return {
+    home: +quarter.game1.home + +quarter.game2.home + +quarter.game3.home + +quarter.game4.home,
+    guest: +quarter.game1.guest + +quarter.game2.guest + +quarter.game3.guest + +quarter.game4.guest,
+  }
+}
+
+export const getMachLegsQ1: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
   return {
     game1: {
       home: selectedMatchDetails?.value?.quarters.q1.home.legs.m1 || 0,
@@ -84,7 +113,7 @@ export const getMachLegsQ1: ComputedRef<Quarter> = computed((): Quarter => {
     },
   }
 })
-export const getMachLegsQ2: ComputedRef<Quarter> = computed((): Quarter => {
+export const getMachLegsQ2: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
   return {
     game1: {
       home: selectedMatchDetails?.value?.quarters.q2.home.legs.m1 || 0,
@@ -104,7 +133,7 @@ export const getMachLegsQ2: ComputedRef<Quarter> = computed((): Quarter => {
     },
   }
 })
-export const getMachLegsQ3: ComputedRef<Quarter> = computed((): Quarter => {
+export const getMachLegsQ3: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
   return {
     game1: {
       home: selectedMatchDetails?.value?.quarters.q3.home.legs.m1 || 0,
@@ -124,7 +153,7 @@ export const getMachLegsQ3: ComputedRef<Quarter> = computed((): Quarter => {
     },
   }
 })
-export const getMachLegsQ4: ComputedRef<Quarter> = computed((): Quarter => {
+export const getMachLegsQ4: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
   return {
     game1: {
       home: selectedMatchDetails?.value?.quarters.q4.home.legs.m1 || 0,
@@ -160,10 +189,10 @@ export const getMatchState = (matchLegs: MatchLegs) => {
 }
 
 export const getMatchUpdateDto = (matchLegs: MatchLegs, matchState: {
-  qtr1: Quarter;
-  qtr2: Quarter;
-  qtr3: Quarter;
-  qtr4: Quarter;
+  qtr1: MatchQuarter;
+  qtr2: MatchQuarter;
+  qtr3: MatchQuarter;
+  qtr4: MatchQuarter;
 }): MatchUpdateDto | null => {
   if (!selectedMatchDetails?.value || !loggedInUser?.value) {
     return null

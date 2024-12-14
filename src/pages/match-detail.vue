@@ -18,7 +18,7 @@
             <h4>{{ `${$t('game-no')} 1` }}</h4>
           </span>
           <match-table
-            :can-sub="false"
+            :can-sub="canSub.q1"
             :guest-players="guestTeamPlayers.q1"
             :home-players="homeTeamPlayers.q1"
             :is-alive="isMatchAlive"
@@ -33,7 +33,7 @@
             <h4>{{ `${$t('game-no')} 2` }}</h4>
           </span>
           <match-table
-            :can-sub="true"
+            :can-sub="canSub.q2"
             :guest-players="guestTeamPlayers.q2"
             :home-players="homeTeamPlayers.q2"
             :is-alive="isMatchAlive"
@@ -50,7 +50,7 @@
             <h4>{{ `${$t('game-no')} 3` }}</h4>
           </span>
           <match-table
-            :can-sub="true"
+            :can-sub="canSub.q3"
             :guest-players="guestTeamPlayers.q3"
             :home-players="homeTeamPlayers.q3"
             :is-alive="isMatchAlive"
@@ -67,7 +67,7 @@
             <h4>{{ `${$t('game-no')} 4` }}</h4>
           </span>
           <match-table
-            :can-sub="true"
+            :can-sub="canSub.q4"
             :guest-players="guestTeamPlayers.q4"
             :home-players="homeTeamPlayers.q4"
             :is-alive="isMatchAlive"
@@ -88,6 +88,12 @@
               variant="flat"
               @click="handleEndMatchClick"
             >{{ $t('end-match') }}</v-btn>
+            <v-btn
+              class="ml-2"
+              color="error"
+              variant="flat"
+              @click="handleCancelMatchClick"
+            >{{ $t('cancel-match') }}</v-btn>
           </span>
         </v-card-actions>
       </span>
@@ -106,6 +112,24 @@
             color="primary"
             variant="flat"
             @click="handleEndMatchDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="cancelMatchDialog" @keydown.enter="handleCancelMatchDialogConfirm">
+      <v-card>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('cancel-match-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleCancelMatchDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="handleCancelMatchDialogConfirm"
           >{{ $t('ok') }}</v-btn>
         </v-card-actions>
       </v-card>
@@ -143,6 +167,7 @@
     getMachLegsQ2,
     getMachLegsQ3,
     getMachLegsQ4,
+    getMatchLegsQuarterSum,
     getMatchState,
     getMatchUpdateDto,
     guestTeam,
@@ -155,7 +180,6 @@
     handleHomeRosterUpdateQ4,
     homeTeam,
     homeTeamPlayers,
-    Quarter,
   } from '../utils'
 
   const i18n = useI18n()
@@ -187,6 +211,7 @@
   const { fetchTeams } = teamStore
 
   const endMatchDialog: Ref<boolean> = ref(false)
+  const cancelMatchDialog: Ref<boolean> = ref(false)
 
   const inProcess = ref(false)
   const snackbar = ref(false)
@@ -263,6 +288,51 @@
     snackbarText.value = i18n.t('save-changes-failed').toString()
     snackbarTimeout.value = 3000
   }
+
+  const handleCancelMatchClick = (): void => {
+    cancelMatchDialog.value = true
+  }
+  const handleCancelMatchDialogCancel = (): void => {
+    cancelMatchDialog.value = false
+  }
+  const handleCancelMatchDialogConfirm = async (): Promise<void> => {
+    cancelMatchDialog.value = false
+    if (inProcess.value || !selectedMatchDetails?.value || !loggedInUser?.value) {
+      return
+    }
+    inProcess.value = true
+    snackbarColor.value = 'info'
+    snackbarTimeout.value = -1
+    snackbar.value = true
+    snackbarText.value = i18n.t('canceling-match').toString()
+    const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value)
+    if (!updatedMatchDto) {
+      inProcess.value = false
+      snackbar.value = true
+      snackbarColor.value = 'error'
+      snackbarText.value = i18n.t('cancel-match-failed').toString()
+      snackbarTimeout.value = 3000
+      return
+    }
+    updatedMatchDto.status = MatchStatus.CANCELED
+    const updateRes = await updateMatch(updatedMatchDto)
+    if (updateRes) {
+      await initiateData()
+      inProcess.value = false
+      snackbar.value = true
+      snackbarColor.value = 'success'
+      snackbarText.value = i18n.t('cancel-match-success').toString()
+      snackbarTimeout.value = 3000
+      return
+    }
+
+    inProcess.value = false
+    snackbar.value = true
+    snackbarColor.value = 'error'
+    snackbarText.value = i18n.t('cancel-match-failed').toString()
+    snackbarTimeout.value = 3000
+  }
+
   const saveChanges = async (): Promise<void> => {
     if (inProcess.value || !selectedMatchDetails?.value || !loggedInUser?.value) {
       return
@@ -298,6 +368,7 @@
     snackbarText.value = i18n.t('save-changes-failed').toString()
     snackbarTimeout.value = 3000
   }
+
   const matchLegs: Ref<MatchLegs> = ref({
     qtr1: {
       game1: { home: 0, guest: 0 },
@@ -325,12 +396,23 @@
     },
   })
 
-  const matchState: Ref<{
-    qtr1: Quarter;
-    qtr2: Quarter;
-    qtr3: Quarter;
-    qtr4: Quarter;
-  }> = ref({
+  const canSub: ComputedRef<{ q1: boolean, q2: boolean, q3: boolean, q4: boolean }> = computed(() => {
+    // never allow substitution in the first quarter
+    const q1 = false
+    const legsQ2 = getMatchLegsQuarterSum(matchLegs.value.qtr2)
+    const legsSumQ2 = legsQ2.home + legsQ2.guest
+    const legsQ3 = getMatchLegsQuarterSum(matchLegs.value.qtr3)
+    const legsSumQ3 = legsQ3.home + legsQ3.guest
+    const legsQ4 = getMatchLegsQuarterSum(matchLegs.value.qtr4)
+    const legsSumQ4 = legsQ4.home + legsQ4.guest
+    const q2 = legsSumQ2 + legsSumQ3 + legsSumQ4 === 0
+    const q3 = legsSumQ3 + legsSumQ4 === 0
+    const q4 = legsSumQ4 === 0
+
+    return { q1, q2, q3, q4 }
+  })
+
+  const matchState: Ref<MatchLegs> = ref({
     qtr1: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
     qtr2: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
     qtr3: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },

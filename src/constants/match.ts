@@ -1,5 +1,7 @@
 import { MatchType } from '../enums'
 
+export const maxSubstitutionNumber = 4
+
 export const matchOpponentsStructure = [
   [
     {
