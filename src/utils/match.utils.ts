@@ -469,6 +469,20 @@ export const handleGuestRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) =
   selectedMatchDetails.value.quarters.q2.guest.pos8 = newRoster.find(player => player.position === 'G8')?.player?.id || ''
   handleGuestRosterUpdateQ3(newRoster)
 }
+export const handleGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+  if (!selectedMatchDetails?.value) {
+    return
+  }
+  selectedMatchDetails.value.quarters.q1.guest.pos1 = newRoster.find(player => player.position === 'G1')?.player!.id!
+  selectedMatchDetails.value.quarters.q1.guest.pos2 = newRoster.find(player => player.position === 'G2')?.player!.id!
+  selectedMatchDetails.value.quarters.q1.guest.pos3 = newRoster.find(player => player.position === 'G3')?.player!.id!
+  selectedMatchDetails.value.quarters.q1.guest.pos4 = newRoster.find(player => player.position === 'G4')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.guest.pos5 = newRoster.find(player => player.position === 'G5')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.guest.pos6 = newRoster.find(player => player.position === 'G6')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.guest.pos7 = newRoster.find(player => player.position === 'G7')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.guest.pos8 = newRoster.find(player => player.position === 'G8')?.player?.id || ''
+  handleGuestRosterUpdateQ2(newRoster)
+}
 
 export const handleHomeRosterUpdateQ4 = (newRoster: PlayersSubstitutionDto[]) => {
   if (!selectedMatchDetails?.value) {
@@ -510,4 +524,18 @@ export const handleHomeRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) =>
   selectedMatchDetails.value.quarters.q2.home.pos7 = newRoster.find(player => player.position === 'H7')?.player?.id || ''
   selectedMatchDetails.value.quarters.q2.home.pos8 = newRoster.find(player => player.position === 'H8')?.player?.id || ''
   handleHomeRosterUpdateQ3(newRoster)
+}
+export const handleHomeRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+  if (!selectedMatchDetails?.value) {
+    return
+  }
+  selectedMatchDetails.value.quarters.q1.home.pos1 = newRoster.find(player => player.position === 'H1')?.player!.id!
+  selectedMatchDetails.value.quarters.q1.home.pos2 = newRoster.find(player => player.position === 'H2')?.player!.id!
+  selectedMatchDetails.value.quarters.q1.home.pos3 = newRoster.find(player => player.position === 'H3')?.player!.id!
+  selectedMatchDetails.value.quarters.q1.home.pos4 = newRoster.find(player => player.position === 'H4')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.home.pos5 = newRoster.find(player => player.position === 'H5')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.home.pos6 = newRoster.find(player => player.position === 'H6')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.home.pos7 = newRoster.find(player => player.position === 'H7')?.player?.id || ''
+  selectedMatchDetails.value.quarters.q1.home.pos8 = newRoster.find(player => player.position === 'H8')?.player?.id || ''
+  handleHomeRosterUpdateQ2(newRoster)
 }

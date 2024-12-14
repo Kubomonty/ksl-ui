@@ -27,6 +27,8 @@
             :qtr="1"
             @update:match-legs-guest="handleGuestLegsUpdate"
             @update:match-legs-home="handleHomeLegsUpdate"
+            @update:roster-guest="onGuestRosterUpdateQ1"
+            @update:roster-home="onHomeRosterUpdateQ1"
           />
           <br>
           <span class="d-flex mb-2">
@@ -172,9 +174,11 @@
     getMatchUpdateDto,
     guestTeam,
     guestTeamPlayers,
+    handleGuestRosterUpdateQ1,
     handleGuestRosterUpdateQ2,
     handleGuestRosterUpdateQ3,
     handleGuestRosterUpdateQ4,
+    handleHomeRosterUpdateQ1,
     handleHomeRosterUpdateQ2,
     handleHomeRosterUpdateQ3,
     handleHomeRosterUpdateQ4,
@@ -219,6 +223,10 @@
   const snackbarText = ref('')
   const snackbarTimeout = ref(-1)
 
+  const onGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+    handleGuestRosterUpdateQ1(newRoster)
+    saveChanges()
+  }
   const onGuestRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) => {
     handleGuestRosterUpdateQ2(newRoster)
     saveChanges()
@@ -232,6 +240,10 @@
     saveChanges()
   }
 
+  const onHomeRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
+    handleHomeRosterUpdateQ1(newRoster)
+    saveChanges()
+  }
   const onHomeRosterUpdateQ2 = (newRoster: PlayersSubstitutionDto[]) => {
     handleHomeRosterUpdateQ2(newRoster)
     saveChanges()

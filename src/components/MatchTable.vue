@@ -199,8 +199,8 @@
 
   const canSubstitute = computed(() => {
     return {
-      guest: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.guest < maxSubstitutionNumber) || isAdmin,
-      home: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.home < maxSubstitutionNumber) || isAdmin,
+      guest: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.guest < maxSubstitutionNumber) || isAdmin.value,
+      home: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.home < maxSubstitutionNumber) || isAdmin.value,
     }
   })
 
