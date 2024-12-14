@@ -86,8 +86,8 @@
           </div>
         </td>
         <td>
-          {{ matchState[`game${index + 1}` as keyof MatchQuarter].home }} &colon; {{ matchState[`game${index + 1}` as keyof MatchQuarter].guest }}
-          ({{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].home }} &colon; {{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].guest }})
+          {{ matchState[`game${index + 1}` as keyof MatchQuarter].home }}&nbsp;&colon;&nbsp;{{ matchState[`game${index + 1}` as keyof MatchQuarter].guest }}
+          ({{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].home }}&nbsp;&colon;&nbsp;{{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].guest }})
         </td>
         <td>
           <div class="d-flex">
