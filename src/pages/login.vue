@@ -94,7 +94,7 @@
       snackbarColor.value = 'success'
       snackbarText.value = i18n.t('login-success').toString()
       snackbarTimeout.value = 3000
-      router.push('/')
+      router.push(window.history.state.back ?? '/')
     } catch (error) {
       console.error('Login failed:', error)
       snackbarText.value = i18n.t('login-failed').toString()
