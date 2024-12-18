@@ -38,15 +38,24 @@
       <span v-if="showLoginButton">
         <v-divider />
         <div class="pa-2">
-          <v-btn
-            v-if="isLoggedIn"
-            block
-            class="mt-3"
-            color="primary"
-            variant="flat"
-            @click="handleLogout"
-          >{{ $t('logout') }}
-          </v-btn>
+          <span v-if="isLoggedIn">
+            <v-btn
+              block
+              class="mt-3"
+              color="primary"
+              variant="flat"
+              @click="handleLogout"
+            >{{ $t('logout') }}
+            </v-btn>
+            <v-btn
+              block
+              class="my-2"
+              color="primary"
+              size="small"
+              variant="text"
+              @click="() => router.push('/reset-password')"
+            >{{ $t('change-password') }}</v-btn>
+          </span>
           <v-btn
             v-else
             block

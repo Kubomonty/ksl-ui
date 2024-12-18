@@ -39,7 +39,7 @@
                 hide-details
                 hide-no-data
                 item-title="name"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="homeTeamPlayersSubstitutes"
                 :readonly="!canSubstitute.home"
                 style="min-width: 156px;"
@@ -77,7 +77,7 @@
                 hide-details
                 hide-no-data
                 item-title="name"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="guestTeamPlayersSubstitutes"
                 :readonly="!canSubstitute.guest"
                 style="min-width: 156px;"

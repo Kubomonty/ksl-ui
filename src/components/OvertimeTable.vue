@@ -33,7 +33,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[0].player ? undefined : $t('player-no', { no: 1 })"
                 :readonly="!canSubstitute.home"
@@ -50,7 +50,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[1].player ? undefined : $t('player-no', { no: 2 })"
                 :readonly="!canSubstitute.home"
@@ -82,7 +82,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[0].player ? undefined : $t('player-no', { no: 1 })"
                 :readonly="!canSubstitute.guest"
@@ -99,7 +99,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[1].player ? undefined : $t('player-no', { no: 2 })"
                 :readonly="!canSubstitute.guest"
@@ -184,7 +184,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[2].player ? undefined : $t('player-no', { no: 3 })"
                 :readonly="!canSubstitute.home"
@@ -201,7 +201,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[3].player ? undefined : $t('player-no', { no: 4 })"
                 :readonly="!canSubstitute.home"
@@ -233,7 +233,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[2].player ? undefined : $t('player-no', { no: 3 })"
                 :readonly="!canSubstitute.guest"
@@ -250,7 +250,7 @@
                 hide-details
                 hide-no-data
                 item-title="namePosition"
-                :item-value="item => item"
+                :item-value="(item: unknown) => item"
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[3].player ? undefined : $t('player-no', { no: 4 })"
                 :readonly="!canSubstitute.guest"
