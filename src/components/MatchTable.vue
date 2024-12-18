@@ -2,11 +2,11 @@
   <v-table density="compact">
     <thead>
       <tr>
-        <th>{{ $t('home-team') }}</th>
-        <th>{{ $t('guest-team') }}</th>
+        <th width="25%">{{ $t('home-team') }}</th>
+        <th width="25%">{{ $t('guest-team') }}</th>
         <th>{{ $t('match-state') }}</th>
         <th>{{ $t('legs') }}</th>
-        <th width="8%" />
+        <th width="12%" />
       </tr>
     </thead>
     <tbody>
@@ -23,7 +23,7 @@
             <div style="margin-top: auto; margin-bottom: auto;">&ndash;</div>
             &nbsp;
             <div
-              class="my-2"
+              class="my-2 flex-grow-1"
               :style="{
                 backgroundColor: canSubstitute.home ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
@@ -37,6 +37,7 @@
                 :class="{ 'readonly-select': !canSubstitute.home }"
                 density="compact"
                 hide-details
+                hide-no-data
                 item-title="name"
                 :item-value="item => item"
                 :items="homeTeamPlayersSubstitutes"
@@ -60,7 +61,7 @@
             <div style="margin-top: auto; margin-bottom: auto;">&ndash;</div>
             &nbsp;
             <div
-              class="my-2"
+              class="my-2 flex-grow-1"
               :style="{
                 backgroundColor: canSubstitute.guest ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
@@ -74,6 +75,7 @@
                 :class="{ 'readonly-select': !canSubstitute.guest }"
                 density="compact"
                 hide-details
+                hide-no-data
                 item-title="name"
                 :item-value="item => item"
                 :items="guestTeamPlayersSubstitutes"
@@ -146,7 +148,7 @@
   import { defineEmits, defineProps, type PropType } from 'vue'
   import { MatchLegs, MatchQuarter, PlayerDto } from '../models'
   import { getMatchLegsTotals, getSubstititionSum } from '../utils'
-  import { matchOpponentsStructure, maxSubstitutionNumber } from '../constants'
+  import { MATCH_OPPONENTS_STRUCTURE, MAX_SUBSTITUTIONS_COUNT } from '../constants'
   import { storeToRefs } from 'pinia'
   import { useAuthStore } from '../stores'
 
@@ -192,12 +194,12 @@
 
   const canSubstitute = computed(() => {
     return {
-      guest: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.guest < maxSubstitutionNumber) || isAdmin.value,
-      home: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.home < maxSubstitutionNumber) || isAdmin.value,
+      guest: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.guest < MAX_SUBSTITUTIONS_COUNT) || isAdmin.value,
+      home: (props.canSub && isLoggedIn.value && props.isAlive && getSubstititionSum.value.home < MAX_SUBSTITUTIONS_COUNT) || isAdmin.value,
     }
   })
 
-  const currentMatch = matchOpponentsStructure[props.qtr - 1]
+  const currentMatch = MATCH_OPPONENTS_STRUCTURE[props.qtr - 1]
   const previousHomeTeamPlayers = ref([
     { position: 'H1', player: props.homePlayers.filter(player => player.position === 'H1')[0]?.player },
     { position: 'H2', player: props.homePlayers.filter(player => player.position === 'H2')[0]?.player },

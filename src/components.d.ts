@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     MatchTable: typeof import('./components/MatchTable.vue')['default']
+    OvertimeTable: typeof import('./components/OvertimeTable.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TeamMembersSelection: typeof import('./components/TeamMembersSelection.vue')['default']

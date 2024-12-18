@@ -11,10 +11,15 @@
     <v-row v-else>
       <v-col cols="12">
         <v-card>
-          <v-card-title>{{ $t('matches') }}</v-card-title>
+          <v-card-title class="d-flex">
+            <span>
+              {{ $t('matches') }}
+            </span>
+            <v-spacer />
+          </v-card-title>
           <v-card-text>
-            <span v-if="paginatedMatches.length">
-              <v-table v-if="paginatedMatches.length">
+            <span v-if="matches.length">
+              <v-table v-if="matches.length">
                 <thead>
                   <tr>
                     <th>{{ $t('location-and-date') }}</th>
@@ -26,7 +31,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="match in paginatedMatches" :key="match.id">
+                  <tr v-for="match in matches" :key="match.id">
                     <td>{{ match.matchLocation }}&nbsp;&ndash;&nbsp;{{ formatDateTime(match.matchDate.toISOString()) }}</td>
                     <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
                     <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
@@ -62,9 +67,9 @@
                 </tbody>
               </v-table>
               <v-pagination
-                v-if="pageCount > 1"
-                v-model:page="currentPage"
-                :length="pageCount"
+                v-if="matchPages > 1"
+                v-model="currentPage"
+                :length="matchPages"
                 :total-visible="5"
               />
             </span>
@@ -79,6 +84,7 @@
 <script lang="ts" setup>
   import { useRoute, useRouter } from 'vue-router'
   import { useMatchStore, useTeamStore } from '../stores'
+  import { ITEMS_PER_PAGE } from '../constants'
   import { MatchDto } from '../models'
   import { MatchStatus } from '../enums'
   import { format } from 'date-fns'
@@ -93,23 +99,12 @@
   const loading = ref(false)
 
   const matchStore = useMatchStore()
-  const { matches } = storeToRefs(matchStore)
+  const { matches, matchPages } = storeToRefs(matchStore)
   const { fetchMatchesPage } = matchStore
   const teamStore = useTeamStore()
   const { fetchTeams, getTeamById } = teamStore
 
-  const itemsPerPage = 10
   const currentPage = ref(1)
-
-  const paginatedMatches = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage
-    const end = start + itemsPerPage
-    return matches.value.slice(start, end)
-  })
-
-  const pageCount = computed(() => {
-    return Math.ceil(matches.value.length / itemsPerPage)
-  })
 
   const showScore = (match: MatchDto): boolean => {
     return [MatchStatus.NEW, MatchStatus.IN_PROGRESS, MatchStatus.FINISHED].includes(match.status as MatchStatus)
@@ -155,25 +150,22 @@
     }
   }
 
-  onMounted(async () => {
+  const getMatchList = async () => {
     loading.value = true
     await Promise.all([
       fetchTeams(),
-      fetchMatchesPage(itemsPerPage, currentPage.value),
+      fetchMatchesPage(ITEMS_PER_PAGE, currentPage.value),
     ])
     loading.value = false
-  })
+  }
 
+  onMounted(async () => {
+    getMatchList()
+  })
   watch(async () => route, async () => {
-    console.log('route changed', route)
-    loading.value = true
-    await Promise.all([
-      fetchTeams(),
-      fetchMatchesPage(itemsPerPage, currentPage.value),
-    ])
-    loading.value = false
+    getMatchList()
   }, { deep: true })
   watch(currentPage, () => {
-    fetchMatchesPage(itemsPerPage, currentPage.value)
+    getMatchList()
   })
 </script>

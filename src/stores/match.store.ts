@@ -12,7 +12,27 @@ export const useMatchStore = defineStore('match-store', {
       const authStore = useAuthStore()
       const token = authStore.token
       try {
-        const response = await axios.post(`${API_URL}/api/match`, this.$state.newMatch, {
+        const response = await axios.post(`${API_URL}/api/match`, this.newMatch, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        await this.fetchMatchesPage(10, 1)
+        this.resetNewMatch()
+        return response.data
+      } catch (error) {
+        console.error('Error creating team:', error)
+        return null
+      }
+    },
+    async createOvertime (matchData: MatchUpdateDto) {
+      const authStore = useAuthStore()
+      const token = authStore.token
+      const overtime = {
+        createdAt: new Date(),
+        matchId: matchData.id,
+        ...matchData?.overtime,
+      }
+      try {
+        const response = await axios.post(`${API_URL}/api/match/overtime`, overtime, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         await this.fetchMatchesPage(10, 1)
@@ -27,7 +47,8 @@ export const useMatchStore = defineStore('match-store', {
       try {
         this.resetSelectedMatchDetails()
         const response = await axios.get(`${API_URL}/api/match/${matchId}`)
-        this.$state.selectedMatchDetails = response.data
+        this.selectedMatchDetails = { ...response.data }
+        this.fetchedMatchDetails = { ...response.data }
         return response.data
       } catch (error) {
         console.error('Error creating team:', error)
@@ -40,7 +61,7 @@ export const useMatchStore = defineStore('match-store', {
         const response = await axios.get(`${API_URL}/api/match`, {
           params: pageInfo,
         })
-        const matches: MatchDto[] = response.data.map((match: any): MatchDto => {
+        const matches: MatchDto[] = response.data.matches.map((match: any): MatchDto => {
           return {
             createdAt: new Date(match.created_at),
             createdBy: match.created_by,
@@ -74,7 +95,8 @@ export const useMatchStore = defineStore('match-store', {
             statusChangedBy: match.status_changed_by,
           }
         })
-        this.$state.matches = matches
+        this.matchPages = response.data.totalPages
+        this.matches = matches
         return response.data
       } catch (error) {
         console.error('Error creating team:', error)
@@ -110,7 +132,8 @@ export const useMatchStore = defineStore('match-store', {
       }
     },
     resetSelectedMatchDetails () {
-      this.$state.selectedMatchDetails = undefined
+      this.fetchedMatchDetails = undefined
+      this.selectedMatchDetails = undefined
     },
     async updateMatch (matchData: MatchUpdateDto): Promise<string | null> {
       const authStore = useAuthStore()
@@ -126,10 +149,27 @@ export const useMatchStore = defineStore('match-store', {
         return null
       }
     },
+    async updateMatchOvertime (matchData: MatchUpdateDto): Promise<string | null> {
+      if (matchData.overtime === undefined) return null
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.put(`${API_URL}/api/match/overtime/${matchData.id}`, { matchId: matchData.id, ...matchData.overtime }, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        return response.data
+      } catch (error) {
+        console.error('Error updating match:', error)
+        return null
+      }
+    },
   },
 
   state: (): MatchState => ({
+    fetchedMatchDetails: undefined,
     matches: [],
+    matchPages: 0,
     newMatch: {
       createdAt: new Date(),
       createdBy: '',
