@@ -1,8 +1,37 @@
-import { authState } from '../models'
+import { AuthState } from '../models'
 import axios from 'axios'
 import { defineStore } from 'pinia'
 
 const API_URL = import.meta.env.VITE_KSL_API_URL
+
+const getUserFromLocalStorage = (): { id: string; userEmail: string; username: string; userRole: string; teamName?: string | null } | null => {
+  const storeUser: {
+    id?: string;
+    userEmail?: string;
+    username?: string;
+    userRole?: string,
+    teamName?: string | null;
+  } = {}
+  if (localStorage.getItem('userId')) {
+    storeUser.id = localStorage.getItem('userId') as string
+  }
+  if (localStorage.getItem('userEmail')) {
+    storeUser.userEmail = localStorage.getItem('userEmail') as string
+  }
+  if (localStorage.getItem('username')) {
+    storeUser.username = localStorage.getItem('username') as string
+  }
+  if (localStorage.getItem('userRole')) {
+    storeUser.userRole = localStorage.getItem('userRole') as string
+  }
+  if (localStorage.getItem('teamName')) {
+    storeUser.teamName = localStorage.getItem('teamName') as string
+  }
+  if (storeUser.id?.length && storeUser.userEmail?.length && storeUser.username?.length && storeUser.userRole?.length) {
+    return { ...storeUser } as { id: string; userEmail: string; username: string; userRole: string; teamName?: string | null }
+  }
+  return null
+}
 
 export const useAuthStore = defineStore('auth-store', {
   actions: {
@@ -12,6 +41,13 @@ export const useAuthStore = defineStore('auth-store', {
     },
     logInUser (user: { id: string, userEmail: string, username: string, userRole: string, teamName?: string | undefined }) {
       this.loggedInUser = { ...user }
+      localStorage.setItem('userId', user.id)
+      localStorage.setItem('userEmail', user.userEmail)
+      localStorage.setItem('username', user.username)
+      localStorage.setItem('userRole', user.userRole)
+      if (user.teamName) {
+        localStorage.setItem('teamName', user.teamName)
+      }
     },
     clearToken () {
       this.token = ''
@@ -19,6 +55,11 @@ export const useAuthStore = defineStore('auth-store', {
     },
     clearLoggedInUser () {
       this.loggedInUser = null
+      localStorage.removeItem('userId')
+      localStorage.removeItem('userEmail')
+      localStorage.removeItem('username')
+      localStorage.removeItem('userRole')
+      localStorage.removeItem('teamName')
     },
     async createAdmin (admin: { email: string, username: string }): Promise<string | null> {
       const authStore = useAuthStore()
@@ -37,12 +78,39 @@ export const useAuthStore = defineStore('auth-store', {
   },
 
   getters: {
-    isAdmin: state => !!state.loggedInUser && state.loggedInUser.userRole.toLowerCase() === 'admin',
-    isLoggedIn: state => !!state.loggedInUser?.id,
-    isUser: state => !!state.loggedInUser && state.loggedInUser.userRole.toLowerCase() === 'user',
+    isAdmin: (state: AuthState): boolean => {
+      if (!state.loggedInUser) {
+        const storeUser = getUserFromLocalStorage()
+        state.loggedInUser = { ...storeUser } as { id: string; userEmail: string; username: string; userRole: string; teamName?: string | null }
+      }
+      if (!state.loggedInUser.id) {
+        return false
+      }
+      return !!state.loggedInUser && state.loggedInUser.userRole?.toLowerCase() === 'admin'
+    },
+    isLoggedIn: (state: AuthState): boolean => {
+      if (!state.loggedInUser) {
+        const storeUser = getUserFromLocalStorage()
+        state.loggedInUser = { ...storeUser } as { id: string; userEmail: string; username: string; userRole: string; teamName?: string | null }
+      }
+      if (!state.loggedInUser) {
+        return false
+      }
+      return !!state.loggedInUser?.id
+    },
+    isUser: (state: AuthState): boolean => {
+      if (!state.loggedInUser) {
+        const storeUser = getUserFromLocalStorage()
+        state.loggedInUser = { ...storeUser } as { id: string; userEmail: string; username: string; userRole: string; teamName?: string | null }
+      }
+      if (!state.loggedInUser) {
+        return false
+      }
+      return !!state.loggedInUser && state.loggedInUser.userRole?.toLowerCase() === 'user'
+    },
   },
 
-  state: (): authState => ({
+  state: (): AuthState => ({
     token: localStorage.getItem('authToken') || '',
     loggedInUser: null,
   }),
