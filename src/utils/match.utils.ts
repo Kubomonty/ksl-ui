@@ -1,7 +1,7 @@
 import { MatchGame, MatchLegs, MatchQuarter, MatchUpdateDto, PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
 import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
 import { MatchStatus } from '../enums'
-import { emptyMatchLegs } from '../constants'
+import { EMPTY_MATCH_LEGS } from '../constants'
 import { storeToRefs } from 'pinia'
 
 const matchStore = useMatchStore()
@@ -57,7 +57,7 @@ const sumGameScores = (nonSummedQuarter: MatchQuarter, previousQuarterLastGame: 
   }
 }
 
-export const getSubstititionSum: ComputedRef<{guest: number, home: number}> = computed(() => {
+export const getSubstititionSum: ComputedRef<MatchGame> = computed(() => {
   const quarters = selectedMatchDetails?.value?.quarters
 
   if (!quarters) {
@@ -96,7 +96,7 @@ export const getMatchLegsQuarterSum = (quarter: MatchQuarter): MatchGame => {
 
 export const getMatchLegsTotals: ComputedRef<MatchLegs> = computed((): MatchLegs => {
   const quarters = selectedMatchDetails?.value?.quarters
-  const matchLegs: MatchLegs = { ...emptyMatchLegs }
+  const matchLegs: MatchLegs = { ...EMPTY_MATCH_LEGS }
   if (!quarters) {
     return matchLegs
   }
@@ -203,6 +203,24 @@ export const getMachLegsQ4: ComputedRef<MatchQuarter> = computed((): MatchQuarte
     },
   }
 })
+export const getMachLegsOT: ComputedRef<{
+  game1: MatchGame, game2: MatchGame, game3: MatchGame
+}> = computed((): { game1: MatchGame, game2: MatchGame, game3: MatchGame } => {
+  return {
+    game1: {
+      home: selectedMatchDetails?.value?.overtime?.home.legs.m1 || 0,
+      guest: selectedMatchDetails?.value?.overtime?.guest.legs.m1 || 0,
+    },
+    game2: {
+      home: selectedMatchDetails?.value?.overtime?.home.legs.m2 || 0,
+      guest: selectedMatchDetails?.value?.overtime?.guest.legs.m2 || 0,
+    },
+    game3: {
+      home: selectedMatchDetails?.value?.overtime?.home.legs.m3 || 0,
+      guest: selectedMatchDetails?.value?.overtime?.guest.legs.m3 || 0,
+    },
+  }
+})
 
 export const getMatchState = (matchLegs: MatchLegs) => {
   const nonSummedQtr1 = createQuarterState(matchLegs.qtr1)
@@ -218,16 +236,24 @@ export const getMatchState = (matchLegs: MatchLegs) => {
   return { qtr1, qtr2, qtr3, qtr4 }
 }
 
-export const getMatchUpdateDto = (matchLegs: MatchLegs, matchState: {
-  qtr1: MatchQuarter;
-  qtr2: MatchQuarter;
-  qtr3: MatchQuarter;
-  qtr4: MatchQuarter;
-}): MatchUpdateDto | null => {
+export const getMatchUpdateDto = (
+  matchLegs: MatchLegs,
+  matchState: {
+    qtr1: MatchQuarter;
+    qtr2: MatchQuarter;
+    qtr3: MatchQuarter;
+    qtr4: MatchQuarter;
+  },
+  overtimeLegs?: { game1: MatchGame, game2: MatchGame, game3: MatchGame },
+  overtimePlayers?: {
+    guest: { player: PlayerDto | null | undefined, position: string }[],
+    home: { player: PlayerDto | null | undefined, position: string }[]
+  }
+): MatchUpdateDto | null => {
   if (!selectedMatchDetails?.value || !loggedInUser?.value) {
     return null
   }
-  return {
+  const matchDto: MatchUpdateDto = {
     id: selectedMatchDetails.value.id!,
     status: MatchStatus.IN_PROGRESS,
     statusChangetAt: new Date(),
@@ -379,6 +405,40 @@ export const getMatchUpdateDto = (matchLegs: MatchLegs, matchState: {
       },
     },
   }
+  if (overtimeLegs && overtimePlayers && matchState.qtr4.game4.guest === 8 && matchState.qtr4.game4.home === 8) {
+    matchDto.overtime = {
+      guest: {
+        pos1: overtimePlayers.guest.find(player => player.position === 'G1')?.player?.id || '',
+        pos2: overtimePlayers.guest.find(player => player.position === 'G2')?.player?.id || '',
+        pos3: overtimePlayers.guest.find(player => player.position === 'G3')?.player?.id || '',
+        pos4: overtimePlayers.guest.find(player => player.position === 'G4')?.player?.id || '',
+        pos5: overtimePlayers.guest.find(player => player.position === 'G5')?.player?.id || null,
+        pos6: overtimePlayers.guest.find(player => player.position === 'G6')?.player?.id || null,
+        legs: {
+          m1: +overtimeLegs.game1.guest,
+          m2: +overtimeLegs.game2.guest,
+          m3: +overtimeLegs.game3.guest,
+        },
+        score: +overtimeLegs.game3.guest + +overtimeLegs.game2.guest + +overtimeLegs.game1.guest,
+      },
+      home: {
+        pos1: overtimePlayers.home.find(player => player.position === 'H1')?.player?.id || '',
+        pos2: overtimePlayers.home.find(player => player.position === 'H2')?.player?.id || '',
+        pos3: overtimePlayers.home.find(player => player.position === 'H3')?.player?.id || '',
+        pos4: overtimePlayers.home.find(player => player.position === 'H4')?.player?.id || '',
+        pos5: overtimePlayers.home.find(player => player.position === 'H5')?.player?.id || null,
+        pos6: overtimePlayers.home.find(player => player.position === 'H6')?.player?.id || null,
+        legs: {
+          m1: +overtimeLegs.game1.home,
+          m2: +overtimeLegs.game2.home,
+          m3: +overtimeLegs.game3.home,
+        },
+        score: +overtimeLegs.game3.home + +overtimeLegs.game2.home + +overtimeLegs.game1.home,
+      },
+    }
+  }
+
+  return matchDto
 }
 
 export const guestTeam: ComputedRef<TeamDto | null | undefined> = computed((): TeamDto | null | undefined => {
@@ -418,11 +478,40 @@ export const guestTeamPlayers: ComputedRef<{
     q4: generateQuarterPlayers(selectedMatchDetails.value.quarters.q4),
   }
 })
+export const guestOTPlayers: ComputedRef<{ player: PlayerDto | null | undefined; position: string }[]> = computed(() => {
+  if (!selectedMatchDetails?.value?.guestTeam ||
+    !selectedMatchDetails?.value?.overtime?.guest?.pos1 ||
+    !selectedMatchDetails?.value?.overtime?.guest?.pos2 ||
+    !selectedMatchDetails?.value?.overtime?.guest?.pos3 ||
+    !selectedMatchDetails?.value?.overtime?.guest?.pos4
+  ) {
+    console.log('inside if')
+    return [
+      { player: undefined as PlayerDto | null | undefined, position: 'G1' },
+      { player: undefined as PlayerDto | null | undefined, position: 'G2' },
+      { player: undefined as PlayerDto | null | undefined, position: 'G3' },
+      { player: undefined as PlayerDto | null | undefined, position: 'G4' },
+      { player: undefined as PlayerDto | null | undefined, position: 'G5' },
+      { player: undefined as PlayerDto | null | undefined, position: 'G6' },
+    ]
+  }
+  const guestTeamId = selectedMatchDetails.value.guestTeam
+  const team = getTeamById(guestTeamId)
+  const positions = Array.from({ length: 6 }, (_, i) => `pos${i + 1}`)
+
+  return positions
+    .map((pos, index) => {
+      const player = selectedMatchDetails.value?.overtime?.guest[pos as keyof typeof selectedMatchDetails.value.overtime.guest] as string | undefined
+      return player
+        ? { player: getPlayer(team, player), position: `G${index + 1}` }
+        : null
+    })
+    .filter(Boolean) as { player: PlayerDto | null | undefined; position: string }[]
+})
 
 export const homeTeam: ComputedRef<TeamDto | null | undefined> = computed((): TeamDto | null | undefined => {
   return selectedMatchDetails?.value?.homeTeam ? getTeamById(selectedMatchDetails?.value?.homeTeam) : null
 })
-
 export const homeTeamPlayers: ComputedRef<{
   q1: { player: PlayerDto | null | undefined; position: string }[];
   q2: { player: PlayerDto | null | undefined; position: string }[];
@@ -456,6 +545,36 @@ export const homeTeamPlayers: ComputedRef<{
     q3: generateQuarterPlayers(selectedMatchDetails.value.quarters.q3),
     q4: generateQuarterPlayers(selectedMatchDetails.value.quarters.q4),
   }
+})
+export const homeOtPlayers: ComputedRef<{ player: PlayerDto | null | undefined; position: string }[]> = computed(() => {
+  if (
+    !selectedMatchDetails?.value?.homeTeam ||
+    !selectedMatchDetails?.value?.overtime?.home?.pos1 ||
+    !selectedMatchDetails?.value?.overtime?.home?.pos2 ||
+    !selectedMatchDetails?.value?.overtime?.home?.pos3 ||
+    !selectedMatchDetails?.value?.overtime?.home?.pos4
+  ) {
+    return [
+      { player: undefined as PlayerDto | null | undefined, position: 'H1' },
+      { player: undefined as PlayerDto | null | undefined, position: 'H2' },
+      { player: undefined as PlayerDto | null | undefined, position: 'H3' },
+      { player: undefined as PlayerDto | null | undefined, position: 'H4' },
+      { player: undefined as PlayerDto | null | undefined, position: 'H5' },
+      { player: undefined as PlayerDto | null | undefined, position: 'H6' },
+    ]
+  }
+  const homeTeamId = selectedMatchDetails.value.homeTeam
+  const team = getTeamById(homeTeamId)
+  const positions = Array.from({ length: 6 }, (_, i) => `pos${i + 1}`)
+
+  return positions
+    .map((pos, index) => {
+      const player = selectedMatchDetails.value?.overtime?.home[pos as keyof typeof selectedMatchDetails.value.overtime.home] as string | undefined
+      return player
+        ? { player: getPlayer(team, player), position: `H${index + 1}` }
+        : null
+    })
+    .filter(Boolean) as { player: PlayerDto | null | undefined; position: string }[]
 })
 
 export const handleGuestRosterUpdateQ4 = (newRoster: PlayersSubstitutionDto[]) => {
