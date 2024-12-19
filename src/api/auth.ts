@@ -1,15 +1,12 @@
-import { useAuthStore, useMatchStore } from '../stores'
+import { useAuthStore } from '../stores'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_KSL_API_URL
 
-const authStore = useAuthStore()
-const { setToken, logInUser, clearToken, clearLoggedInUser } = authStore
-
-const matchStore = useMatchStore()
-const { resetNewMatch } = matchStore
-
 export const login = async (username: string, password: string) => {
+  const authStore = useAuthStore()
+  const { setToken, logInUser } = authStore
+
   try {
     const response = await axios.post(`${API_URL}/auth/login`, { username, password })
     setToken(response.data.token)
@@ -21,7 +18,6 @@ export const login = async (username: string, password: string) => {
       teamName: response.data.teamName,
     }
     logInUser(userData)
-    resetNewMatch()
     return true
   } catch (error) {
     console.error('Login error:', error)
@@ -29,9 +25,11 @@ export const login = async (username: string, password: string) => {
   }
 }
 
-export const logout = async () => {
+export const logout = () => {
+  const authStore = useAuthStore()
+  const { clearToken, clearLoggedInUser } = authStore
+
   clearToken()
   clearLoggedInUser()
-  resetNewMatch()
   return true
 }

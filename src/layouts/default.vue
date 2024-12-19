@@ -71,6 +71,22 @@
 
     <v-main>
       <router-view />
+      <v-snackbar
+        v-model="snackbar"
+        color="error"
+        :timeout="5000"
+      >
+        {{ $t('you-need-to-login') }}
+        <template #actions>
+          <v-btn
+            color="white"
+            density="compact"
+            icon="mdi-close"
+            variant="text"
+            @click="snackbar = false"
+          />
+        </template>
+      </v-snackbar>
     </v-main>
   </v-app>
 </template>
@@ -90,10 +106,12 @@
   const router = useRouter()
   const route = useRoute()
 
+  const snackbar = ref(false)
+
   const showLoginButton = computed(() => !route.path.includes('login'))
 
   const authStore = useAuthStore()
-  const { isAdmin, isLoggedIn, isUser, loggedInUser } = storeToRefs(authStore)
+  const { isAdmin, isLoggedIn, isUser, loggedInUser, logoutTimeOutTriggered } = storeToRefs(authStore)
 
   const matchStore = useMatchStore()
   const { resetNewMatch } = matchStore
@@ -137,12 +155,22 @@
   }
 
   const onListItemClick = (to: string) => {
-    if (to !== '/new-match') {
+    if (to === '/new-match') {
       resetNewMatch()
     } else {
       router.push(to)
     }
   }
+
+  watch(logoutTimeOutTriggered, value => {
+    if (value) {
+      logout()
+      console.error('invalid login token')
+      router.push('/login')
+      snackbar.value = true
+      logoutTimeOutTriggered.value = false
+    }
+  })
 </script>
 
 <style scoped>

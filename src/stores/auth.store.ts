@@ -71,6 +71,9 @@ export const useAuthStore = defineStore('auth-store', {
         })
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          this.logoutTimeOutTriggered = true
+        }
         console.error('Error creating team:', error)
         return null
       }
@@ -113,5 +116,6 @@ export const useAuthStore = defineStore('auth-store', {
   state: (): AuthState => ({
     token: localStorage.getItem('authToken') || '',
     loggedInUser: null,
+    logoutTimeOutTriggered: false,
   }),
 })

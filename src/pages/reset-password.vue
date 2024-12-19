@@ -100,7 +100,7 @@
   const token = route.query.token as string
 
   const authStore = useAuthStore()
-  const { loggedInUser, token: loginToken } = storeToRefs(authStore)
+  const { loggedInUser, logoutTimeOutTriggered, token: loginToken } = storeToRefs(authStore)
 
   const i18n = useI18n()
 
@@ -161,6 +161,12 @@
       dialog.value = false
       router.push(loggedInUser?.value?.id ? '/' : '/login')
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+        logoutTimeOutTriggered.value = true
+        inProcess.value = false
+        dialog.value = false
+        return
+      }
       snackbarColor.value = 'error'
       snackbarText.value = i18n.t('reset-password-failed')
       snackbarTimeout.value = 3000

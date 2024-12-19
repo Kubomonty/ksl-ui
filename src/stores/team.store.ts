@@ -1,10 +1,16 @@
 // Utilities
 import { TeamDto, TeamState } from '../models'
+import { defineStore, storeToRefs } from 'pinia'
 import axios from 'axios'
-import { defineStore } from 'pinia'
 import { useAuthStore } from './auth.store'
 
 const API_URL = import.meta.env.VITE_KSL_API_URL
+
+const logoutTokenTimeOut = () => {
+  const authStore = useAuthStore()
+  const { logoutTimeOutTriggered } = storeToRefs(authStore)
+  logoutTimeOutTriggered.value = true
+}
 
 export const useTeamStore = defineStore('team-store', {
   actions: {
@@ -18,6 +24,9 @@ export const useTeamStore = defineStore('team-store', {
         })
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error creating team:', error)
         return null
       }
@@ -33,6 +42,9 @@ export const useTeamStore = defineStore('team-store', {
         const responseData = response.data
         return responseData
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error fetching teams:', error)
       }
       return null
@@ -47,6 +59,9 @@ export const useTeamStore = defineStore('team-store', {
         })
         this.teams = response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error fetching teams:', error)
       }
       return this.teams
@@ -59,6 +74,9 @@ export const useTeamStore = defineStore('team-store', {
         const response = await axios.get(`${API_URL}/api/team/is-unique/${username}`)
         return response.data.unique
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error checking if username is unique:', error)
       }
       return false
@@ -73,6 +91,9 @@ export const useTeamStore = defineStore('team-store', {
         })
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error updating team:', error)
         return null
       }

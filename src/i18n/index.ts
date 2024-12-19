@@ -139,6 +139,7 @@ const messages = {
     'username-not-unique': 'Username is not unique',
     'username-required': 'Username is required',
     warning: 'Warning',
+    'you-need-to-login': 'You need to login to perform this action',
   },
   sk: {
     '2-displays': '2 displeje',
@@ -278,6 +279,7 @@ const messages = {
     'username-not-unique': 'Používateľské meno musí byť unikátne',
     'username-required': 'Zadajte používateľské meno',
     warning: 'Upozornenie',
+    'you-need-to-login': 'Pre vykonanie tejto akcie sa musíte prihlásiť',
   },
 }
 

@@ -1,10 +1,16 @@
 // Utilities
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { MatchDto, MatchState, MatchUpdateDto } from '../models'
 import axios from 'axios'
 import { useAuthStore } from './auth.store'
 
 const API_URL = import.meta.env.VITE_KSL_API_URL
+
+const logoutTokenTimeOut = () => {
+  const authStore = useAuthStore()
+  const { logoutTimeOutTriggered } = storeToRefs(authStore)
+  logoutTimeOutTriggered.value = true
+}
 
 export const useMatchStore = defineStore('match-store', {
   actions: {
@@ -19,6 +25,9 @@ export const useMatchStore = defineStore('match-store', {
         this.resetNewMatch()
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error creating team:', error)
         return null
       }
@@ -36,9 +45,11 @@ export const useMatchStore = defineStore('match-store', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         await this.fetchMatchesPage(10, 1)
-        this.resetNewMatch()
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error creating team:', error)
         return null
       }
@@ -51,6 +62,9 @@ export const useMatchStore = defineStore('match-store', {
         this.fetchedMatchDetails = { ...response.data }
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error creating team:', error)
         return null
       }
@@ -99,6 +113,9 @@ export const useMatchStore = defineStore('match-store', {
         this.matches = matches
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error creating team:', error)
         return null
       }
@@ -145,6 +162,9 @@ export const useMatchStore = defineStore('match-store', {
         })
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error updating match:', error)
         return null
       }
@@ -160,6 +180,9 @@ export const useMatchStore = defineStore('match-store', {
         })
         return response.data
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
         console.error('Error updating match:', error)
         return null
       }

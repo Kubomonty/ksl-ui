@@ -6,5 +6,6 @@ export interface AuthState {
     username: string;
     userRole: string,
     teamName?: string | null;
-  } | null
+  } | null,
+  logoutTimeOutTriggered: boolean;
 }
