@@ -1,3 +1,4 @@
+import { logout } from '../api'
 import { AuthState } from '../models'
 import axios from 'axios'
 import { defineStore } from 'pinia'
@@ -75,6 +76,24 @@ export const useAuthStore = defineStore('auth-store', {
           this.logoutTimeOutTriggered = true
         }
         console.error('Error creating team:', error)
+        return null
+      }
+    },
+    async resetToken () {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.post(`${API_URL}/auth/reset-token`, {}, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        this.setToken(response.data.token)
+        return response.data
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logout()
+        }
+        console.error('Error reseting login token', error)
         return null
       }
     },

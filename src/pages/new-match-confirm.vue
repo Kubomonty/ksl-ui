@@ -1,5 +1,5 @@
 <template>
-  <v-card border flat>
+  <v-card v-if="hasData" border flat>
     <v-container>
       <v-card-title>{{ `${ homeTeam!.teamName} vs. ${guestTeam!.teamName}` }}</v-card-title>
       <v-card-subtitle>{{ `${newMatch.matchLocation} - ${formattedMatchDateTime}` }}</v-card-subtitle>
@@ -460,8 +460,10 @@
     router.push(`/match-detail?id=${newMatch.matchId}`)
   }
 
+  const hasData = computed(() => !!newMatch.value)
+
   onMounted(() => {
-    if (!newMatch.value || !newMatch.value.homeTeam || !newMatch.value.guestTeam) {
+    if (!hasData.value) {
       handleReturn()
     }
   })

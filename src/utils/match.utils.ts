@@ -485,7 +485,6 @@ export const guestOTPlayers: ComputedRef<{ player: PlayerDto | null | undefined;
     !selectedMatchDetails?.value?.overtime?.guest?.pos3 ||
     !selectedMatchDetails?.value?.overtime?.guest?.pos4
   ) {
-    console.log('inside if')
     return [
       { player: undefined as PlayerDto | null | undefined, position: 'G1' },
       { player: undefined as PlayerDto | null | undefined, position: 'G2' },

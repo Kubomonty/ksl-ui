@@ -9,6 +9,7 @@ import { createRouter, createWebHistory } from 'vue-router/auto'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
 import { useAuthStore } from '../stores/auth.store'
+import { storeToRefs } from 'pinia'
 
 const adminOnlyRoutes: string[] = [
   '/admin-section',
@@ -50,6 +51,10 @@ router.isReady().then(() => {
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  const { isLoggedIn } = storeToRefs(authStore)
+  if (isLoggedIn.value && !['forgotten-password', '/login'].includes(to.path)) {
+    authStore.resetToken()
+  }
   if (adminOnlyRoutes.includes(to.path) && !authStore.isAdmin) {
     next({ path: '/' })
   } else if ((userOwnRoutes.includes(to.path) && authStore.isAdmin) ||
