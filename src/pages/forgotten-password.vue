@@ -119,7 +119,7 @@
       snackbar.value = true
     } catch (error) {
       snackbarColor.value = 'error'
-      snackbarText.value = i18n.t('reset-password-failed')
+      snackbarText.value = i18n.t('reset-password-fail')
       snackbarTimeout.value = 3000
       snackbar.value = true
       console.error('Error resetting password:', error)

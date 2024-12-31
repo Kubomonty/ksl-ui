@@ -199,7 +199,7 @@
     const createResult = await createTeam(teamObj)
     inProcess.value = false
     if (!createResult) {
-      snackbarText.value = i18n.t('creating-team-failed').toString()
+      snackbarText.value = i18n.t('creating-team-fail').toString()
       snackbarColor.value = 'warning'
       snackbarTimeout.value = 3000
       snackbar.value = true
