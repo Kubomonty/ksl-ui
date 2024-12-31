@@ -143,7 +143,7 @@
     })
     inProcess.value = false
     if (!createResult) {
-      snackbarText.value = i18n.t('creating-admin-failed').toString()
+      snackbarText.value = i18n.t('creating-admin-fail').toString()
       snackbarColor.value = 'warning'
       snackbarTimeout.value = 3000
       snackbar.value = true

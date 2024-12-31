@@ -142,7 +142,7 @@
 
   const teamStore = useTeamStore()
   const { teams } = storeToRefs(teamStore)
-  const { fetchTeams } = teamStore
+  const { fetchActiveTeams: fetchTeams } = teamStore
 
   const dialog: Ref<boolean> = ref(false)
 

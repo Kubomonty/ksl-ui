@@ -106,7 +106,7 @@
       redirectAfterLogin()
     } catch (error) {
       console.error('Login failed:', error)
-      snackbarText.value = i18n.t('login-failed').toString()
+      snackbarText.value = i18n.t('login-fail').toString()
       snackbarColor.value = 'warning'
       snackbarTimeout.value = 3000
       snackbar.value = true

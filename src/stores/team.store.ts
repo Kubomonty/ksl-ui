@@ -14,6 +14,23 @@ const logoutTokenTimeOut = () => {
 
 export const useTeamStore = defineStore('team-store', {
   actions: {
+    async cancelTeam (teamId: string): Promise<string | null> {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.delete(`${API_URL}/api/team/${teamId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        return response.data
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
+        console.error('Error canceling team:', error)
+        return null
+      }
+    },
     async createTeam (team: { teamEmail: string, teamMembers?: string[], teamName: string, username: string }): Promise<string | null> {
       const authStore = useAuthStore()
       const token = authStore.token
@@ -30,6 +47,24 @@ export const useTeamStore = defineStore('team-store', {
         console.error('Error creating team:', error)
         return null
       }
+    },
+    async fetchActiveTeamById (teamId: string): Promise<TeamDto | null> {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.get(`${API_URL}/api/team/active/${teamId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        const responseData = response.data
+        return responseData
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
+        console.error('Error fetching teams:', error)
+      }
+      return null
     },
     async fetchTeamById (teamId: string): Promise<TeamDto | null> {
       const authStore = useAuthStore()
@@ -48,6 +83,23 @@ export const useTeamStore = defineStore('team-store', {
         console.error('Error fetching teams:', error)
       }
       return null
+    },
+    async fetchActiveTeams (): Promise<TeamDto[]> {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.get(`${API_URL}/api/team/active`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        this.teams = response.data
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
+        console.error('Error fetching teams:', error)
+      }
+      return this.teams
     },
     async fetchTeams (): Promise<TeamDto[]> {
       const authStore = useAuthStore()

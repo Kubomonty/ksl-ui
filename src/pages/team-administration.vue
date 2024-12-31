@@ -75,6 +75,15 @@
           >{{ $t('add-player') }}</v-btn>
         </div>
         <v-divider class="my-3" />
+        <v-btn
+          v-if="isAdmin"
+          block
+          class="align-self-center mt-3"
+          color="error"
+          variant="flat"
+          @click="handleCancelTeamClick"
+        >{{ $t('cancel-team') }}</v-btn>
+        <v-divider class="my-3" />
         <div class="d-flex">
           <v-spacer />
           <v-btn
@@ -147,6 +156,24 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-if="isAdmin" v-model="cancelTeamDialog" @keydown.enter="handleCancelTeamDialogConfirm">
+      <v-card>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('cancel-team-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleCancelTeamDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="handleCancelTeamDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-snackbar
       v-model="snackbar"
       :color="snackbarColor"
@@ -185,7 +212,7 @@
   const authStore = useAuthStore()
   const { isAdmin } = storeToRefs(authStore)
   const teamStore = useTeamStore()
-  const { fetchTeamById, updateTeam } = teamStore
+  const { cancelTeam, fetchTeamById, updateTeam } = teamStore
 
   const inProcess = ref(false)
   const snackbar = ref(false)
@@ -197,6 +224,7 @@
   const removingPlayerIndex: Ref<number> = ref(-1)
   const saveChangesDialog: Ref<boolean> = ref(false)
   const resetChangesDialog: Ref<boolean> = ref(false)
+  const cancelTeamDialog: Ref<boolean> = ref(false)
 
   const newPlayerName: Ref<string> = ref('')
   const team: Ref<TeamDto | null> = ref(null)
@@ -244,10 +272,7 @@
       return
     }
     inProcess.value = true
-    snackbarColor.value = 'info'
-    snackbarTimeout.value = -1
-    snackbar.value = true
-    snackbarText.value = i18n.t('saving-changes').toString()
+    progressSnackbar('saving-changes')
     const updateRes = await updateTeam({
       teamId: team.value!.id,
       teamName: teamName.value,
@@ -256,19 +281,12 @@
     })
     if (updateRes) {
       inProcess.value = false
-      snackbar.value = true
-      snackbarColor.value = 'success'
-      snackbarText.value = i18n.t('save-changes-success').toString()
-      snackbarTimeout.value = 3000
+      successSnackbar('save-changes-success')
       router.push('/all-teams')
       return
     }
-
     inProcess.value = false
-    snackbar.value = true
-    snackbarColor.value = 'error'
-    snackbarText.value = i18n.t('save-changes-failed').toString()
-    snackbarTimeout.value = 3000
+    failSnackbar('save-changes-fail')
   }
 
   const handleResetClick = (): void => {
@@ -280,6 +298,29 @@
   const handleResetChangesDialogConfirm = (): void => {
     populateTeam()
     resetChangesDialog.value = false
+  }
+
+  const handleCancelTeamClick = (): void => {
+    cancelTeamDialog.value = true
+  }
+  const handleCancelTeamDialogCancel = (): void => {
+    cancelTeamDialog.value = false
+  }
+  const handleCancelTeamDialogConfirm = async (): Promise<void> => {
+    if (inProcess.value) {
+      return
+    }
+    inProcess.value = true
+    progressSnackbar('canceling-team')
+    const updateRes = await cancelTeam(team.value!.id)
+    if (updateRes) {
+      inProcess.value = false
+      successSnackbar('cancel-team-success')
+      router.push('/all-teams')
+      return
+    }
+    inProcess.value = false
+    failSnackbar('cancel-team-fail')
   }
 
   const isTeamChanged = computed(() => {
@@ -297,6 +338,25 @@
         players.value.push({ ...player })
       })
     }
+  }
+
+  const progressSnackbar = (i18nText: string): void => {
+    snackbarColor.value = 'info'
+    snackbarTimeout.value = -1
+    snackbar.value = true
+    snackbarText.value = i18n.t(i18nText).toString()
+  }
+  const successSnackbar = (i18nText: string): void => {
+    snackbar.value = true
+    snackbarColor.value = 'success'
+    snackbarText.value = i18n.t(i18nText).toString()
+    snackbarTimeout.value = 3000
+  }
+  const failSnackbar = (i18nText: string): void => {
+    snackbar.value = true
+    snackbarColor.value = 'error'
+    snackbarText.value = i18n.t(i18nText).toString()
+    snackbarTimeout.value = 3000
   }
 
   watch(() => route.query.id, async () => {

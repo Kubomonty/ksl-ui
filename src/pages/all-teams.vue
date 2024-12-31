@@ -52,7 +52,7 @@
   const loading: Ref<boolean> = ref(false)
 
   const teamStore = useTeamStore()
-  const { fetchTeams } = teamStore
+  const { fetchActiveTeams: fetchTeams } = teamStore
   const { teams } = storeToRefs(teamStore)
 
   const authStore = useAuthStore()

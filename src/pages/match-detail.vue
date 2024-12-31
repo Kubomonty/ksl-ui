@@ -233,7 +233,7 @@
   const { createOvertime, fetchMatchDetails, resetSelectedMatchDetails, updateMatch, updateMatchOvertime } = matchStore
 
   const teamStore = useTeamStore()
-  const { fetchTeams } = teamStore
+  const { fetchActiveTeams, fetchTeams } = teamStore
 
   const endMatchDialog: Ref<boolean> = ref(false)
   const cancelMatchDialog: Ref<boolean> = ref(false)
@@ -391,7 +391,7 @@
         return
       }
       inProcess.value = false
-      failSnackbar('save-changes-failed')
+      failSnackbar('save-changes-fail')
       return
     }
     const res = await updateMatchOvertime(updatedMatchDto)
@@ -402,7 +402,7 @@
       return
     }
     inProcess.value = false
-    failSnackbar('save-changes-failed')
+    failSnackbar('save-changes-fail')
   }
 
   const progressSnackbar = (i18nText: string): void => {
@@ -439,7 +439,7 @@
     const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value)
     if (!updatedMatchDto) {
       inProcess.value = false
-      failSnackbar('end-match-failed')
+      failSnackbar('end-match-fail')
       return
     }
     updatedMatchDto.status = MatchStatus.FINISHED
@@ -452,7 +452,7 @@
       return
     }
     inProcess.value = false
-    failSnackbar('end-match-failed')
+    failSnackbar('end-match-fail')
   }
 
   const handleCancelMatchClick = (): void => {
@@ -471,7 +471,7 @@
     const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value)
     if (!updatedMatchDto) {
       inProcess.value = false
-      failSnackbar('cancel-match-failed')
+      failSnackbar('cancel-match-fail')
       return
     }
     updatedMatchDto.status = MatchStatus.CANCELED
@@ -483,7 +483,7 @@
       return
     }
     inProcess.value = false
-    failSnackbar('cancel-match-failed')
+    failSnackbar('cancel-match-fail')
   }
 
   const saveChanges = async (): Promise<void> => {
@@ -495,7 +495,7 @@
     const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value)
     if (!updatedMatchDto) {
       inProcess.value = false
-      failSnackbar('save-changes-failed')
+      failSnackbar('save-changes-fail')
       return
     }
     const updateRes = await updateMatch(updatedMatchDto)
@@ -507,7 +507,7 @@
     }
 
     inProcess.value = false
-    failSnackbar('save-changes-failed')
+    failSnackbar('save-changes-fail')
   }
 
   const canSub: ComputedRef<{ q1: boolean, q2: boolean, q3: boolean, q4: boolean }> = computed(() => {
