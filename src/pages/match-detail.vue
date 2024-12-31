@@ -233,7 +233,7 @@
   const { createOvertime, fetchMatchDetails, resetSelectedMatchDetails, updateMatch, updateMatchOvertime } = matchStore
 
   const teamStore = useTeamStore()
-  const { fetchActiveTeams, fetchTeams } = teamStore
+  const { fetchTeams } = teamStore
 
   const endMatchDialog: Ref<boolean> = ref(false)
   const cancelMatchDialog: Ref<boolean> = ref(false)
