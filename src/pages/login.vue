@@ -78,6 +78,15 @@
 
   const performingLogin = ref(false)
 
+  const redirectAfterLogin = (): void => {
+    const back = window.history.state.back
+    if (back && !back.includes('/reset-password')) {
+      router.push(back)
+    } else {
+      router.push('/')
+    }
+  }
+
   const handleLogin = async (): Promise<void> => {
     if (performingLogin.value) {
       return
@@ -94,7 +103,7 @@
       snackbarColor.value = 'success'
       snackbarText.value = i18n.t('login-success').toString()
       snackbarTimeout.value = 3000
-      router.push(window.history.state.back ?? '/')
+      redirectAfterLogin()
     } catch (error) {
       console.error('Login failed:', error)
       snackbarText.value = i18n.t('login-failed').toString()
