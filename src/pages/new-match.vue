@@ -132,6 +132,7 @@
   import '@vuepic/vue-datepicker/dist/main.css'
   import { storeToRefs } from 'pinia'
   import { useI18n } from 'vue-i18n'
+  import { useRouter } from 'vue-router'
   const i18n = useI18n()
   const router = useRouter()
 
@@ -148,18 +149,17 @@
 
   const guestTeamSelectionRef: Ref = ref()
   const homeTeamSelectionRef: Ref = ref()
-  const allTeams: TeamDto[] = teams.value
-  const guestTeams: ComputedRef<TeamDto[]> = computed(() => allTeams
+  const guestTeams: ComputedRef<TeamDto[]> = computed(() => teams.value
     .filter((team: TeamDto) => team.id !== newMatch.value?.homeTeam))
-  const homeTeams: ComputedRef<TeamDto[]> = computed(() => allTeams
+  const homeTeams: ComputedRef<TeamDto[]> = computed(() => teams.value
     .filter((team: TeamDto) => team.id !== newMatch.value?.guestTeam))
   const guestTeamMembers: ComputedRef<PlayerDto[]> = computed((): PlayerDto[] => {
-    const selectedTeam = allTeams.find((team: TeamDto) => team.id === newMatch.value?.guestTeam)
+    const selectedTeam = teams.value.find((team: TeamDto) => team.id === newMatch.value?.guestTeam)
 
     return selectedTeam ? selectedTeam.players : []
   })
   const homeTeamMembers: ComputedRef<PlayerDto[]> = computed((): PlayerDto[] => {
-    const selectedTeam = allTeams.find((team: TeamDto) => team.id === newMatch.value?.homeTeam)
+    const selectedTeam = teams.value.find((team: TeamDto) => team.id === newMatch.value?.homeTeam)
 
     return selectedTeam ? selectedTeam.players : []
   })

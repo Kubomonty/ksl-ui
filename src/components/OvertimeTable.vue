@@ -28,7 +28,7 @@
                 v-model="currentHomeTeamPlayers[0].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.home }"
-                clearable
+                :clearable="canSubstitute.home"
                 density="compact"
                 hide-details
                 hide-no-data
@@ -45,7 +45,7 @@
                 v-model="currentHomeTeamPlayers[1].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.home }"
-                clearable
+                :clearable="canSubstitute.home"
                 density="compact"
                 hide-details
                 hide-no-data
@@ -77,7 +77,7 @@
                 v-model="currentGuestTeamPlayers[0].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.guest }"
-                clearable
+                :clearable="canSubstitute.guest"
                 density="compact"
                 hide-details
                 hide-no-data
@@ -94,7 +94,7 @@
                 v-model="currentGuestTeamPlayers[1].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.guest }"
-                clearable
+                :clearable="canSubstitute.guest"
                 density="compact"
                 hide-details
                 hide-no-data
