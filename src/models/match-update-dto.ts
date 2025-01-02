@@ -15,10 +15,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };
@@ -32,10 +32,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };
@@ -51,10 +51,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };
@@ -68,10 +68,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };
@@ -87,10 +87,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };
@@ -104,10 +104,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };
@@ -123,10 +123,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };
@@ -140,10 +140,10 @@ export interface MatchUpdateDto {
         pos7?: string;
         pos8?: string;
         legs: {
-          m1: number;
-          m2: number;
-          m3: number;
-          m4: number;
+          m1: number | null;
+          m2: number | null;
+          m3: number | null;
+          m4: number | null;
         };
         score: number;
       };

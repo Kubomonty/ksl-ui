@@ -118,9 +118,9 @@
               class="my-2"
               :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
-                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive && canSetG1Legs ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive && canSetG1Legs ? 'black' : 'darkslategray',
               }"
             >
               <v-select
@@ -129,7 +129,7 @@
                 density="compact"
                 hide-details
                 :items="gameLeg1Options.home"
-                :readonly="!isLoggedIn || !isAlive"
+                :readonly="!isLoggedIn || !isAlive || !canSetG1Legs"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -141,9 +141,9 @@
               class="my-2"
               :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
-                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive && canSetG1Legs ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive && canSetG1Legs ? 'black' : 'darkslategray',
               }"
             >
               <v-select
@@ -152,7 +152,7 @@
                 density="compact"
                 hide-details
                 :items="gameLeg1Options.guest"
-                :readonly="!isLoggedIn || !isAlive"
+                :readonly="!isLoggedIn || !isAlive || !canSetG1Legs"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -269,9 +269,9 @@
               class="my-2"
               :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
-                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive && canSetG2Legs ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive && canSetG2Legs ? 'black' : 'darkslategray',
               }"
             >
               <v-select
@@ -280,7 +280,7 @@
                 density="compact"
                 hide-details
                 :items="gameLeg2Options.home"
-                :readonly="!isLoggedIn || !isAlive"
+                :readonly="!isLoggedIn || !isAlive || !canSetG2Legs"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -292,9 +292,9 @@
               class="my-2"
               :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
               :style="{
-                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive && canSetG2Legs ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive && canSetG2Legs ? 'black' : 'darkslategray',
               }"
             >
               <v-select
@@ -303,7 +303,7 @@
                 density="compact"
                 hide-details
                 :items="gameLeg2Options.guest"
-                :readonly="!isLoggedIn || !isAlive"
+                :readonly="!isLoggedIn || !isAlive || !canSetG2Legs"
                 style="width: 52px;"
                 variant="plain"
               />
@@ -652,6 +652,15 @@
       currentHomeTeamPlayers.value[5] = h6
     }
   }
+
+  const canSetG1Legs = computed(() => {
+    return currentGuestTeamPlayers.value[0].player && currentHomeTeamPlayers.value[0].player &&
+      currentGuestTeamPlayers.value[1].player && currentHomeTeamPlayers.value[1].player
+  })
+  const canSetG2Legs = computed(() => {
+    return currentGuestTeamPlayers.value[2].player && currentHomeTeamPlayers.value[2].player &&
+      currentGuestTeamPlayers.value[3].player && currentHomeTeamPlayers.value[3].player
+  })
 
   onMounted(() => {
     setOTLegs()

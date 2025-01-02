@@ -1,4 +1,4 @@
-import { MatchGame, MatchLegs, MatchQuarter, MatchUpdateDto, PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
+import { MatchGame, MatchLegs, MatchQuarter, MatchUpdateDto, NullableMatchGame, NullableMatchLegs, NullableMatchQuarter, PlayerDto, PlayersSubstitutionDto, TeamDto } from '../models'
 import { useAuthStore, useMatchStore, useTeamStore } from '../stores'
 import { MatchStatus } from '../enums'
 import { EMPTY_MATCH_LEGS } from '../constants'
@@ -21,12 +21,12 @@ const getPlayer = (team: TeamDto | undefined | null, playerId: string | undefine
   return team.players.find(player => player.id === playerId) || null
 }
 
-const createGameState = (game: MatchGame): MatchGame => ({
-  guest: +game.guest === 2 ? 1 : 0,
-  home: +game.home === 2 ? 1 : 0,
+const createGameState = (game: NullableMatchGame): MatchGame => ({
+  guest: game.guest !== null && +game.guest === 2 ? 1 : 0,
+  home: game.home !== null && +game.home === 2 ? 1 : 0,
 })
 
-const createQuarterState = (quarter: MatchQuarter): MatchQuarter => ({
+const createQuarterState = (quarter: NullableMatchQuarter): MatchQuarter => ({
   game1: createGameState(quarter.game1),
   game2: createGameState(quarter.game2),
   game3: createGameState(quarter.game3),
@@ -87,10 +87,10 @@ export const getSubstititionSum: ComputedRef<MatchGame> = computed(() => {
   return { guest, home }
 })
 
-export const getMatchLegsQuarterSum = (quarter: MatchQuarter): MatchGame => {
+export const getMatchLegsQuarterSum = (quarter: NullableMatchQuarter): MatchGame => {
   return {
-    home: +quarter.game1.home + +quarter.game2.home + +quarter.game3.home + +quarter.game4.home,
-    guest: +quarter.game1.guest + +quarter.game2.guest + +quarter.game3.guest + +quarter.game4.guest,
+    home: +(quarter.game1.home ?? 0) + +(quarter.game2.home ?? 0) + +(quarter.game3.home ?? 0) + +(quarter.game4.home ?? 0),
+    guest: +(quarter.game1.guest ?? 0) + +(quarter.game2.guest ?? 0) + +(quarter.game3.guest ?? 0) + +(quarter.game4.guest ?? 0),
   }
 }
 
@@ -123,83 +123,83 @@ export const getMatchLegsTotals: ComputedRef<MatchLegs> = computed((): MatchLegs
   return matchLegs
 })
 
-export const getMachLegsQ1: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
+export const getMachLegsQ1: ComputedRef<NullableMatchQuarter> = computed((): NullableMatchQuarter => {
   return {
     game1: {
-      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m1 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m1 || 0,
+      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m1 || null,
+      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m1 || null,
     },
     game2: {
-      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m2 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m2 || 0,
+      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m2 || null,
+      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m2 || null,
     },
     game3: {
-      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m3 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m3 || 0,
+      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m3 || null,
+      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m3 || null,
     },
     game4: {
-      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m4 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m4 || 0,
+      home: selectedMatchDetails?.value?.quarters.q1.home.legs.m4 || null,
+      guest: selectedMatchDetails?.value?.quarters.q1.guest.legs.m4 || null,
     },
   }
 })
-export const getMachLegsQ2: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
+export const getMachLegsQ2: ComputedRef<NullableMatchQuarter> = computed((): NullableMatchQuarter => {
   return {
     game1: {
-      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m1 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m1 || 0,
+      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m1 || null,
+      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m1 || null,
     },
     game2: {
-      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m2 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m2 || 0,
+      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m2 || null,
+      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m2 || null,
     },
     game3: {
-      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m3 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m3 || 0,
+      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m3 || null,
+      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m3 || null,
     },
     game4: {
-      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m4 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m4 || 0,
+      home: selectedMatchDetails?.value?.quarters.q2.home.legs.m4 || null,
+      guest: selectedMatchDetails?.value?.quarters.q2.guest.legs.m4 || null,
     },
   }
 })
-export const getMachLegsQ3: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
+export const getMachLegsQ3: ComputedRef<NullableMatchQuarter> = computed((): NullableMatchQuarter => {
   return {
     game1: {
-      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m1 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m1 || 0,
+      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m1 || null,
+      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m1 || null,
     },
     game2: {
-      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m2 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m2 || 0,
+      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m2 || null,
+      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m2 || null,
     },
     game3: {
-      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m3 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m3 || 0,
+      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m3 || null,
+      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m3 || null,
     },
     game4: {
-      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m4 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m4 || 0,
+      home: selectedMatchDetails?.value?.quarters.q3.home.legs.m4 || null,
+      guest: selectedMatchDetails?.value?.quarters.q3.guest.legs.m4 || null,
     },
   }
 })
-export const getMachLegsQ4: ComputedRef<MatchQuarter> = computed((): MatchQuarter => {
+export const getMachLegsQ4: ComputedRef<NullableMatchQuarter> = computed((): NullableMatchQuarter => {
   return {
     game1: {
-      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m1 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m1 || 0,
+      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m1 || null,
+      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m1 || null,
     },
     game2: {
-      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m2 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m2 || 0,
+      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m2 || null,
+      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m2 || null,
     },
     game3: {
-      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m3 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m3 || 0,
+      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m3 || null,
+      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m3 || null,
     },
     game4: {
-      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m4 || 0,
-      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m4 || 0,
+      home: selectedMatchDetails?.value?.quarters.q4.home.legs.m4 || null,
+      guest: selectedMatchDetails?.value?.quarters.q4.guest.legs.m4 || null,
     },
   }
 })
@@ -222,7 +222,7 @@ export const getMachLegsOT: ComputedRef<{
   }
 })
 
-export const getMatchState = (matchLegs: MatchLegs) => {
+export const getMatchState = (matchLegs: NullableMatchLegs) => {
   const nonSummedQtr1 = createQuarterState(matchLegs.qtr1)
   const nonSummedQtr2 = createQuarterState(matchLegs.qtr2)
   const nonSummedQtr3 = createQuarterState(matchLegs.qtr3)
@@ -237,7 +237,7 @@ export const getMatchState = (matchLegs: MatchLegs) => {
 }
 
 export const getMatchUpdateDto = (
-  matchLegs: MatchLegs,
+  matchLegs: NullableMatchLegs,
   matchState: {
     qtr1: MatchQuarter;
     qtr2: MatchQuarter;

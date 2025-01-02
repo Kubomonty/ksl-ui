@@ -1,6 +1,12 @@
-import { MatchGame, MatchLegs } from '../models'
+import { MatchGame, MatchLegs, NullableMatchLegs } from '../models'
 import { MatchType } from '../enums'
 
+export const EMPTY_MATCH_LEGS_NULL: NullableMatchLegs = {
+  qtr1: { game1: { home: null, guest: null }, game2: { home: null, guest: null }, game3: { home: null, guest: null }, game4: { home: null, guest: null } },
+  qtr2: { game1: { home: null, guest: null }, game2: { home: null, guest: null }, game3: { home: null, guest: null }, game4: { home: null, guest: null } },
+  qtr3: { game1: { home: null, guest: null }, game2: { home: null, guest: null }, game3: { home: null, guest: null }, game4: { home: null, guest: null } },
+  qtr4: { game1: { home: null, guest: null }, game2: { home: null, guest: null }, game3: { home: null, guest: null }, game4: { home: null, guest: null } },
+}
 export const EMPTY_MATCH_LEGS: MatchLegs = {
   qtr1: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },
   qtr2: { game1: { home: 0, guest: 0 }, game2: { home: 0, guest: 0 }, game3: { home: 0, guest: 0 }, game4: { home: 0, guest: 0 } },

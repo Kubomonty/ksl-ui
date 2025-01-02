@@ -460,7 +460,9 @@
     router.push(`/match-detail?id=${newMatch.matchId}`)
   }
 
-  const hasData = computed(() => !!newMatch.value)
+  const hasData = computed(() => {
+    return !!newMatch.value && !!homeTeam.value && !!guestTeam.value
+  })
 
   onMounted(() => {
     if (!hasData.value) {

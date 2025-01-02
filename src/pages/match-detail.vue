@@ -173,7 +173,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { MatchGame, MatchLegs, MatchUpdateDto, PlayerDto, PlayersSubstitutionDto } from '../models'
+  import { MatchGame, MatchLegs, MatchUpdateDto, NullableMatchGame, NullableMatchLegs, NullableMatchQuarter, PlayerDto, PlayersSubstitutionDto } from '../models'
   import {
     getMachLegsOT,
     getMachLegsQ1,
@@ -202,7 +202,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import { MatchStatus } from '../enums'
   import { computed } from 'vue'
-  import { EMPTY_MATCH_LEGS, EMPTY_OT_LEGS } from '../constants'
+  import { EMPTY_MATCH_LEGS, EMPTY_MATCH_LEGS_NULL, EMPTY_OT_LEGS } from '../constants'
   import { format } from 'date-fns'
   import { storeToRefs } from 'pinia'
   import { useI18n } from 'vue-i18n'
@@ -214,8 +214,6 @@
   const { isLoggedIn, loggedInUser } = storeToRefs(authStore)
 
   const loading = ref(false)
-
-  const isMatchChanged = ref(false)
 
   const isMatchAlive = computed(() => {
     if (!selectedMatchDetails?.value?.status) {
@@ -244,7 +242,7 @@
   const snackbarText = ref('')
   const snackbarTimeout = ref(-1)
 
-  const matchLegs: Ref<MatchLegs> = ref({ ...EMPTY_MATCH_LEGS })
+  const matchLegs: Ref<NullableMatchLegs> = ref({ ...EMPTY_MATCH_LEGS_NULL })
   const matchState: Ref<MatchLegs> = ref({ ...EMPTY_MATCH_LEGS })
   const otLegs: Ref<{ game1: MatchGame, game2: MatchGame, game3: MatchGame }> = ref({ ...EMPTY_OT_LEGS })
   const selectedOTPlayers: Ref<{
@@ -533,7 +531,6 @@
   })
 
   const handleHomeLegsUpdate = (values: {values: number[], qtr: number}) => {
-    isMatchChanged.value = true
     switch (values.qtr) {
       case 1:
         matchLegs.value.qtr1.game1.home = values.values[0]
@@ -562,7 +559,6 @@
     }
   }
   const handleGuestLegsUpdate = (values: {values: number[], qtr: number}) => {
-    isMatchChanged.value = true
     switch (values.qtr) {
       case 1:
         matchLegs.value.qtr1.game1.guest = values.values[0]
@@ -621,6 +617,35 @@
     loading.value = false
   }
 
+  const isLegsNull = () => {
+    return matchLegs.value.qtr1.game1.guest === null && matchLegs.value.qtr1.game1.home === null &&
+      matchLegs.value.qtr1.game2.guest === null && matchLegs.value.qtr1.game2.home === null &&
+      matchLegs.value.qtr1.game3.guest === null && matchLegs.value.qtr1.game3.home === null &&
+      matchLegs.value.qtr1.game4.guest === null && matchLegs.value.qtr1.game4.home === null &&
+      matchLegs.value.qtr2.game1.guest === null && matchLegs.value.qtr2.game1.home === null &&
+      matchLegs.value.qtr2.game2.guest === null && matchLegs.value.qtr2.game2.home === null &&
+      matchLegs.value.qtr2.game3.guest === null && matchLegs.value.qtr2.game3.home === null &&
+      matchLegs.value.qtr2.game4.guest === null && matchLegs.value.qtr2.game4.home === null &&
+      matchLegs.value.qtr3.game1.guest === null && matchLegs.value.qtr3.game1.home === null &&
+      matchLegs.value.qtr3.game2.guest === null && matchLegs.value.qtr3.game2.home === null &&
+      matchLegs.value.qtr3.game3.guest === null && matchLegs.value.qtr3.game3.home === null &&
+      matchLegs.value.qtr3.game4.guest === null && matchLegs.value.qtr3.game4.home === null &&
+      matchLegs.value.qtr4.game1.guest === null && matchLegs.value.qtr4.game1.home === null &&
+      matchLegs.value.qtr4.game2.guest === null && matchLegs.value.qtr4.game2.home === null &&
+      matchLegs.value.qtr4.game3.guest === null && matchLegs.value.qtr4.game3.home === null &&
+      matchLegs.value.qtr4.game4.guest === null && matchLegs.value.qtr4.game4.home === null
+  }
+
+  const isMatchGameSaveable = (game: NullableMatchGame): boolean => {
+    return (game.guest !== null && game.home !== null) || (game.guest === null && game.home === null)
+  }
+  const isQuarterSaveable = (quarter: NullableMatchQuarter): boolean => {
+    return isMatchGameSaveable(quarter.game1) && isMatchGameSaveable(quarter.game2) && isMatchGameSaveable(quarter.game3) && isMatchGameSaveable(quarter.game4)
+  }
+  const isMatchLegsSaveable = (legs: NullableMatchLegs): boolean => {
+    return isQuarterSaveable(legs.qtr1) && isQuarterSaveable(legs.qtr2) && isQuarterSaveable(legs.qtr3) && isQuarterSaveable(legs.qtr4)
+  }
+
   const initialLoadInProgress = ref(true)
 
   watch(async () => route, async () => {
@@ -629,7 +654,10 @@
 
   watch(matchLegs, () => {
     matchState.value = getMatchState(matchLegs.value)
-    if (!initialLoadInProgress.value) {
+    if (isLegsNull()) {
+      return
+    }
+    if (!initialLoadInProgress.value && isMatchLegsSaveable(matchLegs.value)) {
       saveChanges()
     }
   }, { deep: true })

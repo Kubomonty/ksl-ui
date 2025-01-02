@@ -146,7 +146,7 @@
 
 <script lang="ts" setup>
   import { defineEmits, defineProps, type PropType } from 'vue'
-  import { MatchLegs, MatchQuarter, PlayerDto } from '../models'
+  import { MatchLegs, MatchQuarter, NullableMatchQuarter, PlayerDto } from '../models'
   import { getMatchLegsTotals, getSubstititionSum } from '../utils'
   import { MATCH_OPPONENTS_STRUCTURE, MAX_SUBSTITUTIONS_COUNT } from '../constants'
   import { storeToRefs } from 'pinia'
@@ -171,7 +171,7 @@
     },
     matchLegs: {
       required: true,
-      type: Object as PropType<MatchQuarter>,
+      type: Object as PropType<NullableMatchQuarter>,
     },
     qtr: {
       required: true,
@@ -307,10 +307,10 @@
   const gLegs = ref([props.matchLegs.game1.guest, props.matchLegs.game2.guest, props.matchLegs.game3.guest, props.matchLegs.game4.guest])
 
   const hLegItems = computed(() =>
-    hLegs.value.map((_, i) => +gLegs.value[i] === 0 ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +gLegs.value[i]))
+    hLegs.value.map((_, i) => !gLegs.value[i] ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +gLegs.value[i]!))
   )
   const gLegItems = computed(() =>
-    gLegs.value.map((_, i) => +hLegs.value[i] === 0 ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +hLegs.value[i]))
+    gLegs.value.map((_, i) => !hLegs.value[i] ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +hLegs.value[i]!))
   )
 
   watch(hLegs, () => {
