@@ -36,28 +36,34 @@
           variant="outlined"
         />
         <span v-if="players.length">
-          <div
-            v-for="(player, i) in players"
-            :key="player.id"
-            class="d-flex mb-3"
+          <Sortable
+            item-key="id"
+            :list="players"
+            tag="div"
+            @end="handlePlayersOrderChange"
           >
-            <v-text-field
-              v-model="players[i].name"
-              density="compact"
-              :hide-details="true"
-              variant="outlined"
-              @change="handlePlayerChange(i)"
-            />
-            <v-btn
-              class="align-self-center ml-3"
-              color="error"
-              density="compact"
-              icon="mdi-close"
-              size="default"
-              variant="flat"
-              @click="handleRemoveClick(i)"
-            />
-          </div>
+            <template #item="{ element, index }">
+              <div :key="element.id" class="d-flex mb-3">
+                <v-icon class="align-self-center cursor-move" color="primary">mdi-drag-vertical</v-icon>
+                <v-text-field
+                  v-model="element.name"
+                  density="compact"
+                  :hide-details="true"
+                  variant="outlined"
+                  @change="handlePlayerChange(index)"
+                />
+                <v-btn
+                  class="align-self-center ml-3"
+                  color="error"
+                  density="compact"
+                  icon="mdi-close"
+                  size="default"
+                  variant="flat"
+                  @click="handleRemoveClick(index)"
+                />
+              </div>
+            </template>
+          </Sortable>
         </span>
         <div class="d-flex">
           <v-text-field
@@ -196,6 +202,7 @@
 <script lang="ts" setup>
   import { useAuthStore, useTeamStore } from '../stores'
   import { useRoute, useRouter } from 'vue-router'
+  import { Sortable } from 'sortablejs-vue3'
   import { TeamDto } from '../models'
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
@@ -212,7 +219,7 @@
   const authStore = useAuthStore()
   const { isAdmin } = storeToRefs(authStore)
   const teamStore = useTeamStore()
-  const { cancelTeam, fetchTeamById, updateTeam } = teamStore
+  const { cancelTeam, fetchActiveTeamById: fetchTeamById, updateTeam } = teamStore
 
   const inProcess = ref(false)
   const snackbar = ref(false)
@@ -231,11 +238,18 @@
 
   const teamName: Ref<string> = ref('')
   const teamEmail: Ref<string> = ref('')
-  const players: Ref<{id: string, name: string}[]> = ref([])
+  const players: Ref<{id: string, name: string, playerOrder: number}[]> = ref([])
 
   const handlePlayerChange = (index: number): void => {
     players.value[index].name = players.value[index].name.trim()
     players.value = players.value.filter(player => player.name.trim())
+  }
+  const handlePlayersOrderChange = (event: { newIndex: number, oldIndex: number }): void => {
+    const movedPlayer = players.value.splice(event.oldIndex, 1)[0]
+    players.value.splice(event.newIndex, 0, movedPlayer)
+    players.value.forEach((player, index) => {
+      player.playerOrder = index
+    })
   }
 
   const handleAddPlayerClick = (): void => {
@@ -243,7 +257,7 @@
       newPlayerName.value = ''
       return
     }
-    const newPlayerObj = { id: `NEW-${uuidv4()}`, name: newPlayerName.value }
+    const newPlayerObj = { id: `NEW-${uuidv4()}`, name: newPlayerName.value, playerOrder: players.value.length }
     players.value.push(newPlayerObj)
     newPlayerName.value = ''
   }
