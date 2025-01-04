@@ -3,5 +3,6 @@ export interface PlayersSubstitutionDto {
   player: {
       id: string;
       name: string;
+      playerOrder: number;
   } | null | undefined;
 }
