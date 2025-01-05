@@ -19,7 +19,7 @@
           v-model="password"
           :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
           density="compact"
-          :label="loggedInUser?.id ? $t('old-password') : $t('password')"
+          :label="loggedInUser?.id ? $t('new-password') : $t('password')"
           prepend-inner-icon="mdi-lock-outline"
           :rules="[(val: string) => !!val || $t('password-required')]"
           :type="passwordVisible ? 'text' : 'password'"
