@@ -211,12 +211,19 @@
   const route = useRoute()
   const router = useRouter()
   const authStore = useAuthStore()
-  const { isLoggedIn, loggedInUser } = storeToRefs(authStore)
+  const { isAdmin, isLoggedIn, loggedInUser } = storeToRefs(authStore)
 
   const loading = ref(false)
 
   const isMatchAlive = computed(() => {
-    if (!selectedMatchDetails?.value?.status) {
+    if (
+      !selectedMatchDetails?.value?.status ||
+      !loggedInUser?.value?.id ||
+      (
+        ![selectedMatchDetails.value.createdBy, selectedMatchDetails.value.guestTeam, selectedMatchDetails.value.homeTeam].includes(loggedInUser.value.id) &&
+        !isAdmin.value
+      )
+    ) {
       return false
     }
     return [MatchStatus.IN_PROGRESS, MatchStatus.NEW].includes(selectedMatchDetails.value.status as MatchStatus)
