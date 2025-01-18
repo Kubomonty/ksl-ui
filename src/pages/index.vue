@@ -44,7 +44,7 @@
               <span v-if="team.matches.length">
                 <br>
                 <p v-for="match in team.matches" :key="match.matchDate+match.homeTeam+match.guestTeam" class="mb-2">
-                  {{ `${match.homeTeamName} vs. ${match.guestTeamName}, ${format(new Date(match.matchDate), 'dd.MM.yyyy')}, ${match.matchLocation} - ${match.homeScore}:${match.guestScore}` }}
+                  {{ `${match.homeTeamName} vs. ${match.guestTeamName}, ${format(new Date(match.matchDate), 'dd.MM.yyyy')}, ${match.matchLocation} - ${matchScoreString(match.homeScore, match.homeOvertimeScore, match.guestScore, match.guestOvertimeScore)}` }}
                 </p>
               </span>
             </v-expansion-panel-text>
@@ -67,6 +67,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { MatchDto } from '../models'
   import { format } from 'date-fns'
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
@@ -86,6 +87,12 @@
     await fetchTeamStandings()
     console.log(teamStandings)
     loading.value = false
+  }
+
+  const matchScoreString = (homeScore: number, homeOvertimeScore: number, guestScore: number, guestOvertimeScore: number): string => {
+    const overtimeHomeScore = +(homeOvertimeScore || 0) === 2 ? 1 : 0
+    const overtimeGuestScore = +(guestOvertimeScore || 0) === 2 ? 1 : 0
+    return `${homeScore + overtimeHomeScore}:${guestScore + overtimeGuestScore}`
   }
 
   onMounted(async () => {
