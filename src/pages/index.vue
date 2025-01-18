@@ -67,7 +67,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { MatchDto } from '../models'
   import { format } from 'date-fns'
   import { onMounted } from 'vue'
   import { storeToRefs } from 'pinia'
@@ -85,7 +84,6 @@
   const loadTeamStandingsData = async () => {
     loading.value = true
     await fetchTeamStandings()
-    console.log(teamStandings)
     loading.value = false
   }
 
