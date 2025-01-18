@@ -12,19 +12,20 @@
       </span>
       <span v-else>
         <v-expansion-panels
-          flat
+          elevation="1"
           multiple
-          rounded="0"
-          variant="accordion"
+          tile
+          variant="default"
         >
           <v-expansion-panel
             v-for="team in teams"
             :key="team.id"
           >
-            <v-expansion-panel-title color="blue-grey-lighten-5">
+            <v-expansion-panel-title>
               <h4>{{ team.teamName }}</h4>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
+              <v-divider class="mb-3 mt-n3" />
               <p v-for="player in team.players" :key="player.id">
                 {{ player.name }}
               </p>
