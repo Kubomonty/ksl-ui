@@ -211,7 +211,7 @@
     snackbarText.value = ''
     snackbarTimeout.value = -1
     dialog.value = false
-    router.push('/all-teams')
+    router.push('/team-list')
   }
 
   const handleWarningDialogCancel = (): void => {

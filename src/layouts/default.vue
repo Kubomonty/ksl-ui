@@ -126,21 +126,24 @@
     if (isAdmin.value) {
       return [
         { title: i18n.t('home'), to: '/' },
-        { title: i18n.t('all-teams'), to: '/all-teams' },
+        { title: i18n.t('match-list'), to: '/match-list' },
         { title: i18n.t('new-match'), to: '/new-match' },
+        { title: i18n.t('team-list'), to: '/team-list' },
         { title: i18n.t('admin-section'), to: '/admin-section' },
       ]
     } else if (isUser.value) {
       return [
         { title: i18n.t('home'), to: '/' },
-        { title: i18n.t('all-teams'), to: '/all-teams' },
+        { title: i18n.t('match-list'), to: '/match-list' },
+        { title: i18n.t('team-list'), to: '/team-list' },
         { title: i18n.t('new-match'), to: '/new-match' },
         { title: i18n.t('team-administration'), to: `/team-administration?id=${loggedInUser?.value?.id}` },
       ]
     } else {
       return [
         { title: i18n.t('home'), to: '/' },
-        { title: i18n.t('all-teams'), to: '/all-teams' },
+        { title: i18n.t('match-list'), to: '/match-list' },
+        { title: i18n.t('team-list'), to: '/team-list' },
       ]
     }
   })
