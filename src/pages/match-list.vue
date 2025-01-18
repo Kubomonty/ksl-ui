@@ -1,87 +1,81 @@
 <template>
-  <v-container>
-    <span v-if="loading">
-      <v-skeleton-loader type="heading" />
-      <v-skeleton-loader type="heading" />
-      <v-skeleton-loader type="heading" />
-      <v-skeleton-loader type="heading" />
-      <v-skeleton-loader type="heading" />
-      <v-skeleton-loader type="heading" />
-    </span>
-    <v-row v-else>
-      <v-col cols="12">
-        <v-card>
-          <v-card-title class="d-flex">
-            <span>
-              {{ $t('matches') }}
-            </span>
-            <v-spacer />
-          </v-card-title>
-          <v-card-text>
-            <span v-if="matches.length">
-              <v-table v-if="matches.length">
-                <thead>
-                  <tr>
-                    <th>{{ $t('location-and-date') }}</th>
-                    <th>{{ $t('home-team') }}</th>
-                    <th>{{ $t('guest-team') }}</th>
-                    <th>{{ $t('score') }}</th>
-                    <th>{{ $t('status') }}</th>
-                    <th width="5%" />
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="match in matches" :key="match.id">
-                    <td>{{ match.matchLocation }}&nbsp;&ndash;&nbsp;{{ formatDateTime(match.matchDate.toISOString()) }}</td>
-                    <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
-                    <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
-                    <td v-if="showScore(match)">
-                      {{ match.homeScore }}&nbsp;&colon;&nbsp;{{ match.guestScore }}
-                      <span v-if="scoreInOvertime(match)">{{ scoreInOvertime(match) }}</span>
-                    </td>
-                    <td v-else>&ndash;&nbsp;&colon;&nbsp;&ndash;</td>
-                    <td>
-                      <v-chip
-                        border
-                        class="justify-center"
-                        :color="getStatusLabel(match.status as MatchStatus).color"
-                        density="compact"
-                        label
-                        rounded
-                        size="small"
-                        :title="getStatusLabel(match.status as MatchStatus).label"
-                        variant="tonal"
-                      >
-                        {{ getStatusLabel(match.status as MatchStatus).label }}
-                      </v-chip>
-                    </td>
-                    <td>
-                      <v-btn
-                        v-if="match.status !== MatchStatus.CANCELED"
-                        color="primary"
-                        size="x-small"
-                        variant="flat"
-                        @click="handleMatchClick(match)"
-                      >
-                        detail
-                      </v-btn>
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
-              <v-pagination
-                v-if="matchPages > 1"
-                v-model="currentPage"
-                :length="matchPages"
-                :total-visible="5"
-              />
-            </span>
-            <p v-else>{{ $t('no-matches-found') }}</p>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-card flat>
+    <v-card-title class="d-flex">
+      <span>
+        {{ $t('matches') }}
+      </span>
+      <v-spacer />
+    </v-card-title>
+    <v-card-text>
+      <span v-if="loading">
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+        <v-skeleton-loader type="heading" />
+      </span>
+      <span v-else-if="matches.length">
+        <v-table v-if="matches.length">
+          <thead>
+            <tr>
+              <th>{{ $t('location-and-date') }}</th>
+              <th>{{ $t('home-team') }}</th>
+              <th>{{ $t('guest-team') }}</th>
+              <th>{{ $t('score') }}</th>
+              <th>{{ $t('status') }}</th>
+              <th width="5%" />
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="match in matches" :key="match.id">
+              <td>{{ match.matchLocation }}&nbsp;&ndash;&nbsp;{{ formatDateTime(match.matchDate.toISOString()) }}</td>
+              <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
+              <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
+              <td v-if="showScore(match)">
+                {{ match.homeScore }}&nbsp;&colon;&nbsp;{{ match.guestScore }}
+                <span v-if="scoreInOvertime(match)">{{ scoreInOvertime(match) }}</span>
+              </td>
+              <td v-else>&ndash;&nbsp;&colon;&nbsp;&ndash;</td>
+              <td>
+                <v-chip
+                  border
+                  class="justify-center"
+                  :color="getStatusLabel(match.status as MatchStatus).color"
+                  density="compact"
+                  label
+                  rounded
+                  size="small"
+                  :title="getStatusLabel(match.status as MatchStatus).label"
+                  variant="tonal"
+                >
+                  {{ getStatusLabel(match.status as MatchStatus).label }}
+                </v-chip>
+              </td>
+              <td>
+                <v-btn
+                  v-if="match.status !== MatchStatus.CANCELED"
+                  color="primary"
+                  size="x-small"
+                  variant="flat"
+                  @click="handleMatchClick(match)"
+                >
+                  detail
+                </v-btn>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+        <v-pagination
+          v-if="matchPages > 1"
+          v-model="currentPage"
+          :length="matchPages"
+          :total-visible="5"
+        />
+      </span>
+      <p v-else>{{ $t('no-matches-found') }}</p>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script lang="ts" setup>
