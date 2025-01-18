@@ -296,7 +296,7 @@
     if (updateRes) {
       inProcess.value = false
       successSnackbar('save-changes-success')
-      router.push('/all-teams')
+      router.push('/team-list')
       return
     }
     inProcess.value = false
@@ -330,7 +330,7 @@
     if (updateRes) {
       inProcess.value = false
       successSnackbar('cancel-team-success')
-      router.push('/all-teams')
+      router.push('/team-list')
       return
     }
     inProcess.value = false
@@ -382,7 +382,7 @@
         loading.value = false
       }
     } else {
-      router.push('/all-teams')
+      router.push('/team-list')
     }
   })
 
@@ -395,7 +395,7 @@
         loading.value = false
       }
     } else {
-      router.push('/all-teams')
+      router.push('/team-list')
     }
   })
 </script>

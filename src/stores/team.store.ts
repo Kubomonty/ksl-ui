@@ -1,5 +1,5 @@
 // Utilities
-import { TeamDto, TeamState } from '../models'
+import { TeamDto, TeamStandingsDto, TeamState } from '../models'
 import { defineStore, storeToRefs } from 'pinia'
 import axios from 'axios'
 import { useAuthStore } from './auth.store'
@@ -118,6 +118,15 @@ export const useTeamStore = defineStore('team-store', {
       }
       return this.teams
     },
+    async fetchTeamStandings (): Promise<TeamStandingsDto[]> {
+      try {
+        const response = await axios.get(`${API_URL}/api/team/standings`)
+        this.teamStandings = response.data
+      } catch (error) {
+        console.error('Error fetching team standings:', error)
+      }
+      return this.teamStandings
+    },
     getTeamById (teamId: string): TeamDto | undefined {
       return this.teams.find((team: {id: string}) => team.id === teamId)
     },
@@ -153,6 +162,7 @@ export const useTeamStore = defineStore('team-store', {
   },
 
   state: (): TeamState => ({
+    teamStandings: [],
     teams: [],
   }),
 })
