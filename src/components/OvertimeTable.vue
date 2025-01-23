@@ -37,7 +37,7 @@
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[0].player ? undefined : $t('player-no', { no: 1 })"
                 :readonly="!canSubstitute.home"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
               <v-divider />
@@ -54,7 +54,7 @@
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[1].player ? undefined : $t('player-no', { no: 2 })"
                 :readonly="!canSubstitute.home"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
             </div>
@@ -86,7 +86,7 @@
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[0].player ? undefined : $t('player-no', { no: 1 })"
                 :readonly="!canSubstitute.guest"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
               <v-divider />
@@ -103,7 +103,7 @@
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[1].player ? undefined : $t('player-no', { no: 2 })"
                 :readonly="!canSubstitute.guest"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
             </div>
@@ -188,7 +188,7 @@
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[2].player ? undefined : $t('player-no', { no: 3 })"
                 :readonly="!canSubstitute.home"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
               <v-divider />
@@ -205,7 +205,7 @@
                 :items="homeTeamPlayers"
                 :label="currentHomeTeamPlayers[3].player ? undefined : $t('player-no', { no: 4 })"
                 :readonly="!canSubstitute.home"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
             </div>
@@ -237,7 +237,7 @@
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[2].player ? undefined : $t('player-no', { no: 3 })"
                 :readonly="!canSubstitute.guest"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
               <v-divider />
@@ -254,7 +254,7 @@
                 :items="guestTeamPlayers"
                 :label="currentGuestTeamPlayers[3].player ? undefined : $t('player-no', { no: 4 })"
                 :readonly="!canSubstitute.guest"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
               />
             </div>
@@ -331,7 +331,7 @@
                 hide-details
                 hide-no-data
                 readonly
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 :value="currentHomeTeamPlayers[4].player?.namePosition"
                 variant="plain"
               />
@@ -342,7 +342,7 @@
                 hide-details
                 hide-no-data
                 readonly
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 :value="currentHomeTeamPlayers[5].player?.namePosition"
                 variant="plain"
               />
@@ -367,7 +367,7 @@
                 hide-details
                 hide-no-data
                 readonly
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 :value="currentGuestTeamPlayers[4].player?.namePosition"
                 variant="plain"
               />
@@ -378,7 +378,7 @@
                 hide-details
                 hide-no-data
                 readonly
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 :value="currentGuestTeamPlayers[5].player?.namePosition"
                 variant="plain"
               />

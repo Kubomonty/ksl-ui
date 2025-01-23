@@ -42,7 +42,7 @@
                 :item-value="(item: unknown) => item"
                 :items="homeTeamPlayersSubstitutes"
                 :readonly="!canSubstitute.home"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
                 @update:model-value="handleHomeTeamUpdate(`H${match.home}`)"
               />
@@ -80,7 +80,7 @@
                 :item-value="(item: unknown) => item"
                 :items="guestTeamPlayersSubstitutes"
                 :readonly="!canSubstitute.guest"
-                style="min-width: 156px;"
+                style="min-width: max-content;"
                 variant="plain"
                 @update:model-value="handleGuestTeamUpdate(`G${match.guest}`)"
               />
