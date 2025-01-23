@@ -539,13 +539,13 @@
     return props.guestPlayers
       .filter(player => ['G1', 'G2', 'G3', 'G4'].includes(player.position) && !!player.player?.id)
       .filter(player => !currentGuestTeamPlayers.value.some(p => p.player?.id === player.player?.id))
-      .map(player => ({ ...player.player, namePosition: `${player.position} - ${player.player?.name}` }))
+      .map(player => ({ ...player.player, namePosition: `${player.position.replace('G', 'H')} - ${player.player?.name}` }))
   })
   const homeTeamPlayers = computed(() => {
     return props.homePlayers
       .filter(player => ['H1', 'H2', 'H3', 'H4'].includes(player.position) && !!player.player?.id)
       .filter(player => !currentHomeTeamPlayers.value.some(p => p.player?.id === player.player?.id))
-      .map(player => ({ ...player.player, namePosition: `${player.position} - ${player.player?.name}` }))
+      .map(player => ({ ...player.player, namePosition: `${player.position.replace('H', 'D')} - ${player.player?.name}` }))
   })
 
   const currentGuestTeamPlayers: Ref<{ player: PlayerDto & { namePosition: string } | null | undefined, position: string }[]> = ref([
@@ -577,7 +577,7 @@
     return {
       player: {
         ...player.player,
-        namePosition: `${player.position} - ${player.player?.name}`,
+        namePosition: `${player.position.replace('H', 'D').replace('G', 'H')} - ${player.player?.name}`,
       },
       position: player.position,
     }

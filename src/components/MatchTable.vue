@@ -17,7 +17,7 @@
             :class="{ 'not-allowed': !canSubstitute.home }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
-              <strong>{{ `H${match.home}` }}</strong>
+              <strong>{{ `D${match.home}` }}</strong>
             </div>
             &nbsp;
             <div style="margin-top: auto; margin-bottom: auto;">&ndash;</div>
@@ -55,7 +55,7 @@
             :class="{ 'not-allowed': !canSubstitute.guest }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
-              <strong>{{ `G${match.guest}` }}</strong>
+              <strong>{{ `H${match.guest}` }}</strong>
             </div>
             &nbsp;
             <div style="margin-top: auto; margin-bottom: auto;">&ndash;</div>
