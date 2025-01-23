@@ -17,6 +17,7 @@
           <VueDatePicker
             v-model="newMatch.matchDate"
             :cancel-text="$t('cancel')"
+            :format="datepickerFormat"
             :placeholder="$t('date-and-time-of-match')"
             required
             :rules="[(val : string) => !!val || $t('match-place-required')]"
@@ -163,6 +164,14 @@
 
     return selectedTeam ? selectedTeam.players : []
   })
+
+  const datepickerFormat = (date: Date) => {
+    const day = date.getDate()
+    const month = date.getMonth() + 1
+    const year = date.getFullYear()
+
+    return `${day}/${month}/${year}`
+  }
 
   const findDuplicates = (array: string[]): string[] => {
     const seen = new Set<string>()
