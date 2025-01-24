@@ -142,7 +142,7 @@ export const useTeamStore = defineStore('team-store', {
       }
       return false
     },
-    async updateTeam (team: { teamId: string, teamEmail: string, teamMembers?: {id: string, name: string}[], teamName: string }): Promise<string | null> {
+    async updateTeam (team: { teamId: string, teamEmail: string, teamMembers?: {id: string, name: string}[], teamName: string, username: string }): Promise<string | null> {
       const authStore = useAuthStore()
       const token = authStore.token
 

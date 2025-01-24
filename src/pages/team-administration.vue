@@ -11,7 +11,6 @@
       <span v-else>
         <v-text-field
           v-model="teamName"
-          :clearable="isAdmin"
           density="compact"
           :label="$t('team-name')"
           :readonly="!isAdmin"
@@ -22,7 +21,6 @@
         />
         <v-text-field
           v-model="teamEmail"
-          :clearable="isAdmin"
           density="compact"
           :label="$t('team-email')"
           :readonly="!isAdmin"
@@ -32,6 +30,16 @@
             (val: string) => /.+@.+\..+/.test(val) || $t('team-email-invalid')
           ]"
           type="email"
+          validate-on="input"
+          variant="outlined"
+        />
+        <v-text-field
+          v-model="username"
+          density="compact"
+          :label="$t('username')"
+          :readonly="!isAdmin"
+          required
+          :rules="[(val : string) => !!val || $t('username-required')]"
           validate-on="input"
           variant="outlined"
         />
@@ -238,6 +246,7 @@
 
   const teamName: Ref<string> = ref('')
   const teamEmail: Ref<string> = ref('')
+  const username: Ref<string> = ref('')
   const players: Ref<{id: string, name: string, playerOrder: number}[]> = ref([])
 
   const handlePlayerChange = (index: number): void => {
@@ -292,6 +301,7 @@
       teamName: teamName.value,
       teamEmail: teamEmail.value,
       teamMembers: players.value,
+      username: username.value,
     })
     if (updateRes) {
       inProcess.value = false
@@ -338,9 +348,19 @@
   }
 
   const isTeamChanged = computed(() => {
-    return !_.isEqual(team.value?.players, players.value) ||
-      team.value?.teamName !== teamName.value ||
-      team.value?.teamEmail !== teamEmail.value
+    return (
+      (
+        !_.isEqual(team.value?.players, players.value) ||
+        team.value?.teamName !== teamName.value ||
+        team.value?.teamEmail !== teamEmail.value ||
+        team.value?.username !== username.value
+      ) &&
+      !loading.value &&
+      !inProcess.value &&
+      !!teamName.value.trim().length &&
+      !!teamEmail.value.trim().length &&
+      !!username.value.trim().length
+    )
   })
 
   const populateTeam = (): void => {
@@ -351,6 +371,9 @@
       team.value!.players.forEach(player => {
         players.value.push({ ...player })
       })
+    }
+    if (team.value!.username) {
+      username.value = team.value!.username
     }
   }
 

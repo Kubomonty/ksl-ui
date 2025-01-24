@@ -5,4 +5,5 @@ export interface TeamDto {
   id: string;
   teamName: string;
   teamEmail: string;
+  username?: string;
 }
