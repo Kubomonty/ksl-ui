@@ -125,7 +125,7 @@
   const items: ComputedRef<{ title: string, to: string, action?: () => void}[]> = computed(() => {
     if (isAdmin.value) {
       return [
-        { title: i18n.t('home'), to: '/' },
+        { title: i18n.t('results-overview'), to: '/' },
         { title: i18n.t('match-list'), to: '/match-list' },
         { title: i18n.t('new-match'), to: '/new-match' },
         { title: i18n.t('team-list'), to: '/team-list' },
@@ -133,7 +133,7 @@
       ]
     } else if (isUser.value) {
       return [
-        { title: i18n.t('home'), to: '/' },
+        { title: i18n.t('results-overview'), to: '/' },
         { title: i18n.t('match-list'), to: '/match-list' },
         { title: i18n.t('team-list'), to: '/team-list' },
         { title: i18n.t('new-match'), to: '/new-match' },
@@ -141,7 +141,7 @@
       ]
     } else {
       return [
-        { title: i18n.t('home'), to: '/' },
+        { title: i18n.t('results-overview'), to: '/' },
         { title: i18n.t('match-list'), to: '/match-list' },
         { title: i18n.t('team-list'), to: '/team-list' },
       ]
