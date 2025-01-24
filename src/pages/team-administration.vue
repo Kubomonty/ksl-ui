@@ -1,6 +1,6 @@
 <template>
   <v-card flat>
-    <v-card-title class="mt-3">{{ $t('team-administration') }}</v-card-title>
+    <v-card-title class="mt-3">{{ $t(isAdmin ? 'team-administration' : 'my-team') }}</v-card-title>
     <v-card-text>
       <span v-if="loading">
         <v-skeleton-loader type="paragraph" />
@@ -47,6 +47,7 @@
           <Sortable
             item-key="id"
             :list="players"
+            :options="{ disabled: !isAdmin }"
             tag="div"
             @end="handlePlayersOrderChange"
           >
@@ -57,10 +58,12 @@
                   v-model="element.name"
                   density="compact"
                   :hide-details="true"
+                  :readonly="!isAdmin"
                   variant="outlined"
                   @change="handlePlayerChange(index)"
                 />
                 <v-btn
+                  v-if="isAdmin"
                   class="align-self-center ml-3"
                   color="error"
                   density="compact"
@@ -73,7 +76,7 @@
             </template>
           </Sortable>
         </span>
-        <div class="d-flex">
+        <div v-if="isAdmin" class="d-flex">
           <v-text-field
             v-model="newPlayerName"
             density="compact"
@@ -88,7 +91,7 @@
             @click="handleAddPlayerClick"
           >{{ $t('add-player') }}</v-btn>
         </div>
-        <v-divider class="my-3" />
+        <v-divider v-if="isAdmin" class="my-3" />
         <v-btn
           v-if="isAdmin"
           block
@@ -97,8 +100,8 @@
           variant="flat"
           @click="handleCancelTeamClick"
         >{{ $t('cancel-team') }}</v-btn>
-        <v-divider class="my-3" />
-        <div class="d-flex">
+        <v-divider v-if="isAdmin" class="my-3" />
+        <div v-if="isAdmin" class="d-flex">
           <v-spacer />
           <v-btn
             class="mr-3"

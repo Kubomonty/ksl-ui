@@ -137,7 +137,7 @@
         { title: i18n.t('match-list'), to: '/match-list' },
         { title: i18n.t('team-list'), to: '/team-list' },
         { title: i18n.t('new-match'), to: '/new-match' },
-        { title: i18n.t('team-administration'), to: `/team-administration?id=${loggedInUser?.value?.id}` },
+        { title: i18n.t('my-team'), to: `/team-administration?id=${loggedInUser?.value?.id}` },
       ]
     } else {
       return [
