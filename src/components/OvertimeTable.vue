@@ -179,7 +179,7 @@
                 v-model="currentHomeTeamPlayers[2].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.home }"
-                clearable
+                :clearable="canSubstitute.home"
                 density="compact"
                 hide-details
                 hide-no-data
@@ -196,7 +196,7 @@
                 v-model="currentHomeTeamPlayers[3].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.home }"
-                clearable
+                :clearable="canSubstitute.home"
                 density="compact"
                 hide-details
                 hide-no-data
@@ -228,7 +228,7 @@
                 v-model="currentGuestTeamPlayers[2].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.guest }"
-                clearable
+                :clearable="canSubstitute.guest"
                 density="compact"
                 hide-details
                 hide-no-data
@@ -245,7 +245,7 @@
                 v-model="currentGuestTeamPlayers[3].player"
                 class="pl-2 pb-2"
                 :class="{ 'readonly-select': !canSubstitute.guest }"
-                clearable
+                :clearable="canSubstitute.guest"
                 density="compact"
                 hide-details
                 hide-no-data
@@ -662,23 +662,17 @@
       currentGuestTeamPlayers.value[3].player && currentHomeTeamPlayers.value[3].player
   })
 
-  onMounted(() => {
-    setOTLegs()
-    setSelectedGuestPlayers()
-    setSelectedHomePlayers()
-  })
-
   watch(props.otLegs, () => {
     setOTLegs()
-  }, { deep: true })
+  }, { deep: true, immediate: true })
 
   watch(props.selectedGuestPlayers, () => {
     setSelectedGuestPlayers()
-  }, { deep: true })
+  }, { deep: true, immediate: true })
 
   watch(props.selectedHomePlayers, () => {
     setSelectedHomePlayers()
-  }, { deep: true })
+  }, { deep: true, immediate: true })
 
   watch(gameLegs.value, () => {
     emits('update:match-legs', gameLegs.value)
