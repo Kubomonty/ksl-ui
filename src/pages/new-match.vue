@@ -32,12 +32,13 @@
         </div>
         <v-select
           v-model="newMatch.homeTeam"
-          clearable
+          :clearable="isAdmin"
           density="compact"
           item-title="teamName"
           item-value="id"
           :items="homeTeams"
           :label="$t('home-team')"
+          :readonly="!isAdmin"
           required
           :rules="[(sel : string) => !!sel || $t('home-team-required')]"
           validate-on="input"
@@ -140,7 +141,7 @@
   const matchStore = useMatchStore()
   const { newMatch } = storeToRefs(matchStore)
   const authStore = useAuthStore()
-  const { loggedInUser } = storeToRefs(authStore)
+  const { isAdmin, loggedInUser } = storeToRefs(authStore)
 
   const teamStore = useTeamStore()
   const { teams } = storeToRefs(teamStore)
@@ -379,6 +380,13 @@
 
   onMounted(async () => {
     await fetchTeams()
+    if (!isAdmin.value) {
+      if (loggedInUser?.value?.id) {
+        newMatch.value.homeTeam = loggedInUser.value.id
+      } else {
+        router.push('/login')
+      }
+    }
   })
 
   watch(() => newMatch.value.guestTeam, () => {
