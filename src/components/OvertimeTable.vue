@@ -494,10 +494,13 @@
     }
   })
 
-  const gameLegs: Ref<{ game1: MatchGame, game2: MatchGame, game3: MatchGame }> = ref({
+  const defaultGameLegs: { game1: MatchGame, game2: MatchGame, game3: MatchGame } = {
     game1: { guest: 0, home: 0 },
     game2: { guest: 0, home: 0 },
     game3: { guest: 0, home: 0 },
+  }
+  const gameLegs: Ref<{ game1: MatchGame, game2: MatchGame, game3: MatchGame }> = ref({
+    ...defaultGameLegs,
   })
 
   const overtimeState = computed(() => {
@@ -548,21 +551,27 @@
       .map(player => ({ ...player.player, namePosition: `${player.position.replace('H', 'D')} - ${player.player?.name}` }))
   })
 
-  const currentGuestTeamPlayers: Ref<{ player: PlayerDto & { namePosition: string } | null | undefined, position: string }[]> = ref([
+  const defaultGuestTeamPlayers: { player: PlayerDto & { namePosition: string } | null | undefined, position: string }[] = [
     { player: undefined, position: 'G1' },
     { player: undefined, position: 'G2' },
     { player: undefined, position: 'G3' },
     { player: undefined, position: 'G4' },
     { player: undefined, position: 'G5' },
     { player: undefined, position: 'G6' },
+  ]
+  const currentGuestTeamPlayers: Ref<{ player: PlayerDto & { namePosition: string } | null | undefined, position: string }[]> = ref([
+    ...defaultGuestTeamPlayers,
   ])
-  const currentHomeTeamPlayers: Ref<{ player: PlayerDto & { namePosition: string } | null | undefined, position: string }[]> = ref([
+  const dafaultHomeTeamPlayers: { player: PlayerDto & { namePosition: string } | null | undefined, position: string }[] = [
     { player: undefined, position: 'H1' },
     { player: undefined, position: 'H2' },
     { player: undefined, position: 'H3' },
     { player: undefined, position: 'H4' },
     { player: undefined, position: 'H5' },
     { player: undefined, position: 'H6' },
+  ]
+  const currentHomeTeamPlayers: Ref<{ player: PlayerDto & { namePosition: string } | null | undefined, position: string }[]> = ref([
+    ...dafaultHomeTeamPlayers,
   ])
 
   const transformPlayerDtoToOTPlayer = (

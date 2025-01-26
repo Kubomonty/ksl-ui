@@ -220,7 +220,7 @@
       !selectedMatchDetails?.value?.status ||
       !loggedInUser?.value?.id ||
       (
-        ![selectedMatchDetails.value.createdBy, selectedMatchDetails.value.guestTeam, selectedMatchDetails.value.homeTeam].includes(loggedInUser.value.id) &&
+        ![selectedMatchDetails.value.createdBy].includes(loggedInUser.value.id) &&
         !isAdmin.value
       )
     ) {
@@ -252,26 +252,32 @@
   const matchLegs: Ref<NullableMatchLegs> = ref({ ...EMPTY_MATCH_LEGS_NULL })
   const matchState: Ref<MatchLegs> = ref({ ...EMPTY_MATCH_LEGS })
   const otLegs: Ref<{ game1: MatchGame, game2: MatchGame, game3: MatchGame }> = ref({ ...EMPTY_OT_LEGS })
+  const defaultOTPlayers: {
+    guest: { player: PlayerDto | null | undefined, position: string }[],
+    home: { player: PlayerDto | null | undefined, position: string }[]
+  } = {
+    guest: [
+      { player: undefined, position: 'G1' },
+      { player: undefined, position: 'G2' },
+      { player: undefined, position: 'G3' },
+      { player: undefined, position: 'G4' },
+      { player: undefined, position: 'G5' },
+      { player: undefined, position: 'G6' },
+    ],
+    home: [
+      { player: undefined, position: 'H1' },
+      { player: undefined, position: 'H2' },
+      { player: undefined, position: 'H3' },
+      { player: undefined, position: 'H4' },
+      { player: undefined, position: 'H5' },
+      { player: undefined, position: 'H6' },
+    ],
+  }
   const selectedOTPlayers: Ref<{
     guest: { player: PlayerDto | null | undefined, position: string }[],
     home: { player: PlayerDto | null | undefined, position: string }[]
   }> = ref({
-    guest: [
-      { player: undefined as PlayerDto | null | undefined, position: 'G1' },
-      { player: undefined as PlayerDto | null | undefined, position: 'G2' },
-      { player: undefined as PlayerDto | null | undefined, position: 'G3' },
-      { player: undefined as PlayerDto | null | undefined, position: 'G4' },
-      { player: undefined as PlayerDto | null | undefined, position: 'G5' },
-      { player: undefined as PlayerDto | null | undefined, position: 'G6' },
-    ],
-    home: [
-      { player: undefined as PlayerDto | null | undefined, position: 'H1' },
-      { player: undefined as PlayerDto | null | undefined, position: 'H2' },
-      { player: undefined as PlayerDto | null | undefined, position: 'H3' },
-      { player: undefined as PlayerDto | null | undefined, position: 'H4' },
-      { player: undefined as PlayerDto | null | undefined, position: 'H5' },
-      { player: undefined as PlayerDto | null | undefined, position: 'H6' },
-    ],
+    ...defaultOTPlayers,
   })
 
   const onGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
@@ -436,7 +442,7 @@
     endMatchDialog.value = false
   }
   const handleEndMatchDialogConfirm = async (): Promise<void> => {
-    if (inProcess.value || !selectedMatchDetails?.value || !loggedInUser?.value) {
+    if (inProcess.value || !selectedMatchDetails?.value || !isMatchAlive.value) {
       return
     }
     inProcess.value = true
@@ -468,7 +474,7 @@
   }
   const handleCancelMatchDialogConfirm = async (): Promise<void> => {
     cancelMatchDialog.value = false
-    if (inProcess.value || !selectedMatchDetails?.value || !loggedInUser?.value) {
+    if (inProcess.value || !selectedMatchDetails?.value || !isMatchAlive.value) {
       return
     }
     inProcess.value = true
@@ -492,7 +498,7 @@
   }
 
   const saveChanges = async (): Promise<void> => {
-    if (inProcess.value || !selectedMatchDetails?.value || !loggedInUser?.value) {
+    if (inProcess.value || !selectedMatchDetails?.value || !isMatchAlive?.value) {
       return
     }
     inProcess.value = true
