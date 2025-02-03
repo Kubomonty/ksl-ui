@@ -7,6 +7,8 @@ export interface TeamStandingsDto {
   losses: number;
   overTimeWins: number;
   overTimeLosses: number;
+  overTimeLegsWon: number;
+  overTimeLegsLost: number;
   legsWon: number;
   legsLost: number;
   gamesWon: number;

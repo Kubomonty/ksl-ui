@@ -39,8 +39,16 @@
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <v-divider class="mb-3 mt-n3" />
-              <h4 style="display: inline;">H</h4> - {{ `${team.gamesWon}:${team.legsLost} (${team.gamesWon-team.gamesLost})` }}<br>
-              <h4 style="display: inline;">L</h4> - {{ `${team.legsWon}:${team.legsLost} (${team.legsWon-team.legsLost})` }}<br>
+              <h4 style="display: inline;">H</h4> - {{
+                `${+team.gamesWon + +team.overTimeWins}:${+team.gamesLost + team.overTimeLosses} (${
+                  (+team.gamesWon + +team.overTimeWins) - (+team.gamesLost + team.overTimeLosses)
+                })`
+              }}<br>
+              <h4 style="display: inline;">L</h4> - {{
+                `${+team.legsWon + +team.overTimeLegsWon}:${+team.legsLost + +team.overTimeLegsLost} (${
+                  (+team.legsWon + +team.overTimeLegsWon) - (+team.legsLost + +team.overTimeLegsLost)
+                })`
+              }}<br>
               <span v-if="team.matches.length">
                 <br>
                 <p v-for="match in team.matches" :key="match.matchDate+match.homeTeam+match.guestTeam" class="mb-2">
