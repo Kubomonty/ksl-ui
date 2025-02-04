@@ -16,6 +16,17 @@
         <v-skeleton-loader type="heading" />
       </span>
       <span v-else-if="matches.length">
+        <v-select
+          v-model="filter"
+          chips
+          class="mb-n3 mt-5"
+          density="comfortable"
+          :items="filterItems"
+          :label="$t('filter-by-status')"
+          max-width="max-content"
+          min-width="200px"
+          multiple
+        />
         <v-table v-if="matches.length">
           <thead>
             <tr>
@@ -103,6 +114,14 @@
 
   const currentPage = ref(1)
 
+  const filterItems = [
+    { title: i18n.t('finished'), value: MatchStatus.FINISHED },
+    { title: i18n.t('in-progress'), value: MatchStatus.IN_PROGRESS },
+    { title: i18n.t('new'), value: MatchStatus.NEW },
+    { title: i18n.t('canceled'), value: MatchStatus.CANCELED },
+  ]
+  const filter = ref([MatchStatus.FINISHED])
+
   const showScore = (match: MatchDto): boolean => {
     return [MatchStatus.NEW, MatchStatus.IN_PROGRESS, MatchStatus.FINISHED].includes(match.status as MatchStatus)
   }
@@ -157,7 +176,7 @@
     loading.value = true
     await Promise.all([
       fetchTeams(),
-      fetchMatchesPage(ITEMS_PER_PAGE, currentPage.value),
+      fetchMatchesPage(ITEMS_PER_PAGE, currentPage.value, filter.value),
     ])
     loading.value = false
   }
@@ -165,6 +184,12 @@
   onMounted(async () => {
     getMatchList()
   })
+  watch(filter, () => {
+    if (!filter.value.length) {
+      filter.value = [MatchStatus.FINISHED]
+    }
+    getMatchList()
+  }, { deep: true })
   watch(async () => route, async () => {
     getMatchList()
   }, { deep: true })

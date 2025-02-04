@@ -3,6 +3,7 @@ import { defineStore, storeToRefs } from 'pinia'
 import { MatchDto, MatchState, MatchUpdateDto } from '../models'
 import axios from 'axios'
 import { useAuthStore } from './auth.store'
+import { MatchStatus } from '@/enums'
 
 const API_URL = import.meta.env.VITE_KSL_API_URL
 
@@ -21,7 +22,7 @@ export const useMatchStore = defineStore('match-store', {
         const response = await axios.post(`${API_URL}/api/match`, this.newMatch, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
-        await this.fetchMatchesPage(10, 1)
+        await this.fetchMatchesPage(10, 1, [MatchStatus.NEW, MatchStatus.FINISHED, MatchStatus.CANCELED, MatchStatus.IN_PROGRESS])
         this.resetNewMatch()
         return response.data
       } catch (error) {
@@ -44,7 +45,7 @@ export const useMatchStore = defineStore('match-store', {
         const response = await axios.post(`${API_URL}/api/match/overtime`, overtime, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
-        await this.fetchMatchesPage(10, 1)
+        await this.fetchMatchesPage(10, 1, [MatchStatus.NEW, MatchStatus.FINISHED, MatchStatus.CANCELED, MatchStatus.IN_PROGRESS])
         return response.data
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
@@ -69,8 +70,8 @@ export const useMatchStore = defineStore('match-store', {
         return null
       }
     },
-    async fetchMatchesPage (itemsPerPage: number, currentPage: number) {
-      const pageInfo = { page: currentPage, limit: itemsPerPage }
+    async fetchMatchesPage (itemsPerPage: number, currentPage: number, filter: MatchStatus[]) {
+      const pageInfo = { page: currentPage, limit: itemsPerPage, filter: filter.join(',') }
       try {
         const response = await axios.get(`${API_URL}/api/match`, {
           params: pageInfo,
