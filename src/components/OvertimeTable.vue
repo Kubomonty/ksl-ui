@@ -464,6 +464,14 @@
       required: true,
       type: Boolean,
     },
+    originalGuestPlayers: {
+      required: true,
+      type: Array as PropType<{ player: PlayerDto | null | undefined; position: string }[]>,
+    },
+    originalHomePlayers: {
+      required: true,
+      type: Array as PropType<{ player: PlayerDto | null | undefined; position: string }[]>,
+    },
     otLegs: {
       required: true,
       type: Object as PropType<{ game1: MatchGame, game2: MatchGame, game3: MatchGame }>,
@@ -542,13 +550,13 @@
     return props.guestPlayers
       .filter(player => ['G1', 'G2', 'G3', 'G4'].includes(player.position) && !!player.player?.id)
       .filter(player => !currentGuestTeamPlayers.value.some(p => p.player?.id === player.player?.id))
-      .map(player => ({ ...player.player, namePosition: `${player.position.replace('G', 'H')} - ${player.player?.name}` }))
+      .map(player => ({ ...player.player, namePosition: getOriginalNamePosition('guest', player.player!.id) }))
   })
   const homeTeamPlayers = computed(() => {
     return props.homePlayers
       .filter(player => ['H1', 'H2', 'H3', 'H4'].includes(player.position) && !!player.player?.id)
       .filter(player => !currentHomeTeamPlayers.value.some(p => p.player?.id === player.player?.id))
-      .map(player => ({ ...player.player, namePosition: `${player.position.replace('H', 'D')} - ${player.player?.name}` }))
+      .map(player => ({ ...player.player, namePosition: getOriginalNamePosition('home', player.player!.id) }))
   })
 
   const defaultGuestTeamPlayers: { player: PlayerDto & { namePosition: string } | null | undefined, position: string }[] = [
@@ -586,10 +594,22 @@
     return {
       player: {
         ...player.player,
-        namePosition: `${player.position.replace('H', 'D').replace('G', 'H')} - ${player.player?.name}`,
+        namePosition: getOriginalNamePosition(player.position.includes('H') ? 'home' : 'guest', player.player.id),
       },
       position: player.position,
     }
+  }
+
+  const getOriginalNamePosition = (team: 'home' | 'guest', playerId: string) => {
+    let player: { player: PlayerDto | null | undefined, position: string }
+    if (team === 'home') {
+      player = props.originalHomePlayers.find(player => player.player?.id === playerId)!
+    } else {
+      player = props.originalGuestPlayers.find(player => player.player?.id === playerId)!
+    }
+    return team === 'home'
+      ? `${player.position.replace('H', 'D')} - ${player.player?.name}`
+      : `${player.position.replace('G', 'H')} - ${player.player?.name}`
   }
 
   const setOTLegs = () => {

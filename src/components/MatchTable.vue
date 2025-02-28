@@ -17,7 +17,10 @@
             :class="{ 'not-allowed': !canSubstitute.home }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
-              <strong>{{ `D${match.home}` }}</strong>
+              <strong
+                v-if="currentHomeTeamPlayers[match.home - 1].player?.id"
+              >{{ `${getOriginalPosition('home', currentHomeTeamPlayers[match.home - 1].player!.id)?.replace('H', 'D')}` }}</strong>
+              <strong v-else>{{ `D${match.home}` }}</strong>
             </div>
             &nbsp;
             <div style="margin-top: auto; margin-bottom: auto;">&ndash;</div>
@@ -55,7 +58,10 @@
             :class="{ 'not-allowed': !canSubstitute.guest }"
           >
             <div style="margin-top: auto; margin-bottom: auto;">
-              <strong>{{ `H${match.guest}` }}</strong>
+              <strong
+                v-if="currentGuestTeamPlayers[match.guest - 1].player?.id"
+              >{{ `${getOriginalPosition('guest', currentGuestTeamPlayers[match.guest - 1].player!.id)?.replace('G', 'H')}` }}</strong>
+              <strong v-else>{{ `H${match.guest}` }}</strong>
             </div>
             &nbsp;
             <div style="margin-top: auto; margin-bottom: auto;">&ndash;</div>
@@ -153,6 +159,10 @@
   import { useAuthStore } from '../stores'
 
   const props = defineProps({
+    canSub: {
+      required: true,
+      type: Boolean,
+    },
     guestPlayers: {
       required: true,
       type: Array as PropType<{ player: PlayerDto | null | undefined; position: string }[]>,
@@ -173,13 +183,17 @@
       required: true,
       type: Object as PropType<NullableMatchQuarter>,
     },
+    originalGuestPlayers: {
+      required: true,
+      type: Array as PropType<{ player: PlayerDto | null | undefined; position: string }[]>,
+    },
+    originalHomePlayers: {
+      required: true,
+      type: Array as PropType<{ player: PlayerDto | null | undefined; position: string }[]>,
+    },
     qtr: {
       required: true,
       type: Number,
-    },
-    canSub: {
-      required: true,
-      type: Boolean,
     },
   })
   const emits = defineEmits([
@@ -312,6 +326,12 @@
   const gLegItems = computed(() =>
     gLegs.value.map((_, i) => !hLegs.value[i] ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +hLegs.value[i]!))
   )
+
+  const getOriginalPosition = (team: 'home' | 'guest', playerId: string) => {
+    return team === 'home'
+      ? props.originalHomePlayers.find(player => player.player?.id === playerId)?.position
+      : props.originalGuestPlayers.find(player => player.player?.id === playerId)?.position
+  }
 
   watch(hLegs, () => {
     emits('update:match-legs-home', { values: hLegs.value, qtr: props.qtr })
