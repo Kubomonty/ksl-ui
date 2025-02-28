@@ -29,6 +29,7 @@ declare module 'vue-router/auto-routes' {
     '/new-match-confirm': RouteRecordInfo<'/new-match-confirm', '/new-match-confirm', Record<never, never>, Record<never, never>>,
     '/new-team': RouteRecordInfo<'/new-team', '/new-team', Record<never, never>, Record<never, never>>,
     '/reset-password': RouteRecordInfo<'/reset-password', '/reset-password', Record<never, never>, Record<never, never>>,
+    '/seasons-administration': RouteRecordInfo<'/seasons-administration', '/seasons-administration', Record<never, never>, Record<never, never>>,
     '/team-administration': RouteRecordInfo<'/team-administration', '/team-administration', Record<never, never>, Record<never, never>>,
     '/team-list': RouteRecordInfo<'/team-list', '/team-list', Record<never, never>, Record<never, never>>,
   }

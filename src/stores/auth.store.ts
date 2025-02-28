@@ -79,6 +79,9 @@ export const useAuthStore = defineStore('auth-store', {
         return null
       }
     },
+    logoutTokenTimeOut () {
+      this.logoutTimeOutTriggered = true
+    },
     async resetToken () {
       const authStore = useAuthStore()
       const token = authStore.token

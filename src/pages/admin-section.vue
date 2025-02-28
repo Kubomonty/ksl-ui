@@ -14,6 +14,12 @@
         flat
         @click="addAdmin"
       >{{ $t('add-admin') }}</v-btn>
+      <v-btn
+        class="admin-section-button my-3"
+        color="primary"
+        flat
+        @click="seasonsAdministration"
+      >{{ $t('seasons-administration') }}</v-btn>
     </v-card-text>
   </v-card>
 </template>
@@ -28,6 +34,9 @@
   }
   const addTeam = () => {
     router.push('/new-team')
+  }
+  const seasonsAdministration = () => {
+    router.push('/seasons-administration')
   }
 </script>
 
