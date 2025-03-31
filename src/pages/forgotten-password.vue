@@ -6,18 +6,21 @@
         <p>{{ $t('initiate-reset-password') }}</p>
         <br>
         <v-text-field
-          v-model="username"
-          density="compact"
-          :label="$t('username')"
-          :rules="[(val: string) => !!val || $t('username-required')]"
-          variant="outlined"
-        />
-        <v-text-field
           v-model="email"
           density="compact"
           :label="$t('email')"
           :rules="[(val: string) => !!val || $t('email-required')]"
           type="email"
+          variant="outlined"
+        />
+        <v-select
+          v-if="multipleAccountsForEmail"
+          v-model="username"
+          density="compact"
+          item-text="username"
+          item-value="id"
+          :items="availableAccounts"
+          :label="$t('select-account')"
           variant="outlined"
         />
         <v-btn
@@ -69,7 +72,7 @@
 
 <script setup lang="ts">
   import { isValidEmail } from '../utils'
-  import axios from 'axios'
+  import axios, { AxiosResponse } from 'axios'
   import { ref } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { useRouter } from 'vue-router'
@@ -79,7 +82,7 @@
   const i18n = useI18n()
 
   const email = ref('')
-  const username = ref('')
+  const username = ref(null)
   const snackbar = ref(false)
   const snackbarColor = ref('')
   const snackbarText = ref('')
@@ -87,9 +90,15 @@
   const dialog = ref(false)
 
   const inProcess = ref(false)
+  const multipleAccountsForEmail = ref(false)
+  const availableAccounts = ref([])
 
   const handleSubmit = (): void => {
-    if (!username.value || !email.value || inProcess.value || !isValidEmail(email.value)) {
+    if (!email.value ||
+      inProcess.value ||
+      !isValidEmail(email.value) ||
+      (multipleAccountsForEmail.value && !username.value)
+    ) {
       return
     }
     dialog.value = true
@@ -109,26 +118,52 @@
     snackbarTimeout.value = -1
     snackbar.value = true
     try {
-      await axios.post(`${import.meta.env.VITE_KSL_API_URL}/auth/request-password-reset`, {
-        email: email.value,
-        username: username.value,
-      })
-      snackbarColor.value = 'success'
-      snackbarText.value = i18n.t('reset-password-success')
-      snackbarTimeout.value = 3000
-      snackbar.value = true
+      let res: AxiosResponse<any, any>
+      if (!multipleAccountsForEmail.value) {
+        res = await axios.get(`${import.meta.env.VITE_KSL_API_URL}/auth/reset-password-precheck?email=${email.value}`)
+        if (res.data.length > 1) {
+          availableAccounts.value = res.data
+          multipleAccountsForEmail.value = true
+          snackbarColor.value = 'warning'
+          snackbarText.value = i18n.t('reset-password-multiple-accounts')
+          snackbarTimeout.value = 3000
+          snackbar.value = true
+          dialog.value = false
+          inProcess.value = false
+        } else {
+          snackbarColor.value = 'success'
+          snackbarText.value = i18n.t('reset-password-success')
+          snackbarTimeout.value = 3000
+          snackbar.value = true
+          await sleep(1000)
+          inProcess.value = false
+          router.push('/')
+        }
+      } else {
+        res = await axios.post(`${import.meta.env.VITE_KSL_API_URL}/auth/request-password-reset`, {
+          email: email.value,
+          username: username.value,
+        })
+        snackbarColor.value = 'success'
+        snackbarText.value = i18n.t('reset-password-success')
+        snackbarTimeout.value = 3000
+        snackbar.value = true
+        await sleep(1000)
+        inProcess.value = false
+        router.push('/')
+      }
     } catch (error) {
       snackbarColor.value = 'error'
       snackbarText.value = i18n.t('reset-password-fail')
       snackbarTimeout.value = 3000
       snackbar.value = true
-      console.error('Error resetting password:', error)
-    } finally {
       inProcess.value = false
       dialog.value = false
-      router.push('/')
+      console.error('Error resetting password:', error)
     }
   }
+
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 </script>
 
 <style scoped>
