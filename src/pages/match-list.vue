@@ -8,6 +8,17 @@
     </v-card-title>
     <v-card-text>
       <span v-if="loading">
+        <v-select
+          v-model="filter"
+          chips
+          class="mb-n3 mt-5"
+          clearable
+          :items="filterItems"
+          :label="$t('filter-by-status')"
+          max-width="max-content"
+          min-width="200px"
+          multiple
+        />
         <v-skeleton-loader type="heading" />
         <v-skeleton-loader type="heading" />
         <v-skeleton-loader type="heading" />
@@ -20,7 +31,7 @@
           v-model="filter"
           chips
           class="mb-n3 mt-5"
-          density="comfortable"
+          clearable
           :items="filterItems"
           :label="$t('filter-by-status')"
           max-width="max-content"
@@ -176,7 +187,9 @@
     loading.value = true
     await Promise.all([
       fetchTeams(),
-      fetchMatchesPage(ITEMS_PER_PAGE, currentPage.value, filter.value),
+      fetchMatchesPage(ITEMS_PER_PAGE, currentPage.value, filter.value.length
+        ? filter.value
+        : [MatchStatus.CANCELED, MatchStatus.FINISHED, MatchStatus.IN_PROGRESS, MatchStatus.NEW]),
     ])
     loading.value = false
   }
@@ -185,9 +198,6 @@
     getMatchList()
   })
   watch(filter, () => {
-    if (!filter.value.length) {
-      filter.value = [MatchStatus.FINISHED]
-    }
     getMatchList()
   }, { deep: true })
   watch(async () => route, async () => {
