@@ -47,7 +47,6 @@
           <Sortable
             item-key="id"
             :list="players"
-            :options="{ disabled: !isAdmin }"
             tag="div"
             @end="handlePlayersOrderChange"
           >
@@ -117,6 +116,22 @@
             @click="handleSaveChangesClick"
           >{{ $t('save-changes') }}</v-btn>
         </div>
+        <div v-if="!isAdmin" class="d-flex">
+          <v-spacer />
+          <v-btn
+            class="mr-3"
+            color="warning"
+            :disabled="!isTeamChanged"
+            variant="flat"
+            @click="handleResetClick"
+          >{{ $t('reset-changes') }}</v-btn>
+          <v-btn
+            color="success"
+            :disabled="!isTeamChanged"
+            variant="flat"
+            @click="handleSaveChangedOrderClick"
+          >{{ $t('save-changes') }}</v-btn>
+        </div>
       </span>
     </v-card-text>
     <v-dialog v-model="removePlayerDialog" @keydown.enter="handleRemovePlayerDialogConfirm">
@@ -133,6 +148,24 @@
             color="primary"
             variant="flat"
             @click="handleRemovePlayerDialogConfirm"
+          >{{ $t('ok') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="saveChangedOrderDialog" @keydown.enter="handleSaveChangedOrderDialogConfirm">
+      <v-card>
+        <v-card-title>{{ $t('warning') }}</v-card-title>
+        <v-card-text>{{ $t('save-changes-info') }}</v-card-text>
+        <v-card-actions>
+          <v-btn
+            color="warning"
+            variant="flat"
+            @click="handleSaveChangedOrderDialogCancel"
+          >{{ $t('back') }}</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="handleSaveChangedOrderDialogConfirm"
           >{{ $t('ok') }}</v-btn>
         </v-card-actions>
       </v-card>
@@ -230,7 +263,7 @@
   const authStore = useAuthStore()
   const { isAdmin } = storeToRefs(authStore)
   const teamStore = useTeamStore()
-  const { cancelTeam, fetchActiveTeamById: fetchTeamById, updateTeam } = teamStore
+  const { cancelTeam, fetchActiveTeamById: fetchTeamById, fetchTeams, updateOrder, updateTeam } = teamStore
 
   const inProcess = ref(false)
   const snackbar = ref(false)
@@ -241,6 +274,7 @@
   const removePlayerDialog: Ref<boolean> = ref(false)
   const removingPlayerIndex: Ref<number> = ref(-1)
   const saveChangesDialog: Ref<boolean> = ref(false)
+  const saveChangedOrderDialog: Ref<boolean> = ref(false)
   const resetChangesDialog: Ref<boolean> = ref(false)
   const cancelTeamDialog: Ref<boolean> = ref(false)
 
@@ -285,6 +319,34 @@
   const handleRemovePlayerDialogCancel = (): void => {
     removePlayerDialog.value = false
     removingPlayerIndex.value = -1
+  }
+
+  const handleSaveChangedOrderClick = (): void => {
+    saveChangedOrderDialog.value = true
+  }
+  const handleSaveChangedOrderDialogCancel = (): void => {
+    saveChangedOrderDialog.value = false
+  }
+  const handleSaveChangedOrderDialogConfirm = async (): Promise<void> => {
+    if (inProcess.value) {
+      return
+    }
+    inProcess.value = true
+    progressSnackbar('saving-changes')
+    console.log('players.value', players.value)
+    const updateRes = await updateOrder(
+      team.value!.id,
+      players.value,
+    )
+    if (updateRes) {
+      await fetchTeams()
+      inProcess.value = false
+      successSnackbar('save-changes-success')
+      router.push('/team-list')
+      return
+    }
+    inProcess.value = false
+    failSnackbar('save-changes-fail')
   }
 
   const handleSaveChangesClick = (): void => {

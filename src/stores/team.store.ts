@@ -142,6 +142,23 @@ export const useTeamStore = defineStore('team-store', {
       }
       return false
     },
+    async updateOrder (teamId: string, teamMembers: {id: string, name: string, playerOrder: number}[]): Promise<string | null> {
+      const authStore = useAuthStore()
+      const token = authStore.token
+
+      try {
+        const response = await axios.put(`${API_URL}/api/team/${teamId}/player-order`, { teamId, teamMembers }, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        return response.data
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data === 'Invalid token') {
+          logoutTokenTimeOut()
+        }
+        console.error('Error updating team order:', error)
+        return null
+      }
+    },
     async updateTeam (team: { teamId: string, teamEmail: string, teamMembers?: {id: string, name: string}[], teamName: string, username: string }): Promise<string | null> {
       const authStore = useAuthStore()
       const token = authStore.token
