@@ -13,10 +13,10 @@
       <span v-else>
         <v-row class="mb-3 ml-3 mr-5">
           <v-col cols="3"><h3>{{ $t('team-name') }}</h3></v-col>
-          <v-col><h3>B</h3></v-col>
           <v-col><h3>Z</h3></v-col>
-          <v-col><h3>V:P</h3></v-col>
-          <v-col><h3>V:P PP</h3></v-col>
+          <v-col><h3>B</h3></v-col>
+          <v-col><h3>H</h3></v-col>
+          <v-col><h3>L</h3></v-col>
         </v-row>
         <v-expansion-panels
           elevation="1"
@@ -31,24 +31,24 @@
             <v-expansion-panel-title>
               <v-row align="center">
                 <v-col cols="3"><h4>{{ `${team.place}. ${team.teamName}` }}</h4></v-col>
-                <v-col>{{ team.points }}</v-col>
                 <v-col>{{ team.matchesPlayed }}</v-col>
-                <v-col>{{ `${team.wins}:${team.losses} (${team.wins-team.losses})` }}</v-col>
-                <v-col>{{ `${team.overTimeWins}:${team.overTimeLosses} (${team.overTimeWins-team.overTimeLosses})` }}</v-col>
+                <v-col>{{ team.points }}</v-col>
+                <v-col>{{
+                  `${+team.gamesWon + +team.overTimeWins}:${+team.gamesLost + team.overTimeLosses} (${
+                    (+team.gamesWon + +team.overTimeWins) - (+team.gamesLost + team.overTimeLosses)
+                  })`
+                }}</v-col>
+                <v-col>{{
+                  `${+team.legsWon + +team.overTimeLegsWon}:${+team.legsLost + +team.overTimeLegsLost} (${
+                    (+team.legsWon + +team.overTimeLegsWon) - (+team.legsLost + +team.overTimeLegsLost)
+                  })`
+                }}</v-col>
               </v-row>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <v-divider class="mb-3 mt-n3" />
-              <h4 style="display: inline;">H</h4> - {{
-                `${+team.gamesWon + +team.overTimeWins}:${+team.gamesLost + team.overTimeLosses} (${
-                  (+team.gamesWon + +team.overTimeWins) - (+team.gamesLost + team.overTimeLosses)
-                })`
-              }}<br>
-              <h4 style="display: inline;">L</h4> - {{
-                `${+team.legsWon + +team.overTimeLegsWon}:${+team.legsLost + +team.overTimeLegsLost} (${
-                  (+team.legsWon + +team.overTimeLegsWon) - (+team.legsLost + +team.overTimeLegsLost)
-                })`
-              }}<br>
+              <h4 style="display: inline;">V:P</h4> - {{ `${team.wins}:${team.losses} (${team.wins-team.losses})` }}<br>
+              <h4 style="display: inline;">V:P PP</h4> - {{ `${team.overTimeWins}:${team.overTimeLosses} (${team.overTimeWins-team.overTimeLosses})` }}<br>
               <span v-if="team.matches.length">
                 <br>
                 <p v-for="match in team.matches" :key="match.matchDate+match.homeTeam+match.guestTeam" class="mb-2">

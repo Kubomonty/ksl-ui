@@ -41,22 +41,31 @@
         <v-table v-if="matches.length">
           <thead>
             <tr>
-              <th>{{ $t('location-and-date') }}</th>
+              <th width="5%" />
               <th>{{ $t('home-team') }}</th>
               <th>{{ $t('guest-team') }}</th>
               <th>{{ $t('score') }}</th>
               <th>{{ $t('status') }}</th>
-              <th width="5%" />
+              <th>{{ $t('location-and-date') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="match in matches" :key="match.id">
-              <td>{{ match.matchLocation }}&nbsp;&ndash;&nbsp;{{ formatDateTime(match.matchDate.toISOString()) }}</td>
+              <td>
+                <v-btn
+                  v-if="match.status !== MatchStatus.CANCELED"
+                  color="primary"
+                  size="x-small"
+                  variant="flat"
+                  @click="handleMatchClick(match)"
+                >
+                  detail
+                </v-btn>
+              </td>
               <td>{{ getTeamById(match.homeTeam)?.teamName }}</td>
               <td>{{ getTeamById(match.guestTeam)?.teamName }}</td>
               <td v-if="showScore(match)">
-                {{ match.homeScore }}&nbsp;&colon;&nbsp;{{ match.guestScore }}
-                <span v-if="scoreInOvertime(match)">{{ scoreInOvertime(match) }}</span>
+                {{ +match.homeScore + scoreInOvertime(match).home }}&nbsp;&colon;&nbsp;{{ +match.guestScore + scoreInOvertime(match).guest }}
               </td>
               <td v-else>&ndash;&nbsp;&colon;&nbsp;&ndash;</td>
               <td>
@@ -74,17 +83,7 @@
                   {{ getStatusLabel(match.status as MatchStatus).label }}
                 </v-chip>
               </td>
-              <td>
-                <v-btn
-                  v-if="match.status !== MatchStatus.CANCELED"
-                  color="primary"
-                  size="x-small"
-                  variant="flat"
-                  @click="handleMatchClick(match)"
-                >
-                  detail
-                </v-btn>
-              </td>
+              <td>{{ match.matchLocation }}&nbsp;&ndash;&nbsp;{{ formatDateTime(match.matchDate.toISOString()) }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -137,10 +136,18 @@
     return [MatchStatus.NEW, MatchStatus.IN_PROGRESS, MatchStatus.FINISHED].includes(match.status as MatchStatus)
   }
 
-  const scoreInOvertime = (match: MatchDto): string | null => {
-    return match.homeScoreOvertime || match.guestScoreOvertime
-      ? `(${(+(match.homeScoreOvertime || 0) === 2 ? 1 : 0) + +match.homeScore} : ${(+(match.guestScoreOvertime || 0) === 2 ? 1 : 0) + +match.guestScore} ${i18n.t('ot')})`
-      : null
+  const scoreInOvertime = (match: MatchDto): { home: number, guest: number } => {
+    const score = {
+      home: 0,
+      guest: 0,
+    }
+    if (+(match.homeScoreOvertime || 0) === 2) {
+      score.home = 1
+    } else if (+(match.guestScoreOvertime || 0) === 2) {
+      score.guest = 1
+    }
+
+    return score
   }
 
   const handleMatchClick = (match: MatchDto) => {

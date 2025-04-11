@@ -4,8 +4,8 @@
       <tr>
         <th width="25%">{{ $t('home-team') }}</th>
         <th width="25%">{{ $t('guest-team') }}</th>
-        <th>{{ $t('match-state') }}</th>
         <th>{{ $t('legs') }}</th>
+        <th>{{ $t('match-state') }}</th>
         <th width="12%" />
       </tr>
     </thead>
@@ -94,10 +94,6 @@
           </div>
         </td>
         <td>
-          {{ matchState[`game${index + 1}` as keyof MatchQuarter].home }}&nbsp;&colon;&nbsp;{{ matchState[`game${index + 1}` as keyof MatchQuarter].guest }}
-          ({{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].home }}&nbsp;&colon;&nbsp;{{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].guest }})
-        </td>
-        <td>
           <div class="d-flex">
             <div
               class="my-2"
@@ -111,11 +107,12 @@
               <v-select
                 v-model="hLegs[index]"
                 class="pl-2 pb-2"
+                clearable
                 density="compact"
                 hide-details
                 :items="hLegItems[index]"
                 :readonly="!isLoggedIn || !isAlive"
-                style="width: 52px;"
+                style="width: max-content;"
                 variant="plain"
               />
             </div>
@@ -134,15 +131,20 @@
               <v-select
                 v-model="gLegs[index]"
                 class="pl-2 pb-2"
+                clearable
                 density="compact"
                 hide-details
                 :items="gLegItems[index]"
                 :readonly="!isLoggedIn || !isAlive"
-                style="width: 52px;"
+                style="width: max-content;"
                 variant="plain"
               />
             </div>
           </div>
+        </td>
+        <td>
+          {{ matchState[`game${index + 1}` as keyof MatchQuarter].home }}&nbsp;&colon;&nbsp;{{ matchState[`game${index + 1}` as keyof MatchQuarter].guest }}
+          ({{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].home }}&nbsp;&colon;&nbsp;{{ getMatchLegsTotals[`qtr${qtr}` as keyof MatchLegs][`game${index + 1}` as keyof MatchQuarter].guest }})
         </td>
         <td>{{ $t(match.type) }}</td>
       </tr>
@@ -321,10 +323,32 @@
   const gLegs = ref([props.matchLegs.game1.guest, props.matchLegs.game2.guest, props.matchLegs.game3.guest, props.matchLegs.game4.guest])
 
   const hLegItems = computed(() =>
-    hLegs.value.map((_, i) => !gLegs.value[i] ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +gLegs.value[i]!))
+    hLegs.value.map((_, i) => {
+      if (gLegs.value[i] === null) {
+        return [0, 1, 2]
+      }
+      if ([0, 1].includes(+gLegs.value[i])) {
+        return [2]
+      }
+      if (+gLegs.value[i] === 2) {
+        return [0, 1]
+      }
+      return [0, 1, 2]
+    })
   )
   const gLegItems = computed(() =>
-    gLegs.value.map((_, i) => !hLegs.value[i] ? [0, 1, 2] : [0, 1, 2].filter(item => item !== +hLegs.value[i]!))
+    gLegs.value.map((_, i) => {
+      if (hLegs.value[i] === null) {
+        return [0, 1, 2]
+      }
+      if ([0, 1].includes(+hLegs.value[i])) {
+        return [2]
+      }
+      if (+hLegs.value[i] === 2) {
+        return [0, 1]
+      }
+      return [0, 1, 2]
+    })
   )
 
   const getOriginalPosition = (team: 'home' | 'guest', playerId: string) => {

@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n'
 
 const messages = {
   en: {
-    '2-displays': '2 displays',
+    '1-team-1-display': '1 team - 1 display',
     '501-do': '501 D.O.',
     'add-season': 'Add season',
     'account-administration': 'Account administration',
@@ -65,7 +65,7 @@ const messages = {
     'filter-by-status': 'Filter by status',
     finished: 'Finished',
     'forgotten-password': 'Forgot password?',
-    'game-no': 'Game #{no}',
+    'game-qt': '{no}. quarter',
     'guest-team': 'Guest team',
     'guest-team-less-players': 'Guest team has less than 4 players',
     'guest-team-required': 'Guest team is required',
@@ -167,7 +167,7 @@ const messages = {
     'you-need-to-login': 'You need to login to perform this action',
   },
   sk: {
-    '2-displays': '2 displeje',
+    '1-team-1-display': '1 tím - 1 displej',
     '501-do': '501 D.O.',
     'add-season': 'Pridať sezónu',
     'account-administration': 'Správa účtu',
@@ -230,7 +230,7 @@ const messages = {
     'filter-by-status': 'Filtrovať podľa stavu',
     finished: 'Ukončený',
     'forgotten-password': 'Zabudli ste heslo?',
-    'game-no': 'Hra č. {no}',
+    'game-qt': '{no}. štvrtina',
     'guest-team': 'Hosťujúci tím',
     'guest-team-less-players': 'Hosťujúci tím má menej ako 4 hráčov',
     'guest-team-required': 'Vyberte hosťujúci tím',
