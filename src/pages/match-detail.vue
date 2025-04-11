@@ -10,12 +10,13 @@
         <v-skeleton-loader type="heading" />
       </span>
       <span v-else>
+        <v-btn @click="info">info</v-btn>
         <v-card-title>{{ `${ homeTeam?.teamName} vs. ${guestTeam?.teamName}` }}</v-card-title>
         <v-card-subtitle>{{ `${selectedMatchDetails?.matchLocation} - ${formattedMatchDateTime}` }}</v-card-subtitle>
         <v-card-text>
           <br>
           <span class="d-flex mb-2">
-            <h4>{{ $t('game-no', { no: 1 }) }}</h4>
+            <h4>{{ $t('game-qt', { no: 1 }) }}</h4>
           </span>
           <match-table
             :can-sub="canSub.q1"
@@ -34,7 +35,7 @@
           />
           <br>
           <span class="d-flex mb-2">
-            <h4>{{ $t('game-no', { no: 2 }) }}</h4>
+            <h4>{{ $t('game-qt', { no: 2 }) }}</h4>
           </span>
           <match-table
             :can-sub="canSub.q2"
@@ -53,7 +54,7 @@
           />
           <br>
           <span class="d-flex mb-2">
-            <h4>{{ $t('game-no', { no: 3 }) }}</h4>
+            <h4>{{ $t('game-qt', { no: 3 }) }}</h4>
           </span>
           <match-table
             :can-sub="canSub.q3"
@@ -72,7 +73,7 @@
           />
           <br>
           <span class="d-flex mb-2">
-            <h4>{{ $t('game-no', { no: 4 }) }}</h4>
+            <h4>{{ $t('game-qt', { no: 4 }) }}</h4>
           </span>
           <match-table
             :can-sub="canSub.q4"
@@ -91,7 +92,7 @@
           />
           <span v-if="matchState.qtr4.game4.home === 8 && matchState.qtr4.game4.guest === 8">
             <span class="d-flex mb-2 mt-6">
-              <h4>{{ `${$t('overtime')} - ${$t('team-doubles')} - ${$t('2-displays')}` }}</h4>
+              <h4>{{ `${$t('overtime')} - ${$t('team-doubles')} (${$t('1-team-1-display')})` }}</h4>
             </span>
             <overtime-table
               :can-sub="canSubOT"
@@ -114,6 +115,7 @@
           <span v-if="isLoggedIn">
             <v-btn
               color="success"
+              :disabled="!isMatchEndable"
               variant="flat"
               @click="handleEndMatchClick"
             >{{ $t('end-match') }}</v-btn>
@@ -290,6 +292,32 @@
     ...defaultOTPlayers,
   })
 
+  const isMatchEndable = computed((): boolean => {
+    if (!selectedMatchDetails?.value) {
+      return false
+    }
+    if (
+      +matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home !== 16 ||
+      isAnyLegNull()
+    ) {
+      return false
+    }
+    if (+matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home === 16 &&
+      +otLegs.value.game1.guest + +otLegs.value.game2.guest + +otLegs.value.game3.guest !== 2 &&
+      +otLegs.value.game1.home + +otLegs.value.game2.home + +otLegs.value.game3.home !== 2
+    ) {
+      return false
+    }
+    return true
+  })
+
+  const info = () => {
+    console.log(matchState.value)
+    const sum = +matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home
+    console.log('sum', sum)
+    console.log('otLegs', otLegs.value)
+  }
+
   const onGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
     handleGuestRosterUpdateQ1(newRoster)
     saveChanges()
@@ -401,17 +429,21 @@
   }
 
   const saveOvertime = async (updatedMatchDto: MatchUpdateDto) => {
+    console.log('save overtime')
     inProcess.value = true
+    initialLoadInProgress.value = true
     progressSnackbar('saving-changes')
     if (!fetchedMatchDetails?.value?.overtime) {
       const res = await createOvertime(updatedMatchDto)
       if (res) {
         await initiateData()
         inProcess.value = false
+        initialLoadInProgress.value = false
         successSnackbar('save-changes-success')
         return
       }
       inProcess.value = false
+      initialLoadInProgress.value = false
       failSnackbar('save-changes-fail')
       return
     }
@@ -419,10 +451,12 @@
     if (res) {
       await initiateData()
       inProcess.value = false
+      initialLoadInProgress.value = false
       successSnackbar('save-changes-success')
       return
     }
     inProcess.value = false
+    initialLoadInProgress.value = false
     failSnackbar('save-changes-fail')
   }
 
@@ -444,7 +478,6 @@
     snackbarText.value = i18n.t(i18nText).toString()
     snackbarTimeout.value = 3000
   }
-
   const handleEndMatchClick = (): void => {
     endMatchDialog.value = true
   }
@@ -659,6 +692,25 @@
       matchLegs.value.qtr4.game4.guest === null && matchLegs.value.qtr4.game4.home === null
   }
 
+  const isAnyLegNull = () => {
+    return matchLegs.value.qtr1.game1.guest === null || matchLegs.value.qtr1.game1.home === null ||
+      matchLegs.value.qtr1.game2.guest === null || matchLegs.value.qtr1.game2.home === null ||
+      matchLegs.value.qtr1.game3.guest === null || matchLegs.value.qtr1.game3.home === null ||
+      matchLegs.value.qtr1.game4.guest === null || matchLegs.value.qtr1.game4.home === null ||
+      matchLegs.value.qtr2.game1.guest === null || matchLegs.value.qtr2.game1.home === null ||
+      matchLegs.value.qtr2.game2.guest === null || matchLegs.value.qtr2.game2.home === null ||
+      matchLegs.value.qtr2.game3.guest === null || matchLegs.value.qtr2.game3.home === null ||
+      matchLegs.value.qtr2.game4.guest === null || matchLegs.value.qtr2.game4.home === null ||
+      matchLegs.value.qtr3.game1.guest === null || matchLegs.value.qtr3.game1.home === null ||
+      matchLegs.value.qtr3.game2.guest === null || matchLegs.value.qtr3.game2.home === null ||
+      matchLegs.value.qtr3.game3.guest === null || matchLegs.value.qtr3.game3.home === null ||
+      matchLegs.value.qtr3.game4.guest === null || matchLegs.value.qtr3.game4.home === null ||
+      matchLegs.value.qtr4.game1.guest === null || matchLegs.value.qtr4.game1.home === null ||
+      matchLegs.value.qtr4.game2.guest === null || matchLegs.value.qtr4.game2.home === null ||
+      matchLegs.value.qtr4.game3.guest === null || matchLegs.value.qtr4.game3.home === null ||
+      matchLegs.value.qtr4.game4.guest === null || matchLegs.value.qtr4.game4.home === null
+  }
+
   const isMatchGameSaveable = (game: NullableMatchGame): boolean => {
     return (game.guest !== null && game.home !== null) || (game.guest === null && game.home === null)
   }
@@ -681,6 +733,7 @@
       return
     }
     if (!initialLoadInProgress.value && isMatchLegsSaveable(matchLegs.value)) {
+      console.log('watch matchlegs')
       saveChanges()
     }
   }, { deep: true })

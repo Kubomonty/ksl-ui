@@ -47,7 +47,7 @@
           </tbody>
         </v-table>
         <br>
-        <h4>{{ `${$t('game-no')} 1` }}</h4>
+        <h4>{{ `${$t('game-qt')} 1` }}</h4>
         <v-table density="compact">
           <thead>
             <tr>
@@ -96,7 +96,7 @@
           </tbody>
         </v-table>
         <br>
-        <h4>{{ `${$t('game-no')} 2` }}</h4>
+        <h4>{{ `${$t('game-qt')} 2` }}</h4>
         <v-table density="compact">
           <thead>
             <tr>
@@ -145,7 +145,7 @@
           </tbody>
         </v-table>
         <br>
-        <h4>{{ `${$t('game-no')} 3` }}</h4>
+        <h4>{{ `${$t('game-qt')} 3` }}</h4>
         <v-table density="compact">
           <thead>
             <tr>
@@ -194,7 +194,7 @@
           </tbody>
         </v-table>
         <br>
-        <h4>{{ `${$t('game-no')} 4` }}</h4>
+        <h4>{{ `${$t('game-qt')} 4` }}</h4>
         <v-table density="compact">
           <thead>
             <tr>
