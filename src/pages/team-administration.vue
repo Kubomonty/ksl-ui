@@ -333,7 +333,6 @@
     }
     inProcess.value = true
     progressSnackbar('saving-changes')
-    console.log('players.value', players.value)
     const updateRes = await updateOrder(
       team.value!.id,
       players.value,

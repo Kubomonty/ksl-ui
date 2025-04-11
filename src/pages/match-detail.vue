@@ -10,7 +10,6 @@
         <v-skeleton-loader type="heading" />
       </span>
       <span v-else>
-        <v-btn @click="info">info</v-btn>
         <v-card-title>{{ `${ homeTeam?.teamName} vs. ${guestTeam?.teamName}` }}</v-card-title>
         <v-card-subtitle>{{ `${selectedMatchDetails?.matchLocation} - ${formattedMatchDateTime}` }}</v-card-subtitle>
         <v-card-text>
@@ -311,13 +310,6 @@
     return true
   })
 
-  const info = () => {
-    console.log(matchState.value)
-    const sum = +matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home
-    console.log('sum', sum)
-    console.log('otLegs', otLegs.value)
-  }
-
   const onGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
     handleGuestRosterUpdateQ1(newRoster)
     saveChanges()
@@ -429,7 +421,6 @@
   }
 
   const saveOvertime = async (updatedMatchDto: MatchUpdateDto) => {
-    console.log('save overtime')
     inProcess.value = true
     initialLoadInProgress.value = true
     progressSnackbar('saving-changes')
@@ -733,7 +724,6 @@
       return
     }
     if (!initialLoadInProgress.value && isMatchLegsSaveable(matchLegs.value)) {
-      console.log('watch matchlegs')
       saveChanges()
     }
   }, { deep: true })
