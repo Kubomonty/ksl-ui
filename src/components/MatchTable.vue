@@ -107,7 +107,7 @@
               <v-select
                 v-model="hLegs[index]"
                 class="pl-2 pb-2"
-                clearable
+                :clearable="isLoggedIn && isAlive"
                 density="compact"
                 hide-details
                 :items="hLegItems[index]"
@@ -131,7 +131,7 @@
               <v-select
                 v-model="gLegs[index]"
                 class="pl-2 pb-2"
-                clearable
+                :clearable="isLoggedIn && isAlive"
                 density="compact"
                 hide-details
                 :items="gLegItems[index]"
