@@ -31,6 +31,7 @@
                 backgroundColor: canSubstitute.home ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
                 color: canSubstitute.home ? 'black' : 'darkslategray',
+                width: 'max-content',
               }"
             >
               <v-select
@@ -72,6 +73,7 @@
                 backgroundColor: canSubstitute.guest ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
                 color: canSubstitute.guest ? 'black' : 'darkslategray',
+                width: 'max-content',
               }"
             >
               <v-select
@@ -102,6 +104,7 @@
                 backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
                 color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                width: 'max-content',
               }"
             >
               <v-select
@@ -126,6 +129,7 @@
                 backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
                 color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                width: 'max-content',
               }"
             >
               <v-select
