@@ -126,24 +126,24 @@
     if (isAdmin.value) {
       return [
         { title: i18n.t('results-overview'), to: '/' },
-        { title: i18n.t('match-list'), to: '/match-list' },
+        { title: i18n.t('matches'), to: '/match-list' },
         { title: i18n.t('new-match'), to: '/new-match' },
-        { title: i18n.t('team-list'), to: '/team-list' },
+        { title: i18n.t('teams'), to: '/team-list' },
         { title: i18n.t('admin-section'), to: '/admin-section' },
       ]
     } else if (isUser.value) {
       return [
         { title: i18n.t('results-overview'), to: '/' },
-        { title: i18n.t('match-list'), to: '/match-list' },
-        { title: i18n.t('team-list'), to: '/team-list' },
+        { title: i18n.t('matches'), to: '/match-list' },
+        { title: i18n.t('teams'), to: '/team-list' },
         { title: i18n.t('new-match'), to: '/new-match' },
         { title: i18n.t('my-team'), to: `/team-administration?id=${loggedInUser?.value?.id}` },
       ]
     } else {
       return [
         { title: i18n.t('results-overview'), to: '/' },
-        { title: i18n.t('match-list'), to: '/match-list' },
-        { title: i18n.t('team-list'), to: '/team-list' },
+        { title: i18n.t('matches'), to: '/match-list' },
+        { title: i18n.t('teams'), to: '/team-list' },
       ]
     }
   })

@@ -1,6 +1,6 @@
 <template>
   <v-card flat>
-    <v-card-title class="my-3">{{ $t('team-list') }}</v-card-title>
+    <v-card-title class="my-3">{{ $t('teams') }}</v-card-title>
     <v-card-text>
       <span v-if="loading">
         <v-skeleton-loader type="heading" />
