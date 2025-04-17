@@ -290,7 +290,6 @@
   }> = ref({
     ...defaultOTPlayers,
   })
-
   const isMatchEndable = computed((): boolean => {
     if (!selectedMatchDetails?.value) {
       return false
@@ -302,6 +301,7 @@
       return false
     }
     if (+matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home === 16 &&
+      +matchState.value.qtr4.game4.guest === +matchState.value.qtr4.game4.home &&
       +otLegs.value.game1.guest + +otLegs.value.game2.guest + +otLegs.value.game3.guest !== 2 &&
       +otLegs.value.game1.home + +otLegs.value.game2.home + +otLegs.value.game3.home !== 2
     ) {
