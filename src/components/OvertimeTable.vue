@@ -707,11 +707,117 @@
     emits('update:match-legs', gameLegs.value)
   }, { deep: true })
 
-  watch(currentGuestTeamPlayers.value, () => {
+  watch(currentGuestTeamPlayers, () => {
+    if (
+      currentGuestTeamPlayers.value[0].player?.id &&
+      currentGuestTeamPlayers.value[1].player?.id &&
+      !currentGuestTeamPlayers.value[2].player?.id &&
+      !currentGuestTeamPlayers.value[3].player?.id &&
+      guestTeamPlayers.value[0].id &&
+      guestTeamPlayers.value[1].id
+    ) {
+      const player3 = {
+        player: guestTeamPlayers.value[0],
+        position: 'H3',
+      }
+      const player4 = {
+        player: guestTeamPlayers.value[1],
+        position: 'H4',
+      }
+      currentGuestTeamPlayers.value = [
+        { ...currentGuestTeamPlayers.value[0] },
+        { ...currentGuestTeamPlayers.value[1] },
+        // @ts-ignore
+        player3,
+        // @ts-ignore
+        player4,
+        { ...currentGuestTeamPlayers.value[4] },
+        { ...currentGuestTeamPlayers.value[5] },
+      ]
+    } else if (
+      !currentGuestTeamPlayers.value[0].player?.id &&
+      !currentGuestTeamPlayers.value[1].player?.id &&
+      currentGuestTeamPlayers.value[2].player?.id &&
+      currentGuestTeamPlayers.value[3].player?.id &&
+      guestTeamPlayers.value[0].id &&
+      guestTeamPlayers.value[1].id
+    ) {
+      const player1 = {
+        player: guestTeamPlayers.value[0],
+        position: 'H2',
+      }
+      const player2 = {
+        player: guestTeamPlayers.value[1],
+        position: 'H2',
+      }
+      currentGuestTeamPlayers.value = [
+        // @ts-ignore
+        player1,
+        // @ts-ignore
+        player2,
+        { ...currentGuestTeamPlayers.value[2] },
+        { ...currentGuestTeamPlayers.value[3] },
+        { ...currentGuestTeamPlayers.value[4] },
+        { ...currentGuestTeamPlayers.value[5] },
+      ]
+    }
     emits('update:roster-guest', currentGuestTeamPlayers.value)
   }, { deep: true })
 
-  watch(currentHomeTeamPlayers.value, () => {
+  watch(currentHomeTeamPlayers, () => {
+    if (
+      currentHomeTeamPlayers.value[0].player?.id &&
+      currentHomeTeamPlayers.value[1].player?.id &&
+      !currentHomeTeamPlayers.value[2].player?.id &&
+      !currentHomeTeamPlayers.value[3].player?.id &&
+      homeTeamPlayers.value[0].id &&
+      homeTeamPlayers.value[1].id
+    ) {
+      const player3 = {
+        player: homeTeamPlayers.value[0],
+        position: 'H3',
+      }
+      const player4 = {
+        player: homeTeamPlayers.value[1],
+        position: 'H4',
+      }
+      currentHomeTeamPlayers.value = [
+        { ...currentHomeTeamPlayers.value[0] },
+        { ...currentHomeTeamPlayers.value[1] },
+        // @ts-ignore
+        player3,
+        // @ts-ignore
+        player4,
+        { ...currentHomeTeamPlayers.value[4] },
+        { ...currentHomeTeamPlayers.value[5] },
+      ]
+    } else if (
+      !currentHomeTeamPlayers.value[0].player?.id &&
+      !currentHomeTeamPlayers.value[1].player?.id &&
+      currentHomeTeamPlayers.value[2].player?.id &&
+      currentHomeTeamPlayers.value[3].player?.id &&
+      homeTeamPlayers.value[0].id &&
+      homeTeamPlayers.value[1].id
+    ) {
+      const player1 = {
+        player: homeTeamPlayers.value[0],
+        position: 'H2',
+      }
+      const player2 = {
+        player: homeTeamPlayers.value[1],
+        position: 'H2',
+      }
+      currentHomeTeamPlayers.value = [
+        // @ts-ignore
+        player1,
+        // @ts-ignore
+        player2,
+        { ...currentHomeTeamPlayers.value[2] },
+        { ...currentHomeTeamPlayers.value[3] },
+        { ...currentHomeTeamPlayers.value[4] },
+        { ...currentHomeTeamPlayers.value[5] },
+      ]
+    }
     emits('update:roster-home', currentHomeTeamPlayers.value)
   }, { deep: true })
 </script>
