@@ -130,7 +130,7 @@
           snackbar.value = true
           dialog.value = false
           inProcess.value = false
-        } else {
+        } else if (res.data.length === 1) {
           snackbarColor.value = 'success'
           snackbarText.value = i18n.t('reset-password-success')
           snackbarTimeout.value = 3000
@@ -138,6 +138,13 @@
           await sleep(1000)
           inProcess.value = false
           router.push('/')
+        } else {
+          snackbarColor.value = 'error'
+          snackbarText.value = i18n.t('reset-password-no-accounts')
+          snackbarTimeout.value = 3000
+          snackbar.value = true
+          dialog.value = false
+          inProcess.value = false
         }
       } else {
         res = await axios.post(`${import.meta.env.VITE_KSL_API_URL}/auth/request-password-reset`, {
