@@ -14,7 +14,7 @@
         v-else
         class="text-overflow"
         :class="xs ? 'text-subtitle-2' : ''"
-      >{{ $t('k-s-l') }}&nbsp;{{ $t('el-darts') }}
+      >{{ $t('dev-server-warning') }}&nbsp;&ndash;&nbsp;{{ $t('k-s-l') }}&nbsp;{{ $t('el-darts') }}
       </v-app-bar-title>
     </v-app-bar>
 

@@ -49,7 +49,7 @@ const messages = {
     'creating-team-fail': 'Creating team failed',
     cricket: 'Cricket',
     'date-and-time-of-match': 'Date and time of the match',
-    'dev-server-warning': 'This page is in development mode, data is not valid;',
+    'dev-server-warning': 'This page is in development mode, data is not valid',
     'edit-player': 'Edit player',
     'edited-players': 'Edited players',
     'el-darts': '- el. darts',
