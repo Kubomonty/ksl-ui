@@ -215,7 +215,7 @@ const messages = {
     'creating-team-fail': 'Vytvorenie tímu zlyhalo',
     cricket: 'Cricket',
     'date-and-time-of-match': 'Dátum a čas zápasu',
-    'dev-server-warning': 'Táto stránka slúži pre vývoj aplikácie, data nie sú aktuálne;',
+    'dev-server-warning': 'Táto stránka slúži pre vývoj aplikácie, data nie sú aktuálne',
     'edit-player': 'Upraviť hráča',
     'edited-players': 'Upravení hráči',
     'el-darts': 'v el. šípkach',
