@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar
-      color="danger"
+      color="error"
       density="compact"
       flat
     >
