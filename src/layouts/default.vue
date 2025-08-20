@@ -1,14 +1,14 @@
 <template>
   <v-app>
     <v-app-bar
-      color="primary"
+      color="danger"
       density="compact"
       flat
     >
       <v-app-bar-nav-icon variant="text" @click.stop="onNavBarIconClick" />
       <v-app-bar-title
         v-if="isLoggedIn"
-      >{{ loggedInUser?.teamName || `${loggedInUser?.username} - ${loggedInUser?.userEmail}` }}
+      >{{ $t('dev-server-warning') }}&nbsp;&ndash;&nbsp;{{ loggedInUser?.teamName || `${loggedInUser?.username} - ${loggedInUser?.userEmail}` }}
       </v-app-bar-title>
       <v-app-bar-title
         v-else
