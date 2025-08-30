@@ -91,7 +91,7 @@
           />
           <span v-if="matchState.qtr4.game4.home === 8 && matchState.qtr4.game4.guest === 8">
             <span class="d-flex mb-2 mt-6">
-              <h4>{{ `${$t('overtime')} - ${$t('team-doubles')} (${$t('1-team-1-display')})` }}</h4>
+              <h4>{{ `${$t('overtime')} - ${$t('team-doubles')} (${$t('1-team-2-displays')})` }}</h4>
             </span>
             <overtime-table
               :can-sub="canSubOT"

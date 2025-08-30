@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n'
 
 const messages = {
   en: {
-    '1-team-1-display': '1 team - 1 display',
+    '1-team-2-displays': '1 team - 2 displays',
     '501-do': '501 D.O.',
     'add-season': 'Add season',
     'account-administration': 'Account administration',
@@ -167,7 +167,7 @@ const messages = {
     'you-need-to-login': 'You need to login to perform this action',
   },
   sk: {
-    '1-team-1-display': '1 tím - 1 displej',
+    '1-team-2-displays': '1 tím - 2 displeje',
     '501-do': '501 D.O.',
     'add-season': 'Pridať sezónu',
     'account-administration': 'Správa účtu',
