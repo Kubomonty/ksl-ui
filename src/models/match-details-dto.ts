@@ -157,10 +157,10 @@ export interface MatchDetailsDto {
   };
   overtime?: {
     guest: {
-      pos1: string;
-      pos2: string;
-      pos3: string;
-      pos4: string;
+      pos1?: string | null;
+      pos2?: string | null;
+      pos3?: string | null;
+      pos4?: string | null;
       pos5?: string | null;
       pos6?: string | null;
       legs: {
@@ -171,10 +171,10 @@ export interface MatchDetailsDto {
       score: number;
     };
     home: {
-      pos1: string;
-      pos2: string;
-      pos3: string;
-      pos4: string;
+      pos1?: string | null;
+      pos2?: string | null;
+      pos3?: string | null;
+      pos4?: string | null;
       pos5?: string | null;
       pos6?: string | null;
       legs: {
