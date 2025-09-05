@@ -103,11 +103,12 @@
               :ot-legs="otLegs"
               :selected-guest-players="selectedOTPlayers.guest"
               :selected-home-players="selectedOTPlayers.home"
-              @update:match-legs="onOTgameLegsUpdate"
-              @update:roster-guest="onOTGuestRosterUpdate"
-              @update:roster-home="onOTHomeRosterUpdate"
+              @update:guest-roster="recalculateGuestOT3"
+              @update:home-roster="recalculateHomeOT3"
+              @update:status="(status: unknown) => onOTUpdateStatus(status)"
             />
           </span>
+          <pre>{{ oTPlayersSelected }}</pre>
         </v-card-text>
         <v-card-actions v-if="isMatchAlive">
           <v-spacer />
@@ -344,83 +345,106 @@
     saveChanges()
   }
 
-  const onOTgameLegsUpdate = (legs: { game1: MatchGame, game2: MatchGame, game3: MatchGame }) => {
-    handleOTgameLegsUpdate(legs)
+  const onOTUpdateStatus = async (status: any) => {
+    const guestPlayer1 = guestTeamPlayers.value.q4.find(player => player.player?.id === status.status.currentGuestTeamPlayers[0]?.playerId)
+    const guestPlayer2 = guestTeamPlayers.value.q4.find(player => player.player?.id === status.status.currentGuestTeamPlayers[1]?.playerId)
+    const homePlayer1 = homeTeamPlayers.value.q4.find(player => player.player?.id === status.status.currentHomeTeamPlayers[0]?.playerId)
+    const homePlayer2 = homeTeamPlayers.value.q4.find(player => player.player?.id === status.status.currentHomeTeamPlayers[1]?.playerId)
+    let firstPosition: number
+    switch (status.game) {
+      case 'game1':
+        firstPosition = 0
+        break
+      case 'game2':
+        firstPosition = 2
+        break
+      case 'game3':
+        firstPosition = 4
+        break
+      default:
+        firstPosition = 0
+    }
+    selectedOTPlayers.value.guest[firstPosition] = { player: guestPlayer1?.player, position: `G${firstPosition + 1}` }
+    selectedOTPlayers.value.guest[firstPosition + 1] = { player: guestPlayer2?.player, position: `G${firstPosition + 2}` }
+    selectedOTPlayers.value.home[firstPosition] = { player: homePlayer1?.player, position: `H${firstPosition + 1}` }
+    selectedOTPlayers.value.home[firstPosition + 1] = { player: homePlayer2?.player, position: `H${firstPosition + 2}` }
+
+    otLegs.value[status.game as keyof typeof otLegs.value] = status.status.gameLegs
+
+    const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value, otLegs.value, selectedOTPlayers.value)
+    if (updatedMatchDto && !initialLoadInProgress.value) {
+      await nextTick()
+      saveOvertime(updatedMatchDto)
+    }
   }
-  const handleOTgameLegsUpdate = (legs: { game1: MatchGame, game2: MatchGame, game3: MatchGame }): void => {
+  const recalculateGuestOT3 = () => {
+    recalculateOT3Players()
+  }
+  const recalculateHomeOT3 = () => {
+    recalculateOT3Players()
+  }
+
+  const recalculateOT3Players = () => {
     if (
-      selectedOTPlayers.value.guest.find(p => p.position === 'G1' && p.player?.id) &&
-      selectedOTPlayers.value.guest.find(p => p.position === 'G2' && p.player?.id) &&
-      selectedOTPlayers.value.guest.find(p => p.position === 'G3' && p.player?.id) &&
-      selectedOTPlayers.value.guest.find(p => p.position === 'G4' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H1' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H2' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H3' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H4' && p.player?.id)
+      (
+        homeTeamPlayers.value.q4.filter(filterPlayer => filterPlayer?.player?.id).length >= 4 &&
+        selectedOTPlayers.value.home.filter(filterPlayer => filterPlayer?.player?.id && !['H5', 'H6'].includes(filterPlayer.position)).length < 4
+      ) ||
+      (
+        homeTeamPlayers.value.q4.filter(filterPlayer => filterPlayer?.player?.id).length === 3 &&
+        selectedOTPlayers.value.home.filter(filterPlayer => filterPlayer?.player?.id && !['H5', 'H6'].includes(filterPlayer.position)).length < 3
+      ) ||
+      (
+        guestTeamPlayers.value.q4.filter(filterPlayer => filterPlayer?.player?.id).length >= 4 &&
+        selectedOTPlayers.value.guest.filter(filterPlayer => filterPlayer?.player?.id && !['G5', 'G6'].includes(filterPlayer.position)).length < 4
+      ) ||
+      (
+        guestTeamPlayers.value.q4.filter(filterPlayer => filterPlayer?.player?.id).length === 3 &&
+        selectedOTPlayers.value.guest.filter(filterPlayer => filterPlayer?.player?.id && !['G5', 'G6'].includes(filterPlayer.position)).length < 3
+      )
     ) {
-      if (+legs.game2.home === 1 && +legs.game1.guest === 1) {
-        selectedOTPlayers.value.guest[4] = { ...selectedOTPlayers.value.guest[0], position: 'G5' }
-        selectedOTPlayers.value.guest[5] = { ...selectedOTPlayers.value.guest[1], position: 'G6' }
-        selectedOTPlayers.value.home[4] = { ...selectedOTPlayers.value.home[2], position: 'H5' }
-        selectedOTPlayers.value.home[5] = { ...selectedOTPlayers.value.home[3], position: 'H6' }
-      } else if (+legs.game2.guest === 1 && +legs.game1.home === 1) {
-        selectedOTPlayers.value.guest[4] = { ...selectedOTPlayers.value.guest[2], position: 'G5' }
-        selectedOTPlayers.value.guest[5] = { ...selectedOTPlayers.value.guest[3], position: 'G6' }
-        selectedOTPlayers.value.home[4] = { ...selectedOTPlayers.value.home[0], position: 'H5' }
-        selectedOTPlayers.value.home[5] = { ...selectedOTPlayers.value.home[1], position: 'H6' }
-      }
-      const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value, legs, selectedOTPlayers.value)
-      if (updatedMatchDto && !initialLoadInProgress.value) {
-        saveOvertime(updatedMatchDto)
-      }
+      selectedOTPlayers.value.guest[4] = { player: null, position: 'G5' }
+      selectedOTPlayers.value.guest[5] = { player: null, position: 'G6' }
+      selectedOTPlayers.value.home[4] = { player: null, position: 'H5' }
+      selectedOTPlayers.value.home[5] = { player: null, position: 'H6' }
+
+      return
+    }
+    if (+otLegs.value.game2.home === 1 && +otLegs.value.game1.guest === 1) {
+      selectedOTPlayers.value.guest[4] = { ...selectedOTPlayers.value.guest[0], position: 'G5' }
+      selectedOTPlayers.value.guest[5] = { ...selectedOTPlayers.value.guest[1], position: 'G6' }
+      selectedOTPlayers.value.home[4] = { ...selectedOTPlayers.value.home[2], position: 'H5' }
+      selectedOTPlayers.value.home[5] = { ...selectedOTPlayers.value.home[3], position: 'H6' }
+    } else if (+otLegs.value.game2.guest === 1 && +otLegs.value.game1.home === 1) {
+      selectedOTPlayers.value.guest[4] = { ...selectedOTPlayers.value.guest[2], position: 'G5' }
+      selectedOTPlayers.value.guest[5] = { ...selectedOTPlayers.value.guest[3], position: 'G6' }
+      selectedOTPlayers.value.home[4] = { ...selectedOTPlayers.value.home[0], position: 'H5' }
+      selectedOTPlayers.value.home[5] = { ...selectedOTPlayers.value.home[1], position: 'H6' }
     }
   }
 
-  const onOTGuestRosterUpdate = (newRoster: PlayersSubstitutionDto[]) => {
-    handleOTGuestRosterUpdate(newRoster)
-  }
-  const handleOTGuestRosterUpdate = (newRoster: PlayersSubstitutionDto[]): void => {
-    selectedOTPlayers.value.guest = newRoster.map((r, i) => ({ player: r.player, position: `G${i + 1}` }))
-    if (
-      newRoster.find(p => p.position === 'G1' && p.player?.id) &&
-      newRoster.find(p => p.position === 'G2' && p.player?.id) &&
-      newRoster.find(p => p.position === 'G3' && p.player?.id) &&
-      newRoster.find(p => p.position === 'G4' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H1' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H2' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H3' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'H4' && p.player?.id)
-    ) {
-      const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value, otLegs.value, selectedOTPlayers.value)
-      if (updatedMatchDto && !initialLoadInProgress.value) {
-        saveOvertime(updatedMatchDto)
-      }
+  const oTPlayersSelected = computed(() => {
+    if (guestTeamPlayers.value.q4.filter(player => player.player?.id).length === 3 && selectedOTPlayers.value.guest.filter(player => player.player?.id).length < 3) {
+      return false
     }
-  }
+    if (guestTeamPlayers.value.q4.filter(player => player.player?.id).length >= 4 && selectedOTPlayers.value.guest.filter(player => player.player?.id).length < 4) {
+      return false
+    }
 
-  const onOTHomeRosterUpdate = (newRoster: PlayersSubstitutionDto[]) => {
-    handleOTHomeRosterUpdate(newRoster)
-  }
-  const handleOTHomeRosterUpdate = (newRoster: PlayersSubstitutionDto[]): void => {
-    selectedOTPlayers.value.home = newRoster.map((r, i) => ({ player: r.player, position: `H${i + 1}` }))
-    if (
-      selectedOTPlayers.value.home.find(p => p.position === 'G1' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'G2' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'G3' && p.player?.id) &&
-      selectedOTPlayers.value.home.find(p => p.position === 'G4' && p.player?.id) &&
-      newRoster.find(p => p.position === 'H1' && p.player?.id) &&
-      newRoster.find(p => p.position === 'H2' && p.player?.id) &&
-      newRoster.find(p => p.position === 'H3' && p.player?.id) &&
-      newRoster.find(p => p.position === 'H4' && p.player?.id)
-    ) {
-      const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value, otLegs.value, selectedOTPlayers.value)
-      if (updatedMatchDto && !initialLoadInProgress.value) {
-        saveOvertime(updatedMatchDto)
-      }
+    if (homeTeamPlayers.value.q4.filter(player => player.player?.id).length === 3 && selectedOTPlayers.value.home.filter(player => player.player?.id).length < 3) {
+      return false
     }
-  }
+    if (homeTeamPlayers.value.q4.filter(player => player.player?.id).length >= 4 && selectedOTPlayers.value.home.filter(player => player.player?.id).length < 4) {
+      return false
+    }
+
+    return true
+  })
 
   const saveOvertime = async (updatedMatchDto: MatchUpdateDto) => {
+    if (!oTPlayersSelected.value) {
+      return
+    }
     inProcess.value = true
     initialLoadInProgress.value = true
     progressSnackbar('saving-changes')
@@ -725,6 +749,19 @@
     }
     if (!initialLoadInProgress.value && isMatchLegsSaveable(matchLegs.value)) {
       saveChanges()
+    }
+  }, { deep: true })
+
+  watch(otLegs, () => {
+    if (isLegsNull()) {
+      return
+    }
+    recalculateOT3Players()
+    if (!initialLoadInProgress.value && isMatchLegsSaveable(matchLegs.value)) {
+      const updatedMatchDto = getMatchUpdateDto(matchLegs.value, matchState.value, otLegs.value, selectedOTPlayers.value)
+      if (updatedMatchDto) {
+        saveOvertime(updatedMatchDto)
+      }
     }
   }, { deep: true })
 
