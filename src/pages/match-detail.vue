@@ -108,7 +108,6 @@
               @update:status="(status: unknown) => onOTUpdateStatus(status)"
             />
           </span>
-          <pre>{{ oTPlayersSelected }}</pre>
         </v-card-text>
         <v-card-actions v-if="isMatchAlive">
           <v-spacer />
@@ -295,9 +294,13 @@
     if (!selectedMatchDetails?.value) {
       return false
     }
+    if (isAnyLegNull()) {
+      return false
+    }
     if (
-      +matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home !== 16 ||
-      isAnyLegNull()
+      !isAnyGuestPlayerNull.value &&
+      !isAnyHomePlayerNull.value &&
+      +matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home !== 16
     ) {
       return false
     }
@@ -308,7 +311,24 @@
     ) {
       return false
     }
+    if (
+      isAnyGuestPlayerNull.value &&
+      isAnyHomePlayerNull.value &&
+      +matchState.value.qtr4.game4.guest + +matchState.value.qtr4.game4.home !== 15
+    ) {
+      return false
+    }
     return true
+  })
+
+  const isAnyGuestPlayerNull = computed((): boolean => {
+    const players = guestTeamPlayers.value.q1.slice(0, 4)
+    return players.some(player => !player.player?.id) || players.length !== 4
+  })
+
+  const isAnyHomePlayerNull = computed((): boolean => {
+    const players = homeTeamPlayers.value.q1.slice(0, 4)
+    return players.some(player => !player.player?.id) || players.length !== 4
   })
 
   const onGuestRosterUpdateQ1 = (newRoster: PlayersSubstitutionDto[]) => {
