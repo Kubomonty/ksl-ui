@@ -263,7 +263,7 @@
         >{{ $t('create-match') }}</v-btn>
       </v-card-actions>
     </v-container>
-    <v-dialog v-model="dialog" @keydown.enter="handleMatchCreation">
+    <v-dialog v-model="dialog" persistent @keydown.enter="handleMatchCreation">
       <v-card>
         <v-card-title>{{ $t('consent') }}</v-card-title>
         <v-card-text>
@@ -284,18 +284,35 @@
         <v-card-actions class="mb-3 mr-3">
           <v-btn
             color="warning"
+            :disabled="createRunning"
             variant="flat"
             @click="dialog = false"
           >{{ $t('cancel') }}</v-btn>
           <v-btn
             color="primary"
-            :disabled="!confirmHomeCaptain || !confirmGuestCaptain"
+            :disabled="!confirmHomeCaptain || !confirmGuestCaptain || createRunning"
             variant="flat"
             @click="handleMatchCreation"
           >{{ $t('ok') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      :timeout="snackbarTimeout"
+    >
+      {{ snackbarText }}
+      <template #actions>
+        <v-btn
+          color="white"
+          density="compact"
+          icon="mdi-close"
+          variant="text"
+          @click="snackbar = false"
+        />
+      </template>
+    </v-snackbar>
   </v-card>
 </template>
 
@@ -305,8 +322,10 @@
   import { computed } from 'vue'
   import { format } from 'date-fns'
   import { storeToRefs } from 'pinia'
+  import { useI18n } from 'vue-i18n'
 
   const router = useRouter()
+  const i18n = useI18n()
 
   const matchStore = useMatchStore()
   const { newMatch } = storeToRefs(matchStore)
@@ -318,6 +337,13 @@
   const dialog: Ref<boolean> = ref(false)
   const confirmGuestCaptain: Ref<boolean> = ref(false)
   const confirmHomeCaptain: Ref<boolean> = ref(false)
+
+  const createRunning = ref(false)
+
+  const snackbar = ref(false)
+  const snackbarColor = ref('')
+  const snackbarText = ref('')
+  const snackbarTimeout = ref(-1)
 
   const getPlayer = (team: TeamDto | undefined | null, playerId: string | undefined): PlayerDto | null => {
     if (!team || !playerId) {
@@ -456,7 +482,19 @@
     if (!confirmGuestCaptain.value || !confirmHomeCaptain.value) {
       return
     }
+    createRunning.value = true
+    snackbarColor.value = 'primary'
+    snackbarText.value = i18n.t('creating-match')
+    snackbarTimeout.value = -1
+    snackbar.value = true
     const newMatch = await createMatch()
+    if (!newMatch) {
+      snackbarColor.value = 'error'
+      snackbarText.value = i18n.t('creating-match-fail')
+      snackbarTimeout.value = 5000
+      createRunning.value = false
+      return
+    }
     router.push(`/match-detail?id=${newMatch.matchId}`)
   }
 
