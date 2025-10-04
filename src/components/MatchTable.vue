@@ -99,23 +99,23 @@
           <div class="d-flex">
             <div
               class="my-2"
-              :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
+              :class="{ 'not-allowed': !isLoggedIn || !isAlive || isGhostPlayer(match) }"
               :style="{
-                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive && !isGhostPlayer(match) ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive && !isGhostPlayer(match) ? 'black' : 'darkslategray',
                 width: 'max-content',
               }"
             >
               <v-select
                 v-model="hLegs[index]"
                 class="pl-2 pb-2"
-                :clearable="isLoggedIn && isAlive"
+                :clearable="isLoggedIn && isAlive && !isGhostPlayer(match)"
                 density="compact"
                 hide-details
                 :items="hLegItems[index]"
-                :readonly="!isLoggedIn || !isAlive"
-                style="width: max-content;"
+                :readonly="!isLoggedIn || !isAlive || isGhostPlayer(match)"
+                style="min-width: 86px; width: max-content;"
                 variant="plain"
               />
             </div>
@@ -124,23 +124,23 @@
             &nbsp;
             <div
               class="my-2"
-              :class="{ 'not-allowed': !isLoggedIn || !isAlive }"
+              :class="{ 'not-allowed': !isLoggedIn || !isAlive || isGhostPlayer(match) }"
               :style="{
-                backgroundColor: isLoggedIn && isAlive ? '#f5f5f5' : 'white',
+                backgroundColor: isLoggedIn && isAlive && !isGhostPlayer(match) ? '#f5f5f5' : 'white',
                 borderRadius: '5px',
-                color: isLoggedIn && isAlive ? 'black' : 'darkslategray',
+                color: isLoggedIn && isAlive && !isGhostPlayer(match) ? 'black' : 'darkslategray',
                 width: 'max-content',
               }"
             >
               <v-select
                 v-model="gLegs[index]"
                 class="pl-2 pb-2"
-                :clearable="isLoggedIn && isAlive"
+                :clearable="isLoggedIn && isAlive && !isGhostPlayer(match)"
                 density="compact"
                 hide-details
                 :items="gLegItems[index]"
-                :readonly="!isLoggedIn || !isAlive"
-                style="width: max-content;"
+                :readonly="!isLoggedIn || !isAlive || isGhostPlayer(match)"
+                style="min-width: 86px; width: max-content;"
                 variant="plain"
               />
             </div>
@@ -161,6 +161,7 @@
   import { MatchLegs, MatchQuarter, NullableMatchQuarter, PlayerDto } from '../models'
   import { getMatchLegsTotals, getSubstititionSum } from '../utils'
   import { MATCH_OPPONENTS_STRUCTURE, MAX_SUBSTITUTIONS_COUNT } from '../constants'
+  import { MatchType } from '../enums'
   import { storeToRefs } from 'pinia'
   import { useAuthStore } from '../stores'
 
@@ -219,27 +220,82 @@
     }
   })
 
-  const currentMatch = MATCH_OPPONENTS_STRUCTURE[props.qtr - 1]
-  const previousHomeTeamPlayers = ref([
-    { position: 'H1', player: props.homePlayers.filter(player => player.position === 'H1')[0]?.player },
-    { position: 'H2', player: props.homePlayers.filter(player => player.position === 'H2')[0]?.player },
-    { position: 'H3', player: props.homePlayers.filter(player => player.position === 'H3')[0]?.player },
-    { position: 'H4', player: props.homePlayers.filter(player => player.position === 'H4')[0]?.player },
-    { position: 'H5', player: props.homePlayers.filter(player => player.position === 'H5')[0]?.player },
-    { position: 'H6', player: props.homePlayers.filter(player => player.position === 'H6')[0]?.player },
-    { position: 'H7', player: props.homePlayers.filter(player => player.position === 'H7')[0]?.player },
-    { position: 'H8', player: props.homePlayers.filter(player => player.position === 'H8')[0]?.player },
-  ])
-  const currentHomeTeamPlayers = ref([
-    { position: 'H1', player: props.homePlayers.filter(player => player.position === 'H1')[0]?.player },
-    { position: 'H2', player: props.homePlayers.filter(player => player.position === 'H2')[0]?.player },
-    { position: 'H3', player: props.homePlayers.filter(player => player.position === 'H3')[0]?.player },
-    { position: 'H4', player: props.homePlayers.filter(player => player.position === 'H4')[0]?.player },
-    { position: 'H5', player: props.homePlayers.filter(player => player.position === 'H5')[0]?.player },
-    { position: 'H6', player: props.homePlayers.filter(player => player.position === 'H6')[0]?.player },
-    { position: 'H7', player: props.homePlayers.filter(player => player.position === 'H7')[0]?.player },
-    { position: 'H8', player: props.homePlayers.filter(player => player.position === 'H8')[0]?.player },
-  ])
+  const currentMatch: {
+    guest: number;
+    home: number;
+    type: MatchType;
+  }[] = []
+  const previousHomeTeamPlayers = ref<{ position: string; player: PlayerDto | null | undefined }[]>([])
+  const previousGuestTeamPlayers = ref<{ position: string; player: PlayerDto | null | undefined }[]>([])
+  const currentHomeTeamPlayers = ref<{ position: string; player: PlayerDto | null | undefined }[]>([])
+  const currentGuestTeamPlayers = ref<{ position: string; player: PlayerDto | null | undefined }[]>([])
+  const hLegs = ref<(number | null)[]>([])
+  const gLegs = ref<(number | null)[]>([])
+
+  const initialDataLoad = (): void => {
+    currentMatch.push(...MATCH_OPPONENTS_STRUCTURE[props.qtr - 1])
+    previousHomeTeamPlayers.value = [
+      { position: 'H1', player: props.homePlayers.filter(player => player.position === 'H1')[0]?.player },
+      { position: 'H2', player: props.homePlayers.filter(player => player.position === 'H2')[0]?.player },
+      { position: 'H3', player: props.homePlayers.filter(player => player.position === 'H3')[0]?.player },
+      { position: 'H4', player: props.homePlayers.filter(player => player.position === 'H4')[0]?.player },
+      { position: 'H5', player: props.homePlayers.filter(player => player.position === 'H5')[0]?.player },
+      { position: 'H6', player: props.homePlayers.filter(player => player.position === 'H6')[0]?.player },
+      { position: 'H7', player: props.homePlayers.filter(player => player.position === 'H7')[0]?.player },
+      { position: 'H8', player: props.homePlayers.filter(player => player.position === 'H8')[0]?.player },
+    ]
+    currentHomeTeamPlayers.value = [
+      { position: 'H1', player: props.homePlayers.filter(player => player.position === 'H1')[0]?.player },
+      { position: 'H2', player: props.homePlayers.filter(player => player.position === 'H2')[0]?.player },
+      { position: 'H3', player: props.homePlayers.filter(player => player.position === 'H3')[0]?.player },
+      { position: 'H4', player: props.homePlayers.filter(player => player.position === 'H4')[0]?.player },
+      { position: 'H5', player: props.homePlayers.filter(player => player.position === 'H5')[0]?.player },
+      { position: 'H6', player: props.homePlayers.filter(player => player.position === 'H6')[0]?.player },
+      { position: 'H7', player: props.homePlayers.filter(player => player.position === 'H7')[0]?.player },
+      { position: 'H8', player: props.homePlayers.filter(player => player.position === 'H8')[0]?.player },
+    ]
+    previousGuestTeamPlayers.value = [
+      { position: 'G1', player: props.guestPlayers.filter(player => player.position === 'G1')[0]?.player },
+      { position: 'G2', player: props.guestPlayers.filter(player => player.position === 'G2')[0]?.player },
+      { position: 'G3', player: props.guestPlayers.filter(player => player.position === 'G3')[0]?.player },
+      { position: 'G4', player: props.guestPlayers.filter(player => player.position === 'G4')[0]?.player },
+      { position: 'G5', player: props.guestPlayers.filter(player => player.position === 'G5')[0]?.player },
+      { position: 'G6', player: props.guestPlayers.filter(player => player.position === 'G6')[0]?.player },
+      { position: 'G7', player: props.guestPlayers.filter(player => player.position === 'G7')[0]?.player },
+      { position: 'G8', player: props.guestPlayers.filter(player => player.position === 'G8')[0]?.player },
+    ]
+    currentGuestTeamPlayers.value = [
+      { position: 'G1', player: props.guestPlayers.filter(player => player.position === 'G1')[0]?.player },
+      { position: 'G2', player: props.guestPlayers.filter(player => player.position === 'G2')[0]?.player },
+      { position: 'G3', player: props.guestPlayers.filter(player => player.position === 'G3')[0]?.player },
+      { position: 'G4', player: props.guestPlayers.filter(player => player.position === 'G4')[0]?.player },
+      { position: 'G5', player: props.guestPlayers.filter(player => player.position === 'G5')[0]?.player },
+      { position: 'G6', player: props.guestPlayers.filter(player => player.position === 'G6')[0]?.player },
+      { position: 'G7', player: props.guestPlayers.filter(player => player.position === 'G7')[0]?.player },
+      { position: 'G8', player: props.guestPlayers.filter(player => player.position === 'G8')[0]?.player },
+    ]
+    hLegs.value = [props.matchLegs.game1.home, props.matchLegs.game2.home, props.matchLegs.game3.home, props.matchLegs.game4.home]
+    gLegs.value = [props.matchLegs.game1.guest, props.matchLegs.game2.guest, props.matchLegs.game3.guest, props.matchLegs.game4.guest]
+    const unsetHomePlayers = currentHomeTeamPlayers.value.slice(0, 4).filter(player => !player.player).map(player => player.position)
+    const unsetGuestPlayers = currentGuestTeamPlayers.value.slice(0, 4).filter(player => !player.player).map(player => player.position)
+    for (let i = 0; i < currentMatch.length; i++) {
+      const homeUnset = unsetHomePlayers.includes(`H${currentMatch[i].home}`)
+      const guestUnset = unsetGuestPlayers.includes(`G${currentMatch[i].guest}`)
+      if (homeUnset) {
+        hLegs.value[i] = 0
+      }
+      if (guestUnset) {
+        gLegs.value[i] = 0
+      }
+      if (homeUnset && !guestUnset) {
+        gLegs.value[i] = 2
+      }
+      if (guestUnset && !homeUnset) {
+        hLegs.value[i] = 2
+      }
+    }
+  }
+  initialDataLoad()
 
   const setGuestPlayers = () => {
     currentGuestTeamPlayers.value = [
@@ -285,27 +341,6 @@
     currentHomeTeamPlayers.value = JSON.parse(JSON.stringify(updatedPlayers))
     emits('update:roster-home', currentHomeTeamPlayers.value)
   }
-
-  const previousGuestTeamPlayers = ref([
-    { position: 'G1', player: props.guestPlayers.filter(player => player.position === 'G1')[0]?.player },
-    { position: 'G2', player: props.guestPlayers.filter(player => player.position === 'G2')[0]?.player },
-    { position: 'G3', player: props.guestPlayers.filter(player => player.position === 'G3')[0]?.player },
-    { position: 'G4', player: props.guestPlayers.filter(player => player.position === 'G4')[0]?.player },
-    { position: 'G5', player: props.guestPlayers.filter(player => player.position === 'G5')[0]?.player },
-    { position: 'G6', player: props.guestPlayers.filter(player => player.position === 'G6')[0]?.player },
-    { position: 'G7', player: props.guestPlayers.filter(player => player.position === 'G7')[0]?.player },
-    { position: 'G8', player: props.guestPlayers.filter(player => player.position === 'G8')[0]?.player },
-  ])
-  const currentGuestTeamPlayers = ref([
-    { position: 'G1', player: props.guestPlayers.filter(player => player.position === 'G1')[0]?.player },
-    { position: 'G2', player: props.guestPlayers.filter(player => player.position === 'G2')[0]?.player },
-    { position: 'G3', player: props.guestPlayers.filter(player => player.position === 'G3')[0]?.player },
-    { position: 'G4', player: props.guestPlayers.filter(player => player.position === 'G4')[0]?.player },
-    { position: 'G5', player: props.guestPlayers.filter(player => player.position === 'G5')[0]?.player },
-    { position: 'G6', player: props.guestPlayers.filter(player => player.position === 'G6')[0]?.player },
-    { position: 'G7', player: props.guestPlayers.filter(player => player.position === 'G7')[0]?.player },
-    { position: 'G8', player: props.guestPlayers.filter(player => player.position === 'G8')[0]?.player },
-  ])
   const guestTeamPlayersSubstitutes = computed(() => currentGuestTeamPlayers.value
     .filter(player => ['G5', 'G6', 'G7', 'G8'].includes(player.position) && !!player.player?.id)
     .map(player => ({ ...player.player }))
@@ -322,9 +357,6 @@
     currentGuestTeamPlayers.value = JSON.parse(JSON.stringify(updatedPlayers))
     emits('update:roster-guest', currentGuestTeamPlayers.value)
   }
-
-  const hLegs = ref([props.matchLegs.game1.home, props.matchLegs.game2.home, props.matchLegs.game3.home, props.matchLegs.game4.home])
-  const gLegs = ref([props.matchLegs.game1.guest, props.matchLegs.game2.guest, props.matchLegs.game3.guest, props.matchLegs.game4.guest])
 
   const hLegItems = computed(() =>
     hLegs.value.map((_, i) => {
@@ -359,6 +391,14 @@
     return team === 'home'
       ? props.originalHomePlayers.find(player => player.player?.id === playerId)?.position
       : props.originalGuestPlayers.find(player => player.player?.id === playerId)?.position
+  }
+
+  const isGhostPlayer = (match: {
+    guest: number;
+    home: number;
+    type: MatchType;
+  }) => {
+    return !currentHomeTeamPlayers.value[match.home - 1]?.player?.id || !currentGuestTeamPlayers.value[match.guest - 1]?.player?.id
   }
 
   watch(hLegs, () => {
