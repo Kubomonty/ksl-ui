@@ -130,7 +130,7 @@
     { title: i18n.t('new'), value: MatchStatus.NEW },
     { title: i18n.t('canceled'), value: MatchStatus.CANCELED },
   ]
-  const filter = ref([])
+  const filter = ref([MatchStatus.FINISHED, MatchStatus.IN_PROGRESS, MatchStatus.NEW])
 
   const showScore = (match: MatchDto): boolean => {
     return [MatchStatus.NEW, MatchStatus.IN_PROGRESS, MatchStatus.FINISHED].includes(match.status as MatchStatus)
