@@ -191,10 +191,6 @@
   })
 
   const playersSelected = computed(() => {
-    if (!canSubstitute.value.guest || !canSubstitute.value.home) {
-      return false
-    }
-
     if (props.guestPlayers.filter(player => player.player?.id).length === 3 && props.selectedGuestPlayers.filter(player => player.player?.id).length < 3) {
       return false
     }
